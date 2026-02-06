@@ -1,0 +1,6339 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Raidex Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+      /* --- Styles الأساسيه --- */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background: #0b1220;
+        color: white;
+        overflow: hidden;
+      }
+      /* Loading */
+      .loading-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        background: #000;
+      }
+      .loading-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .loading-bar {
+        position: absolute;
+        bottom: 50px;
+        left: 10%;
+        width: 80%;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        overflow: hidden;
+        text-align: center;
+        line-height: 30px;
+      }
+      .loading-fill {
+        width: 0%;
+        height: 100%;
+        background: #007bff;
+        transition: width 0.3s;
+        color: white;
+        font-weight: bold;
+      }
+      /* Character */
+      #character-screen {
+        display: none;
+        height: 100vh;
+        background: #0b1220;
+        text-align: center;
+        padding-top: 30px;
+        z-index: 50;
+        position: relative;
+      }
+      .characters {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        align-items: center;
+      }
+      .char {
+        background: #1e293b;
+        padding: 15px;
+        border-radius: 15px;
+        width: 60%;
+        max-width: 400px;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .char:hover {
+        transform: scale(1.05);
+      }
+      .char img {
+        width: 100%;
+        border-radius: 10px;
+      }
+    /* City */
+#city-screen {
+  display: none;
+  height: 100vh;
+  background: #121a2f;
+  position: relative;
+}
+
+.right-arrow-menu {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: none; /* خليها none */
+}
+
+/* زر السهم على اليمين */
+.right-arrow-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ffd66b;
+  background: #1b1b2f;
+  color: #ffd66b;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.right-arrow-btn:hover {
+  background: #ffd66b;
+  color: #1b1b2f;
+  transform: scale(1.05);
+}
+
+/* دوران السهم لما القائمة تفتح */
+.right-arrow-btn.open {
+  transform: rotate(180deg);
+}
+
+/* صندوق القائمة + أنيميشن السلايد */
+.right-options {
+  position: absolute;
+  top: 50%;
+  right: 50px;
+  transform: translateY(-50%) translateX(100%);
+  background: rgba(15, 15, 25, 0.95);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 160px;
+  transition: transform 0.25s ease-out;
+}
+
+.right-options.open {
+  transform: translateY(-50%) translateX(0);
+}
+
+/* تكبير الأيقونات جوه القائمة */
+.icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid #ffd66b;
+  background: #26293f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.icon-circle:hover {
+  background: #ffd66b;
+  transform: translateY(-2px);
+}
+
+
+/* حاوية الأيقونات */
+.right-options {
+  position: absolute;
+  top: 50%;
+  right: 60px;
+  transform: translateY(-50%) translateX(20px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.right-options.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* الدوائر */
+.icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-circle span {
+  font-size: 18px;
+}
+
+      /* Top bar */
+      #top-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 0 15px;
+        z-index: 100;
+      }
+      #player-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid gold;
+      }
+      #resources {
+        display: flex;
+        gap: 10px;
+        font-size: 13px;
+      }
+      /* Bottom bar */
+ #bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.6));
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+  border-top: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+
+ .bar-item {
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  color: #e5e7eb;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.bar-item-active {
+  background: linear-gradient(135deg, #0ea5e9, #22c55e);
+  color: #0b1120;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.bar-item-active span {
+  color: #0b1120;
+}
+
+
+.bar-item:hover {
+  background: rgba(148, 163, 184, 0.15);
+  transform: translateY(-2px);
+}
+
+.bar-item span {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+      /* Invite */
+      #invite-btn {
+        position: fixed;
+        right: 12px;
+        bottom: 90px;
+        width: 55px;
+        height: 55px;
+        background: #c62828;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        cursor: pointer;
+        z-index: 150;
+      }
+      .full-page {
+        position: fixed;
+        inset: 0;
+        background: #1b1b1b;
+        display: flex;
+        flex-direction: column;
+        z-index: 200;
+      }
+      .hidden {
+        display: none;
+      }
+      .page-header {
+        height: 55px;
+        background: #8e0000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 15px;
+      }
+      .page-header span {
+        font-weight: bold;
+        font-size: 18px;
+      }
+      .page-header button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+      }
+      .page-sub {
+        background: #b71c1c;
+        text-align: center;
+        padding: 8px;
+        font-weight: bold;
+      }
+      .page-content {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+      }
+      /* Profile */
+      #stats-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.95);
+        z-index: 300;
+        justify-content: flex-start;
+        align-items: center;
+        overflow-y: auto;
+        padding-top: 20px;
+      }
+      #stats-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        margin: auto;
+        color: #000;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+      #stats-content .hero-img img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid gold;
+      }
+      #stats-content .profile-name {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+      #stats-content .profile-sub {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .army-card {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 8px;
+        margin: 8px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f9f9f9;
+      }
+      .army-card span {
+        margin: 0 5px;
+        font-weight: bold;
+      }
+      #stats-content button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+      #stats-content button:hover {
+        background: #0056b3;
+      }
+      /* Castle */
+      #castle-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.95);
+        z-index: 350;
+        overflow-y: auto;
+        padding-top: 20px;
+        justify-content: flex-start;
+        align-items: center;
+      }
+      #castle-content {
+        background: #fff;
+        width: 90%;
+        max-width: 500px;
+        margin: auto;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        color: #000;
+      }
+      #castle-content h2 {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      #castle-content .castle-info {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      #castle-content .castle-info img {
+        width: 100px;
+        height: 100px;
+        border-radius: 10px;
+      }
+      #castle-content .castle-text {
+        flex: 1;
+      }
+      #castle-content button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      #castle-content button:hover {
+        background: #0056b3;
+      }
+      .progress-bar-container {
+        width: 100%;
+        height: 25px;
+        background: #ccc;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: #007bff;
+        text-align: center;
+        color: white;
+        line-height: 25px;
+        font-weight: bold;
+      }
+      /* Hero Selection */
+      #hero-selection {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 400;
+      }
+      #hero-selection > div {
+        text-align: center;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        max-width: 350px;
+        width: 90%;
+      }
+      #hero-selection img {
+        cursor: pointer;
+        border: 2px solid gold;
+        border-radius: 50%;
+      }
+      #hero-selection.hidden {
+        display: none;
+      }
+      #hero-selection h3 {
+        margin: 0 0 10px 0;
+      }
+      #hero-selection button {
+        margin-top: 15px;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 10px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+      /* Task Page */
+      .task-item {
+        background: rgba(255, 255, 255, 0.1);
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .task-item.completed {
+        text-decoration: line-through;
+        color: #0f0;
+      }
+
+      /* ======================================================
+         ORIGINAL CSS (UNCHANGED)
+         ====================================================== */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background: #0b1220;
+        color: white;
+        overflow: hidden;
+      }
+
+      /* ======================================================
+         ADDED BY CHATGPT - UI VARIABLES
+         ====================================================== */
+      :root {
+        --panel-bg: rgba(30, 41, 59, 0.85);
+        --gold: #facc15;
+        --accent: #38bdf8;
+      }
+
+      /* ======================================================
+         ADDED BY CHATGPT - PROFILE WRAPPER
+         ====================================================== */
+      .profile-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 10px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .profile-wrapper:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: scale(1.05);
+      }
+
+      .profile-wrapper:hover img {
+        box-shadow: 0 0 15px rgba(250, 204, 21, 0.8);
+        transform: scale(1.1);
+      }
+
+      /* ======================================================
+         ADDED BY CHATGPT - RESOURCE BOX STYLE
+         ====================================================== */
+      #resources div {
+        background: var(--panel-bg);
+        padding: 6px 10px;
+        border-radius: 12px;
+        min-width: 55px;
+        text-align: center;
+        transition: 0.25s;
+      }
+
+      #resources div:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+      }
+
+      /* ======================================================
+         ADDED BY CHATGPT - MENU BUTTON & DROPDOWN
+         ====================================================== */
+     #menu-btn {
+  font-size: 26px;
+  cursor: pointer;
+  margin-left: 10px;
+  user-select: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  position: relative;   /* سطر جديد مهم */
+  z-index: 10001;       /* أعلى من 9999 بتاع البانلات */
+}
+
+
+      #menu-btn:active {
+      background: rgba(255, 255, 255, 0.15);
+      }
+
+      #menu-dropdown {
+        display: none;
+        position: absolute;
+        top: 85px;
+        right: 15px;
+        background: var(--panel-bg);
+        border-radius: 14px;
+        padding: 10px;
+        width: 180px;
+        z-index: 300;
+      }
+
+      .menu-item {
+        padding: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .menu-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+          #settings-screen {
+      position: fixed;
+      inset: 0;
+      background: #0b1220;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+    }
+
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px;
+      font-size: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .settings-header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+    }
+
+    .settings-content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .setting-item {
+      background: rgba(255,255,255,0.08);
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 18px;
+}
+
+/* ===== Chat Panel between top and bottom bars ===== */
+#chat-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 80px;
+  bottom: 70px;
+  background: rgba(15, 23, 42, 0.97);
+  z-index: 250;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.25s ease-out;
+}
+
+#chat-panel.chat-hidden {
+  display: none;
+  pointer-events: none;
+  transform: translateY(100%);
+}
+
+#chat-panel.chat-visible {
+  display: flex;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+
+
+/* حالة مخفية / ظاهرة */
+#chat-panel.chat-hidden {
+  pointer-events: none;
+  transform: translateY(100%);
+}
+#chat-panel.chat-visible {
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* الهيدر + السهم + التابات */
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+  gap: 8px;
+}
+
+.chat-back-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.chat-tabs {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+}
+
+.chat-tab {
+  flex: 1;
+  background: rgba(30, 41, 59, 0.9);
+  border: none;
+  border-radius: 999px;
+  color: #e5e7eb;
+  font-size: 12px;
+  padding: 6px 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chat-tab.active {
+  background: #0ea5e9;
+  color: #0b1120;
+  font-weight: bold;
+}
+
+/* جسم الشات */
+.chat-body {
+  flex: 1;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.chat-messages {
+  height: 100%;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+.chat-message {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.chat-message.me {
+  text-align: right;
+  color: #facc15;
+}
+
+.chat-message.system {
+  text-align: center;
+  color: #f97316;
+}
+
+/* حقل الإدخال */
+.chat-input-row {
+  display: flex;
+  padding: 8px;
+  gap: 6px;
+  border-top: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+#chat-input {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: #fff;
+  padding: 6px 10px;
+  outline: none;
+  font-size: 13px;
+}
+
+#chat-send-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #0ea5e9;
+  color: #0b1120;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* لإعادة استخدام class مخفي */
+.chat-hidden {
+  display: none;
+}
+.chat-message {
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+/* يخلي الصورة + الاسم + الفقاعة في صف واحد */
+.chat-msg-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* صورة + اسم فوق بعضها */
+.chat-user {
+  display: flex;
+  flex-direction: column; /* الاسم تحت الصورة */
+  align-items: center;
+  cursor: pointer;
+}
+
+/* تكبير/تصغير الصورة وتدويرها */
+.chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;      /* مدوّرة */
+  border: 2px solid #facc15;
+  object-fit: cover;       /* تقص الصورة صح */
+}
+
+/* الاسم تحت الصورة */
+.chat-name {
+  font-size: 11px;
+  color: #e5e7eb;
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* الفقاعة اللي فيها الكلام */
+.chat-bubble {
+  background: rgba(30, 64, 175, 0.9);
+  border-radius: 10px;
+  padding: 4px 8px;
+  max-width: 75%;
+}
+
+.chat-text {
+  font-size: 13px;
+  color: #f9fafb;
+}
+#tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#tutorial-box {
+  background: #020617;
+  border-radius: 16px;
+  padding: 16px 20px;
+  max-width: 320px;
+  color: #f9fafb;
+  text-align: center;
+  border: 2px solid #facc15;
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
+}
+
+#tutorial-text {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#tutorial-next {
+  margin-top: 12px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: none;
+  background: #facc15;
+  color: #111827;
+  font-weight: bold;
+  cursor: pointer;
+}
+/* ===== Castle Panel بسيط بين الـ top-bar و bottom-bar ===== */
+#castle-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 80px;     /* نفس ارتفاع الـ top-bar */
+  bottom: 70px;  /* نفس ارتفاع الـ bottom-bar */
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 240;
+  color: #fff;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+#castle-panel.castle-hidden {
+  display: none;
+}
+
+#castle-panel.castle-visible {
+  display: block;
+}
+/* هيدر Castle Panel */
+.castle-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.castle-back-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.castle-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.castle-panel-body {
+  margin-top: 6px;
+  font-size: 14px;
+}
+/* تبويبات القلعة */
+.castle-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.castle-tab-button {
+  flex: 1;
+  border: none;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.9);
+  color: #e5e7eb;
+  font-size: 13px;
+  padding: 6px 4px;
+  cursor: pointer;
+}
+
+.castle-tab-button.active {
+  background: #0ea5e9;
+  color: #0b1120;
+  font-weight: bold;
+}
+
+/* محتوى التبويب */
+.castle-tab-content {
+  display: none;
+}
+
+.castle-tab-content.active {
+  display: block;
+}
+
+/* صف معلومات/تكلفة */
+.castle-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 4px;
+  margin-bottom: 4px;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* زر بدء الترقية */
+.castle-upgrade-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 0;
+  border: none;
+  border-radius: 10px;
+  background: #0ea5e9;
+  color: #0b1120;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* شريط التقدم */
+.castle-progress-wrapper {
+  margin-top: 10px;
+}
+
+.castle-progress-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.castle-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: #22c55e;
+}
+
+.castle-progress-time {
+  margin-top: 4px;
+  font-size: 12px;
+  text-align: center;
+}
+
+
+  .hidden {
+    display: none !important;
+  }
+  /* Resource Shop between top and bottom bars */
+#resource-shop-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 80px;    /* نفس ارتفاع الـ top-bar */
+  bottom: 70px; /* نفس ارتفاع الـ bottom-bar */
+  background: rgba(15, 23, 42, 0.97);
+  z-index: 260;
+  display: flex;
+  flex-direction: column;
+}
+
+#resource-shop-panel.hidden {
+  display: none;
+}
+
+#resource-shop-panel .page-header {
+  height: 55px;
+  background: #8e0000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+}
+
+#resource-shop-panel .page-sub {
+  background: #b71c1c;
+  text-align: center;
+  padding: 8px;
+  font-weight: bold;
+}
+
+#resource-shop-panel .page-content {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+/* === Unified game pages between top (80px) and bottom (70px) === */
+.game-page-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 80px;   /* تحت الـ top-bar */
+  bottom: 70px;/* فوق الـ bottom-bar */
+  background: rgba(15, 23, 42, 0.97);
+  z-index: 240;
+  display: flex;
+  flex-direction: column;
+}
+
+/* اللي مقفول */
+.game-page-hidden {
+  display: none !important;
+}
+
+/* نحسّن صفحات الـ header/sub/content اللي عندك */
+.game-page-panel .page-header {
+  height: 55px;
+  background: #8e0000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.game-page-panel .page-sub {
+  background: #b71c1c;
+  text-align: center;
+  padding: 8px;
+  font-weight: bold;
+}
+
+.game-page-panel .page-content {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+/* Profile card styling */
+.profile-card {
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(248, 250, 252, 0.06);
+}
+
+.profile-card-top {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.profile-hero-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #facc15;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(250, 204, 21, 0.7);
+}
+
+.profile-hero-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.profile-main-info .profile-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.profile-main-info .profile-meta {
+  font-size: 13px;
+  color: #e5e7eb;
+  margin-top: 2px;
+}
+
+.profile-main-info .profile-sub {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.profile-stat {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 10px;
+  padding: 6px 8px;
+  text-align: center;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.profile-stat .label {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.profile-stat .value {
+  font-size: 15px;
+  font-weight: bold;
+  color: #f9fafb;
+}
+.profile-army {
+  margin-top: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.profile-army-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.profile-army-note {
+  font-size: 11px;
+  color: #9ca3af;
+}
+.army-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.army-slot {
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 10px;
+  padding: 6px 4px;
+  text-align: center;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+}
+
+.army-slot-icon {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 4px auto;
+  border-radius: 8px;
+  background: rgba(31, 41, 55, 0.9);
+  border: 1px dashed rgba(148, 163, 184, 0.8);
+}
+
+.army-slot-count {
+  font-size: 12px;
+  color: #e5e7eb;
+  font-weight: bold;
+}
+
+.profile-heroes {
+  margin-top: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.profile-heroes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.profile-heroes-note {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.heroes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.hero-slot {
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 10px;
+  padding: 6px 4px;
+  text-align: center;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+}
+
+.hero-slot-avatar {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 4px auto;
+  border-radius: 8px;
+  background: rgba(31, 41, 55, 0.9);
+  border: 1px dashed rgba(148, 163, 184, 0.8);
+}
+
+
+/* === Resource Shop Buttons Styling by type === */
+.resource-pack-btn {
+  width: 100%;
+  margin: 6px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.resource-pack-btn > div {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.resource-pack-btn .amount {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.resource-pack-btn .price {
+  font-size: 14px;
+}
+
+/* ذهب */
+.resource-pack-gold {
+  background: linear-gradient(135deg, #a16207, #facc15);
+  color: #111827;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+}
+
+/* خشب */
+.resource-pack-wood {
+  background: linear-gradient(135deg, #14532d, #4ade80);
+  color: #ecfdf5;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+/* لحم / أكل */
+.resource-pack-food {
+  background: linear-gradient(135deg, #7f1d1d, #f97373);
+  color: #fef2f2;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+}
+
+.resource-pack-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 12px rgba(148, 163, 184, 0.7);
+}
+
+/* نضمن إن #resource-shop-panel يستخدم نفس مساحة اللعبة */
+#resource-shop-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 80px;
+  bottom: 70px;
+  background: rgba(15, 23, 42, 0.97);
+  z-index: 260;
+  display: flex;
+  flex-direction: column;
+}
+
+#resource-shop-panel.hidden {
+  display: none;
+}
+
+    </style>
+  </head>
+  <body>
+    <!-- Loading -->
+    <div id="loading1" class="loading-container">
+      <img src="background1.png" />
+      <div class="loading-bar">
+        <div class="loading-fill" id="loading-fill1">0%</div>
+      </div>
+    </div>
+
+    <!-- Character Selection -->
+<div id="character-screen">
+  <h2>Choose Your Character</h2>
+  <div class="characters">
+    <div class="char" onclick="choose('elephant')">
+      <img src="elephant.png" />
+      <p>Elephant</p>
+    </div>
+    <div class="char" onclick="choose('tiger')">
+      <img src="tiger.png" />
+      <p>Tiger</p>
+    </div>
+    <div class="char" onclick="choose('kong')">
+      <img src="kong.png" />
+      <p>King Kong</p>
+    </div>
+  </div>
+</div>
+    <!-- City -->
+    <div id="city-screen"></div>
+
+    <!-- ======================================================
+         ORIGINAL BODY (UNCHANGED)
+         ====================================================== -->
+
+    <!-- MENU DROPDOWN -->
+    <!-- === ADDED BY CHATGPT === -->
+    <div id="menu-dropdown">
+      <div class="menu-item">⚙️ Settings</div>
+      <div class="menu-item">🔊 Sound</div>
+      <div class="menu-item">🌐 Language</div>
+    </div>
+<div class="right-arrow-menu">
+  <button id="right-arrow-btn" class="right-arrow-btn">
+    ❯
+  </button>
+
+  <div id="right-options" class="right-options">
+    <button class="icon-circle" id="pvp-icon">
+      <span>⚔️</span>
+    </button>
+    <button class="icon-circle" id="chat-icon">
+      <span>💬</span>
+    </button>
+    <button class="icon-circle" id="pass-icon">
+      <span>🎫</span>
+    </button>
+  </div>
+</div>
+
+    <!-- Invite -->
+    <div id="invite-btn">🎁</div>
+<div id="invites-page" class="game-page-panel game-page-hidden">
+      <div class="page-header">
+        <span>Invite Friends</span>
+        <button onclick="closeInvites()">← Back</button>
+      </div>
+      <div class="page-sub">Invite friends and earn rewards!</div>
+      <div class="page-content">
+        <div
+          id="invite-code-container"
+          style="text-align: center; margin: 20px 0"
+        >
+          <p style="font-weight: bold">Share this link:</p>
+          <input
+            type="text"
+            id="invite-link"
+            readonly
+            style="
+              width: 80%;
+              padding: 10px;
+              font-size: 16px;
+              border-radius: 8px;
+              text-align: center;
+            "
+          />
+          <br /><br />
+          <button
+            onclick="copyInviteLink()"
+            style="
+              padding: 10px 20px;
+              border: none;
+              border-radius: 8px;
+              background: #007bff;
+              color: white;
+              cursor: pointer;
+            "
+          >
+            Copy Link
+          </button>
+          <p
+            id="invite-msg"
+            style="margin-top: 10px; color: #0f0; font-weight: bold"
+          ></p>
+        </div>
+        <div id="invited-friends-container" style="padding: 0 15px">
+          <h4>Friends Joined:</h4>
+          <ul
+            id="invited-friends-list"
+            style="
+              list-style: none;
+              padding-left: 0;
+              max-height: 200px;
+              overflow-y: auto;
+            "
+          ></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Page (Unified Panel) -->
+<div id="stats-page" class="game-page-panel game-page-hidden">
+  <div class="page-header">
+    <span>Profile</span>
+    <button onclick="closeStats()">×</button>
+  </div>
+
+  <div class="page-sub">Your hero, power and progress</div>
+
+  <div class="page-content">
+    <div class="profile-card">
+      <div class="profile-card-top">
+        <div class="profile-hero-wrapper">
+          <img
+            id="profile-hero-img"
+            src="elephant.png"
+            alt="Hero"
+            onclick="changeHero()"
+          />
+        </div>
+        <div class="profile-main-info">
+          <div class="profile-name" id="profile-name">Player</div>
+          <div class="profile-meta" id="profile-meta">
+            Castle Lv. 1 • Power 0
+          </div>
+          <div class="profile-sub" id="profile-sub">
+            Joined: 0 days | Clan: None
+          </div>
+        </div>
+      </div>
+
+        <div class="profile-stats-grid">
+        <div class="profile-stat">
+          <div class="label">Castle</div>
+          <div class="value" id="profile-castle-level">1</div>
+        </div>
+        <div class="profile-stat">
+          <div class="label">Buildings</div>
+          <div class="value" id="profile-buildings-level">0</div>
+        </div>
+        <div class="profile-stat">
+          <div class="label">Power</div>
+          <div class="value" id="profile-power">0</div>
+        </div>
+      </div>
+
+      <!-- Army grid -->
+<div class="profile-army-header">
+  <span>Army</span>
+  <span class="profile-army-note">
+    ⚔ ATK: <span id="profile-army-atk">0</span> • ❤ HP: <span id="profile-army-hp">0</span>
+  </span>
+</div>
+
+  <div class="army-grid">
+    <!-- 12 أماكن جنود -->
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+    <div class="army-slot"><div class="army-slot-icon"></div><div class="army-slot-count">0</div></div>
+  </div>
+</div>
+
+
+      <!-- Heroes owned grid -->
+<div class="profile-heroes">
+  <div class="profile-heroes-header">
+    <span>Heroes</span>
+    <span class="profile-heroes-note">Tap a hero to view</span>
+  </div>
+
+  <div class="heroes-grid">
+    <!-- 12 أماكن أبطال (نملأهم بعدين من الجافاسكربت) -->
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+    <div class="hero-slot"><div class="hero-slot-avatar"></div></div>
+  </div>
+</div>
+  <div id="army-container" style="display: none;"></div>
+<button onclick="closeStats()" style="margin-top: 16px; width: 100%;">
+
+
+  ← Back
+</button>
+
+  </div>
+</div>
+
+
+
+    <!-- Hero Selection Modal -->
+    <div id="hero-selection" class="hidden">
+      <div>
+        <h3>Select Your Hero</h3>
+        <div
+          style="display: flex; justify-content: space-around; margin-top: 15px"
+        >
+          <img
+            src="elephant.png"
+            width="80"
+            height="80"
+            onclick="selectHero('elephant')"
+          />
+          <img
+            src="tiger.png"
+            width="80"
+            height="80"
+            onclick="selectHero('tiger')"
+          />
+          <img
+            src="kong.png"
+            width="80"
+            height="80"
+            onclick="selectHero('kong')"
+          />
+        </div>
+        <button onclick="closeHeroSelection()">Cancel</button>
+      </div>
+    </div>
+<!-- Resource Shop Panel بين الـ top-bar والـ bottom-bar -->
+<div id="resource-shop-panel" class="game-page-panel game-page-hidden">
+  <div class="page-header">
+    <span id="resource-shop-title">شراء الموارد</span>
+    <button onclick="closeResourceShop()">✖</button>
+  </div>
+  <div class="page-sub" id="resource-shop-sub">
+    اختر باقة الموارد التي تريد شراءها بالجواهر
+  </div>
+  <div class="page-content" id="resource-shop-content">
+    <!-- الباقات هتتولد ديناميكياً من JavaScript -->
+  </div>
+</div>
+
+    <!-- Tasks Page -->
+<div id="tasks-page" class="game-page-panel game-page-hidden">
+      <div class="page-header">
+        <span>Daily Tasks</span>
+        <button onclick="closeTasksPage()">← Back</button>
+      </div>
+      <div class="page-sub">Complete tasks and earn rewards!</div>
+      <div class="page-content" id="tasks-page-content">
+        <!-- المهام سيتم وضعها هنا -->
+      </div>
+    </div>
+<!-- Clan Panel بين الـ top-bar والـ bottom-bar -->
+<div id="clan-page" class="game-page-panel game-page-hidden">
+  <div class="page-header">
+    <span id="clan-header-title">Clans</span>
+    <button onclick="closeClanPage()">✖</button>
+  </div>
+
+  <div class="page-sub" id="clan-header-sub">
+    Join or create a clan to play with others
+  </div>
+
+  <div class="page-content">
+    <!-- لو اللاعب مش في كلان: واجهة Guest -->
+    <div id="clan-guest-view">
+      <!-- زر إنشاء كلان فوق -->
+      <div style="margin-bottom: 10px; text-align: right;">
+        <button id="clan-create-top-btn"
+                style="padding:8px 14px; border:none; border-radius:999px; background:#22c55e; color:#0b1120; font-weight:bold; cursor:pointer; font-size:13px;">
+          + Create Clan
+        </button>
+      </div>
+
+      <!-- قائمة الكلانات المتاحة -->
+      <div>
+        <h4 style="margin: 0 0 6px 0;">Available Clans</h4>
+        <div id="clan-list"
+             style="max-height: 260px; overflow-y: auto; padding-right:4px;">
+          <!-- هنملأه من الجافاسكربت -->
+        </div>
+      </div>
+    </div>
+
+  <div id="clan-member-view" style="display:none;">
+  <!-- هيدر الكلان -->
+  <div id="clan-member-header"
+       style="padding:10px; margin-bottom:10px; border-radius:10px; background:rgba(15,23,42,0.9); border:1px solid rgba(148,163,184,0.4); font-size:13px;">
+    <div id="clan-member-name" style="font-weight:bold; font-size:14px;"></div>
+    <div id="clan-member-role" style="color:#9ca3af; margin-top:2px;"></div>
+    <div id="clan-member-count" style="color:#9ca3af; margin-top:2px;"></div>
+  </div>
+
+  <!-- زر الخروج من الكلان -->
+  <button id="clan-leave-btn"
+          style="padding:6px 12px; border:none; border-radius:999px; background:#ef4444; color:#0b1120; font-size:12px; font-weight:bold; cursor:pointer; margin-bottom:10px;">
+    Leave Clan
+  </button>
+
+  <!-- شريط التبويبات -->
+  <div id="clan-tabs-row"
+       style="display:flex; border-bottom:1px solid #374151; margin-bottom:8px; font-size:12px;">
+    <button class="clan-tab-btn" data-tab="overview"
+            style="flex:1; padding:6px 0; border:none; background:transparent; color:#facc15; font-weight:bold; cursor:pointer;">
+      Overview
+    </button>
+    <button class="clan-tab-btn" data-tab="members"
+            style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
+      Members
+    </button>
+    <button class="clan-tab-btn" data-tab="chat"
+            style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
+      Chat
+    </button>
+    <button class="clan-tab-btn" data-tab="wars"
+            style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
+      Wars
+    </button>
+    <button class="clan-tab-btn" data-tab="settings"
+            style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
+      Settings
+    </button>
+  </div>
+
+  <!-- محتوى التبويبات -->
+  <div id="clan-tab-overview" class="clan-tab-panel" style="font-size:12px;">
+    <div style="margin-bottom:6px; color:#9ca3af;">
+      Basic clan stats and info will appear here.
+    </div>
+    <div id="clan-overview-extra"></div>
+  </div>
+
+  <div id="clan-tab-members" class="clan-tab-panel" style="display:none; font-size:12px;">
+    Members list and roles will appear here.
+  </div>
+
+  <div id="clan-tab-chat" class="clan-tab-panel" style="display:none; font-size:12px;">
+    Clan chat integration will appear here.
+  </div>
+
+  <div id="clan-tab-wars" class="clan-tab-panel" style="display:none; font-size:12px;">
+    Clan wars/raids info will appear here.
+  </div>
+
+  <div id="clan-tab-settings" class="clan-tab-panel" style="display:none; font-size:12px;">
+    Settings (leader only) will appear here.
+  </div>
+</div>
+
+
+<!-- Castle Panel (ثابت بين الـ top-bar و bottom-bar) -->
+<div id="castle-panel" class="castle-hidden">
+  <div class="castle-panel-header">
+    <button id="castle-back-btn" class="castle-back-btn">←</button>
+    <div class="castle-title">القلعة</div>
+  </div>
+
+  <div class="castle-panel-body">
+    <!-- شريط التبويبات -->
+    <div class="castle-tabs">
+      <button class="castle-tab-button active" data-tab="castle-info-tab">معلومات</button>
+      <button class="castle-tab-button" data-tab="castle-upgrade-tab">ترقية</button>
+    </div>
+
+    <!-- محتوى التبويب: معلومات -->
+    <div id="castle-info-tab" class="castle-tab-content active">
+      <div class="castle-info-row">
+        <span>مستوى القلعة:</span>
+        <span id="castle-info-level">1</span>
+      </div>
+      <div class="castle-info-row">
+        <span>قوة القلعة:</span>
+        <span id="castle-info-power">0</span>
+      </div>
+      <div class="castle-info-row">
+        <span>سعة التخزين الكلية:</span>
+        <span id="castle-info-storage">0</span>
+      </div>
+    </div>
+
+    <!-- محتوى التبويب: ترقية -->
+    <div id="castle-upgrade-tab" class="castle-tab-content">
+      <div class="castle-info-row">
+        <span>من المستوى:</span>
+        <span id="castle-upgrade-current-level">1</span>
+      </div>
+      <div class="castle-info-row">
+        <span>إلى المستوى:</span>
+        <span id="castle-upgrade-next-level">2</span>
+      </div>
+
+      <div class="castle-info-row">
+        <span>تكلفة ذهب:</span>
+        <span id="castle-upgrade-gold-cost">0</span>
+      </div>
+      <div class="castle-info-row">
+        <span>تكلفة خشب:</span>
+        <span id="castle-upgrade-wood-cost">0</span>
+      </div>
+      <div class="castle-info-row">
+        <span>تكلفة لحم:</span>
+        <span id="castle-upgrade-food-cost">0</span>
+      </div>
+      <div class="castle-info-row">
+        <span>وقت الترقية:</span>
+        <span id="castle-upgrade-time">0 ثانية</span>
+      </div>
+
+      <div id="castle-upgrade-required-buildings"></div>
+
+      <button id="castle-start-upgrade-btn" class="castle-upgrade-btn">
+        بدء الترقية
+      </button>
+
+      <div id="castle-upgrade-progress-wrapper" class="castle-progress-wrapper" style="display:none;">
+        <div class="castle-progress-bar">
+          <div id="castle-upgrade-progress-fill" class="castle-progress-fill"></div>
+        </div>
+        <div class="castle-progress-time">
+          متبقٍ: <span id="castle-upgrade-remaining-time">0</span> ث
+        </div>
+        <button id="castle-cancel-upgrade-btn" class="castle-cancel-btn">
+          إلغاء الترقية
+        </button>
+      </div>
+    </div> <!-- نهاية تبويب الترقية -->
+  </div>   <!-- نهاية castle-panel-body -->
+</div>     <!-- نهاية castle-panel -->
+
+<!-- Building Panel (نركّنه شوية، مش هنستخدمه دلوقتي) -->
+<div id="building-panel" class="full-page hidden">
+  <div class="page-content" style="max-width: 320px; margin:auto; margin-top: 30vh; background:#1e293b; color:#fff; padding:16px; border-radius:14px;">
+    <h3 id="building-panel-title" style="margin-top:0; margin-bottom:8px; text-align:center;"></h3>
+    <div id="building-panel-level" style="margin-bottom:6px; font-size:14px;"></div>
+    <div id="building-panel-desc" style="margin-bottom:10px; font-size:13px; color:#9ca3af;"></div>
+
+    <div style="border-top:1px solid rgba(148,163,184,0.5); margin:8px 0; padding-top:8px; font-size:13px;">
+      <div>تكلفة الترقية:</div>
+      <div id="building-panel-cost" style="margin-top:4px;"></div>
+    </div>
+
+    <button id="building-panel-upgrade-btn" style="width:100%; padding:8px; border:none; border-radius:10px; background:#0ea5e9; color:#0b1120; font-weight:bold; cursor:pointer; margin-top:4px;">
+      ترقية المبنى
+    </button>
+    <button id="building-panel-close-btn" style="width:100%; padding:7px; border:none; border-radius:10px; background:#4b5563; color:#e5e7eb; cursor:pointer; margin-top:6px;">
+      إغلاق
+    </button>
+  </div>
+</div>
+
+<script>
+
+
+      // Telegram ready
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+
+      /* --- Variables أساسية --- */
+      const heroes = {
+        elephant: { attack: 50, hp: 100 },
+        tiger: { attack: 120, hp: 50 },
+        kong: { attack: 80, hp: 80 },
+      };
+
+      document.addEventListener("click", (e) => {
+        const btn = document.getElementById("menu-btn");
+        const menu = document.getElementById("menu-dropdown");
+        if (!btn || !menu) return;
+
+        if (btn.contains(e.target)) {
+          menu.style.display =
+            menu.style.display === "block" ? "none" : "block";
+        } else if (!menu.contains(e.target)) {
+          menu.style.display = "none";
+        }
+      });
+          function openSettings() {
+      document.getElementById("settings-screen").style.display = "flex";
+    }
+
+    function closeSettings() {
+      document.getElementById("settings-screen").style.display = "none";
+    }
+
+
+let currentHero = "";
+let resources = { gold: 100000, wood: 100000, food: 1000000, gem: 500 };
+let army = [
+  {
+    name: "Soldier",
+    attack: 50,
+    defense: 30,
+    capacity: 100,
+    img: "soldier.png",
+  },
+];
+// ===== Resource Shop (شراء الموارد بالجواهر) =====
+const RESOURCE_PACKS = [
+  { amount: 15000,   costGem: 35 },
+  { amount: 50000,   costGem: 100 },
+  { amount: 100000,  costGem: 190 },
+  { amount: 200000,  costGem: 260 },
+  { amount: 600000,  costGem: 650 },
+  { amount: 1200000, costGem: 1100 },
+  { amount: 5000000, costGem: 3500 },
+  { amount: 15000000, costGem: 10000 },
+];
+
+
+
+function closeResourceShop() {
+  const panel = document.getElementById("resource-shop-panel");
+  if (panel) panel.classList.add("hidden");
+}
+
+function buyResourcePack(resourceType, amount, gemCost) {
+  if (resources.gem < gemCost) {
+    alert("الجواهر غير كافية!");
+    return;
+  }
+
+  // خصم الجواهر
+  resources.gem -= gemCost;
+
+  // إضافة المورد المطلوب
+  resources[resourceType] += amount;
+
+  // حفظ
+  saveGameState();
+
+  // تحديث الموارد في الـ top bar
+  if (typeof updateTopBar === "function") {
+    updateTopBar();
+  }
+
+  alert(`تم شراء ${amount.toLocaleString()} ${resourceType} بنجاح!`);
+}
+
+// ---------------- مباني المدينة ----------------
+
+// مستويات المباني (مبدئيًا كله 1)
+let goldMineLevel = 1; // مستوى منجم الذهب
+let buildingLevels = {
+  goldMine: goldMineLevel,
+  woodMine: 1,
+  meatFarm: 1,
+  school: 1,
+  attackTower: 1,
+  defenseTower: 1,
+  heroesHall: 1,
+  market: 1,
+  booster: 1,
+  hospital: 1
+};
+
+
+// شروط ترقية القلعة (مبدئيًا من 1 -> 10 بس)
+const CASTLE_LEVEL_REQUIREMENTS = {
+  2: {
+    requiredBuildings: {
+      goldMine: 1,
+      woodMine: 1,
+      meatFarm: 1
+    }
+  },
+  3: {
+    requiredBuildings: {
+      goldMine: 2,
+      woodMine: 2,
+      meatFarm: 2,
+      school: 1
+    }
+  },
+  4: {
+    requiredBuildings: {
+      goldMine: 3,
+      woodMine: 3,
+      meatFarm: 3
+    }
+  },
+  5: {
+    requiredBuildings: {
+      goldMine: 4,
+      woodMine: 4,
+      meatFarm: 4,
+      school: 2
+    }
+  },
+  6: {
+    requiredBuildings: {
+      goldMine: 5,
+      woodMine: 5,
+      meatFarm: 5,
+      heroesHall: 1
+    }
+  },
+  7: {
+    requiredBuildings: {
+      goldMine: 6,
+      woodMine: 6,
+      meatFarm: 6
+    }
+  },
+  8: {
+    requiredBuildings: {
+      goldMine: 7,
+      woodMine: 7,
+      meatFarm: 7,
+      school: 3,
+      heroesHall: 2
+    }
+  },
+  9: {
+    requiredBuildings: {
+      goldMine: 8,
+      woodMine: 8,
+      meatFarm: 8,
+      hospital: 1
+    }
+  },
+  10: {
+    requiredBuildings: {
+      goldMine: 9,
+      woodMine: 9,
+      meatFarm: 9
+    }
+  }
+};
+
+function canUpgradeCastleTo(nextLevel) {
+  const req = CASTLE_LEVEL_REQUIREMENTS[nextLevel];
+  if (!req) return true;
+
+  for (const [key, neededLevel] of Object.entries(req.requiredBuildings)) {
+    const currentLevel = buildingLevels[key] || 0;
+    if (currentLevel < neededLevel) {
+      console.log("نقص مبنى:", key, "المطلوب:", neededLevel, "الحالي:", currentLevel);
+      return false;
+    }
+  }
+  return true;
+}
+
+// ---------------- القلعة ----------------
+
+// القلعة + التطوير + المهام + منجم الذهب
+let castleLevel = 1;
+let castleMaxLevel = 50;
+
+const castleBaseUpgradeTime = 300; // بالثواني
+const castleBaseGoldCost = 100;    // تكلفة تطوير من 1 لـ 2
+let totalPower = 0;
+
+function saveGameState() {
+  try {
+    const state = {
+      castleLevel,
+      resources,
+      upgradeInProgress,
+      upgradeFinishAt,
+    };
+    localStorage.setItem("raidex_game_state_v3", JSON.stringify(state));
+  } catch (e) {
+    console.error("Error saving game state", e);
+  }
+}
+
+
+
+// إعدادات المباني: شروط الفتح ونوع المبنى
+const BUILDINGS_CONFIG = {
+  1: { id: "building-1", key: "goldMine",   name: "منجم الذهب",   unlockLevel: 2 },  // مفتوح من البداية
+  2: { id: "building-2", key: "woodMine",   name: "منجم الخشب",   unlockLevel: 2 },
+  3: { id: "building-3", key: "school",     name: "المدرسة",      unlockLevel: 3 },
+  4: { id: "building-4", key: "attackTower",name: "برج الهجوم",   unlockLevel: 5 },
+  5: { id: "building-5", key: "defenseTower",name:"برج الدفاع",   unlockLevel: 7 },
+  6: { id: "building-6", key: "meatFarm",   name: "مزرعة اللحم",  unlockLevel: 2 },
+  7: { id: "building-7", key: "heroesHall", name: "قاعة الأبطال", unlockLevel: 4 },
+  8: { id: "building-8", key: "market",     name: "السوق",        unlockLevel: 6 },
+  9: { id: "building-9", key: "booster",    name: "برج البوست",   unlockLevel: 8 },
+  10:{ id: "building-10",key: "hospital",   name: "المستشفى",     unlockLevel: 10 }
+};
+// حالة فتح المباني (true/false لكل building key)
+let unlockedBuildings = {};
+function getBuildingNameByKey(key) {
+  for (const cfg of Object.values(BUILDINGS_CONFIG)) {
+    if (cfg.key === key) {
+      return cfg.name;
+    }
+  }
+  return key;
+}
+
+function getBuildingImageByKey(key) {
+  if (key === "goldMine")     return "goldmine.png";
+  if (key === "woodMine")     return "woodmine.png";
+  if (key === "meatFarm")     return "meatfarm.png";
+  if (key === "school")       return "school.png";
+  if (key === "attackTower")  return "attacktower.png";
+  if (key === "defenseTower") return "defensetower.png";
+  if (key === "heroesHall")   return "heroeshall.png";
+  if (key === "market")       return "market.png";
+  if (key === "booster")      return "boostertower.png";
+  if (key === "hospital")     return "hospital.png";
+  return "";
+}
+function openBuildingPanel(buildingKey) {
+  console.log("Open building panel for:", buildingKey);
+  // لسه لاحقًا هنخليها تفتح شاشة المبنى فعلاً
+}
+
+function loadBuildingsState() {
+  try {
+    const raw = localStorage.getItem("raidex_buildings_state");
+    if (raw) {
+      unlockedBuildings = JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error("Error loading buildings state", e);
+  }
+}
+
+function saveBuildingsState() {
+  try {
+    localStorage.setItem("raidex_buildings_state", JSON.stringify(unlockedBuildings));
+  } catch (e) {
+    console.error("Error saving buildings state", e);
+  }
+}
+
+// تحديث فتح المباني حسب مستوى القلعة
+function recalcBuildingsUnlockByCastleLevel() {
+  Object.values(BUILDINGS_CONFIG).forEach((cfg) => {
+    const isUnlocked = castleLevel >= cfg.unlockLevel;
+    unlockedBuildings[cfg.key] = !!isUnlocked;
+  });
+  saveBuildingsState();
+}
+
+
+function loadGameState() {
+  try {
+    const raw = localStorage.getItem("raidex_game_state_v3");
+    if (!raw) return;
+
+    const state = JSON.parse(raw);
+
+       if (state.castleLevel != null) {
+      castleLevel = state.castleLevel;
+    }
+    if (state.resources) {
+      resources = {
+        ...resources,
+        ...state.resources,
+      };
+    }
+
+    if (state.goldMineLevel != null) {
+      goldMineLevel = state.goldMineLevel;
+      buildingLevels.goldMine = goldMineLevel;
+    }
+
+    goldMineUpgradeInProgress = !!state.goldMineUpgradeInProgress;
+    goldMineUpgradeFinishAt = state.goldMineUpgradeFinishAt || null;
+
+    // استرجاع حالة الترقية
+    upgradeInProgress = !!state.upgradeInProgress;
+    upgradeFinishAt = state.upgradeFinishAt || null;
+
+    if (upgradeInProgress && upgradeFinishAt) {
+      const now = Date.now();
+      const diffMs = upgradeFinishAt - now;
+
+      if (diffMs <= 0) {
+        // الوقت خلص واللعبة كانت مقفولة → نكمّل الترقية فورًا
+        finishCastlePanelUpgrade();
+      } else {
+        // لسه باقي وقت → نرجّع العدّاد وشريط التقدم
+        const remainingSec = Math.floor(diffMs / 1000);
+        const totalTime = remainingSec;
+
+        upgradeRemainingTime = remainingSec;
+
+        const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
+        const progressFill = document.getElementById("castle-upgrade-progress-fill");
+        const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
+
+        if (progressWrapper) progressWrapper.style.display = "block";
+        if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
+
+        if (upgradeInterval) clearInterval(upgradeInterval);
+
+        upgradeInterval = setInterval(() => {
+          upgradeRemainingTime -= 1;
+          if (upgradeRemainingTime < 0) upgradeRemainingTime = 0;
+
+          if (remainingTimeEl) {
+            remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
+          }
+
+          const ratio = totalTime > 0 ? upgradeRemainingTime / totalTime : 0;
+          if (progressFill) {
+            const percent = Math.max(0, Math.min(100, ratio * 100));
+            progressFill.style.width = percent + "%";
+          }
+
+          if (upgradeRemainingTime <= 0) {
+            clearInterval(upgradeInterval);
+            upgradeInterval = null;
+            finishCastlePanelUpgrade();
+          }
+        }, 1000);
+      }
+    }
+     recalculatePower();
+  } catch (e) {
+    console.error("Error loading game state", e);
+  }
+  
+}
+
+
+
+// سعة تخزين القلعة
+function getCastleStorageCapacity(level) {
+  const baseStorage = 50000;      // سعة مبدئية
+  const perLevel = 5000;          // زيادة ثابتة لكل مستوى
+  const growth = 1.03;            // نمو بسيط
+  const linearPart = baseStorage + perLevel * (level - 1);
+  return Math.floor(linearPart * Math.pow(growth, level - 1));
+}
+function formatDuration(seconds) {
+  seconds = Math.max(0, Math.floor(seconds));
+
+  const days = Math.floor(seconds / 86400);
+  seconds %= 86400;
+  const hours = Math.floor(seconds / 3600);
+  seconds %= 3600;
+  const minutes = Math.floor(seconds / 60);
+  seconds %= 60;
+
+  const parts = [];
+  if (days > 0) parts.push(days + " يوم");
+  if (hours > 0) parts.push(hours + " ساعة");
+  if (minutes > 0) parts.push(minutes + " دقيقة");
+  if (seconds > 0 || parts.length === 0) parts.push(seconds + " ثانية");
+
+  return parts.join(" ");
+}
+
+function getCastlePowerForLevel(level) {
+  // قوة أساسية بتكبر بنسبة 15% كل مستوى
+  const base = 100;
+  const growth = 1.15;
+  let power = Math.floor(base * Math.pow(growth, level - 1));
+
+  let bonus = 0;
+
+  // من 1 إلى 25: كل 5 مستويات +10,000
+  if (level >= 5) {
+    const stepsUpTo25 = Math.min(level, 25);
+    const fullSteps = Math.floor(stepsUpTo25 / 5); // 5,10,15,20,25
+    bonus += fullSteps * 10000;
+  }
+
+  // بعد 25: البونص الإضافي اللي اتفقنا عليه
+  if (level >= 30) bonus += 20000; // مستوى 30
+  if (level >= 35) bonus += 25000; // مستوى 35
+  if (level >= 40) bonus += 30000; // مستوى 40
+  if (level >= 45) bonus += 35000; // مستوى 45
+  if (level >= 50) bonus += 50000; // مستوى 50
+
+  power += bonus;
+
+  return power;
+}
+
+function recalculatePower() {
+  // قوة القلعة
+  const castlePower = getCastlePowerForLevel(castleLevel);
+
+  // قوة من المباني (باستخدام buildingLevels اللي عندك)
+  const buildingsPower =
+    (buildingLevels.goldMine || 1) * 20 +
+    (buildingLevels.woodMine || 1) * 15 +
+    (buildingLevels.meatFarm || 1) * 10 +
+    (buildingLevels.school || 1) * 25 +
+    (buildingLevels.hospital || 1) * 30;
+
+  totalPower = castlePower + buildingsPower;
+  updatePowerUI();
+}
+
+
+
+function updatePowerUI() {
+  // رقم الباور في شاشة القلعة (العنصر القديم)
+  const powerValue = document.getElementById("power-value");
+  if (powerValue) {
+    powerValue.textContent = totalPower.toString();
+  }
+
+  // رقم الباور تحت صورة البروفايل في المدينة
+  const topbarPower = document.getElementById("topbar-power");
+  if (topbarPower) {
+    topbarPower.textContent = "Power: " + totalPower.toString();
+  }
+}
+
+
+// لو كان عندك قبل كده let upgradeTime = 30; سيبها زي ما هي لو في كود تاني بيستخدمها
+let upgradeInProgress = false;
+let upgradeInterval;
+let upgradeRemainingTime = 0;
+let currentUpgradeType = null; // "castle" دلوقتي
+let upgradeFinishAt = null; // وقت انتهاء الترقية بالـ ms
+// منجم الذهب - ترقية مستقلة
+let goldMineUpgradeInProgress = false;
+let goldMineUpgradeFinishAt = null;
+let goldMineUpgradeRemainingTime = 0;
+let goldMineUpgradeInterval = null;
+
+// آخر تكلفة ترقية منجم الذهب (للاستخدام لاحقًا لو حبينا نعمل إلغاء)
+let lastGoldMineGoldCost = 0;
+let lastGoldMineWoodCost = 0;
+let lastGoldMineFoodCost = 0;
+
+
+// آخر تكلفة ترقية (نستخدمها عند الإلغاء)
+let lastUpgradeGoldCost = 0;
+let lastUpgradeWoodCost = 0;
+let lastUpgradeFoodCost = 0;
+
+let tasks = []; // خليه زي ما كان
+
+
+// دوال حساب تكلفة ووقت تطوير القلعة
+function getCastleUpgradeCost(level) {
+  // level = المستوى الحالي اللي هتطوّر منه
+  return Math.floor(castleBaseGoldCost * Math.pow(1.5, level - 1));
+}
+
+function getCastleUpgradeTime(level) {
+  const growth = 1.3; // كل مستوى يزيد 30% عن اللي قبله
+  return Math.floor(castleBaseUpgradeTime * Math.pow(growth, level - 1));
+}
+
+function getCastleGoldCost(level) {
+  const base = 100;
+  const growth = 1.2;
+  return Math.floor(base * Math.pow(growth, level - 1));
+}
+
+function getCastleWoodCost(level) {
+  const base = 80;
+  const growth = 1.18;
+  return Math.floor(base * Math.pow(growth, level - 1));
+}
+
+function getCastleFoodCost(level) {
+  const base = 60;
+  const growth = 1.18;
+  return Math.floor(base * Math.pow(growth, level - 1));
+}
+
+// منجم الذهب
+let goldFromMinePerClick = 10;
+
+function collectGoldFromMine() {
+  resources.gold += goldFromMinePerClick;
+}
+
+// ---- Tutorial flags ----
+const TUTORIAL_DONE_KEY = "tutorial_done";
+let tutorialStep = 0;
+
+function markTutorialDone() {
+  localStorage.setItem(TUTORIAL_DONE_KEY, "1");
+}
+
+function showTutorialStep() {
+  const overlay = document.getElementById("tutorial-overlay");
+  const textEl = document.getElementById("tutorial-text");
+  const nextBtn = document.getElementById("tutorial-next");
+  if (!overlay || !textEl || !nextBtn) return;
+
+  overlay.style.display = "flex";
+
+  if (tutorialStep === 0) {
+    textEl.textContent = "مرحبًا بك في مدينتك الجديدة!";
+    nextBtn.textContent = "التالي";
+    nextBtn.onclick = () => {
+      tutorialStep = 1;
+      showTutorialStep();
+    };
+  } else if (tutorialStep === 1) {
+    textEl.textContent =
+      "أنت على وشك بدء بناء إمبراطوريتك الخاصة، وهزيمة جميع أعدائك، وتصبح من أقوى اللاعبين، ومعك فرصة لربح جوائز كبيرة داخل اللعبة.";
+    nextBtn.textContent = "ابدأ الآن";
+    nextBtn.onclick = () => {
+      tutorialStep = 2;
+      overlay.style.display = "none";
+      markTutorialDone();    // مهم عشان ما يشتغلش تاني
+      openCastleModal();     // يفتح القلعة بعد الرسالة
+    };
+  }
+}
+
+
+
+      /* --- DOM Elements --- */
+      const loadingFill1 = document.getElementById("loading-fill1");
+      const characterScreen = document.getElementById("character-screen");
+      const cityScreen = document.getElementById("city-screen");
+      const statsModal = document.getElementById("stats-modal");
+      const profileName = document.getElementById("profile-name");
+      const profileSub = document.getElementById("profile-sub");
+      const profileHeroImg = document.getElementById("profile-hero-img");
+      const armyContainer = document.getElementById("army-container");
+      const castleModal = document.getElementById("castle-modal");
+      const castleProgress = document.getElementById("castle-progress");
+      const cancelUpgradeBtn = document.getElementById("cancel-upgrade");
+      const startUpgradeBtn = document.getElementById("start-upgrade");
+      const castleLevelText = document.getElementById("castle-level");
+      const nextLevelText = document.getElementById("next-level");
+      const inviteBtn = document.getElementById("invite-btn");
+      const invitesPage = document.getElementById("invites-page");
+      const inviteLinkInput = document.getElementById("invite-link");
+      const castleCancelPopup = document.getElementById("castle-cancel-popup");
+      const castleCancelConfirmBtn = document.getElementById("castle-cancel-confirm");
+      const castleCancelDismissBtn = document.getElementById("castle-cancel-dismiss");
+      const invitedFriendsList = document.getElementById(
+        "invited-friends-list"
+      );
+      const tasksPage = document.getElementById("tasks-page");
+      const tasksPageContent = document.getElementById("tasks-page-content");
+      const chatPanel = document.getElementById("chat-panel");
+const chatInput = document.getElementById("chat-input");
+const chatSendBtn = document.getElementById("chat-send-btn");
+const chatTabs = document.querySelectorAll(".chat-tab");
+const chatAreas = {
+  global: document.getElementById("chat-global"),
+  clan: document.getElementById("chat-clan"),
+  friends: document.getElementById("chat-friends"),
+  system: document.getElementById("chat-system"),
+};
+
+
+      /* --- Loading --- */
+      function fillLoadingBar(callback) {
+        let width = 0;
+        const interval = setInterval(() => {
+          width++;
+          loadingFill1.style.width = width + "%";
+          loadingFill1.textContent = width + "%";
+          if (width >= 100) {
+            clearInterval(interval);
+            document.getElementById("loading1").style.display = "none";
+            if (callback) callback();
+          }
+        }, 30);
+      }
+
+      /* --- Character Selection --- */
+      function choose(hero) {
+        currentHero = hero;
+        localStorage.setItem("hero", hero);
+        characterScreen.style.display = "none";
+        enterCity();
+      }
+/* --- City --- */
+function enterCity() {
+  cityScreen.style.display = "block";
+
+  if (!document.getElementById("city-bg")) {
+    const cityMap = document.createElement("img");
+    cityMap.id = "city-bg";
+    cityMap.src = "city-bg.png";
+    cityMap.style.width = "100%";
+    cityMap.style.height = "100%";
+    cityMap.style.position = "absolute";
+    cityMap.style.top = "0";
+    cityMap.style.left = "0";
+    cityScreen.appendChild(cityMap);
+
+   // القلعة في النص
+const castleWrapper = document.createElement("div");
+castleWrapper.id = "castle-building";
+castleWrapper.style.position = "absolute";
+castleWrapper.style.width = "170px";
+castleWrapper.style.left = "50%";
+castleWrapper.style.top = "45%";
+castleWrapper.style.transform = "translate(-50%, -50%)";
+castleWrapper.style.zIndex = 100;
+
+const castle = document.createElement("img");
+castle.src = currentHero + "_castle.png";
+castle.style.width = "100%";
+castle.style.height = "100%";
+castle.style.objectFit = "contain";
+castle.style.pointerEvents = "none";
+castleWrapper.appendChild(castle);
+
+// صندوق مستوى القلعة تحت المبنى
+const castleStatusBox = document.createElement("div");
+castleStatusBox.id = "castle-status-box";
+castleStatusBox.style.position = "absolute";
+castleStatusBox.style.bottom = "-20px";
+castleStatusBox.style.left = "50%";
+castleStatusBox.style.transform = "translateX(-50%)";
+castleStatusBox.style.background = "rgba(0,0,0,0.7)";
+castleStatusBox.style.padding = "3px 8px";
+castleStatusBox.style.borderRadius = "8px";
+castleStatusBox.style.fontSize = "11px";
+castleStatusBox.style.minWidth = "80px";
+castleStatusBox.style.textAlign = "center";
+
+castleStatusBox.textContent = "Castle Lv." + castleLevel;
+castleWrapper.appendChild(castleStatusBox);
+
+castleWrapper.addEventListener("click", openCastlePanel);
+
+cityScreen.appendChild(castleWrapper);
+
+    // 10 مباني حوالين القلعة (placeholder)
+    const buildingPositions = [
+      { left: "50%", top: "20%" }, // 1
+      { left: "74%", top: "26%" }, // 2
+      { left: "82%", top: "50%" }, // 3
+      { left: "74%", top: "74%" }, // 4
+      { left: "50%", top: "82%" }, // 5
+      { left: "26%", top: "74%" }, // 6
+      { left: "18%", top: "50%" }, // 7
+      { left: "26%", top: "26%" }, // 8
+      { left: "64%", top: "36%" }, // 9
+      { left: "36%", top: "64%" }  // 10
+    ];
+
+    // إنشاء مربعات المباني الأساسية 1..10
+    buildingPositions.forEach((pos, index) => {
+      const id = "building-" + (index + 1);
+      let b = document.getElementById(id);
+      if (!b) {
+        b = document.createElement("div");
+        b.id = id;
+        b.className = "city-building";
+        cityScreen.appendChild(b);
+      }
+
+      b.style.position = "absolute";
+      b.style.width = "60px";
+      b.style.height = "60px";
+      b.style.left = pos.left;
+      b.style.top = pos.top;
+      b.style.transform = "translate(-50%, -50%)";
+      b.style.borderRadius = "12px";
+      b.style.background = "rgba(0,0,0,0.6)";
+      b.style.border = "2px solid #facc15";
+      b.style.display = "flex";
+      b.style.alignItems = "center";
+      b.style.justifyContent = "center";
+      b.style.color = "#fff";
+      b.style.fontWeight = "bold";
+      b.style.fontSize = "16px";
+      b.style.zIndex = 90;
+      b.textContent = index + 1;
+    });
+
+// 1: منجم الذهب (building-1)
+const goldMine = document.getElementById("building-1");
+if (goldMine) {
+  goldMine.style.border = "none";
+  goldMine.style.background = "transparent";
+  goldMine.style.width = "120px";
+  goldMine.style.height = "140px";
+  goldMine.style.position = "absolute";
+  goldMine.style.left = buildingPositions[0].left;
+  goldMine.style.top = buildingPositions[0].top;
+  goldMine.style.transform = "translate(-50%, -50%)";
+  goldMine.style.zIndex = 95;
+  goldMine.innerHTML = "";
+
+  const goldImg = document.createElement("img");
+  goldImg.src = "goldmine.png";
+  goldImg.style.width = "100%";
+  goldImg.style.height = "100%";
+  goldImg.style.objectFit = "contain";
+  goldImg.style.pointerEvents = "none";
+  goldMine.appendChild(goldImg);
+
+  // صندوق بسيط يعرض مستوى منجم الذهب تحت المبنى
+  const goldStatusBox = document.createElement("div");
+  goldStatusBox.id = "gold-mine-status-box";
+  goldStatusBox.style.position = "absolute";
+  goldStatusBox.style.bottom = "-18px";
+  goldStatusBox.style.left = "50%";
+  goldStatusBox.style.transform = "translateX(-50%)";
+  goldStatusBox.style.background = "rgba(0,0,0,0.7)";
+  goldStatusBox.style.padding = "2px 6px";
+  goldStatusBox.style.borderRadius = "8px";
+  goldStatusBox.style.fontSize = "10px";
+  goldStatusBox.style.minWidth = "70px";
+  goldStatusBox.style.textAlign = "center";
+
+  goldStatusBox.textContent = "Lv." + goldMineLevel;
+  goldMine.appendChild(goldStatusBox);
+
+  // هنا هنستخدم رقم ثابت: لحد ما نوصل ليفيل 2 المنجم مقفول
+  if (castleLevel < 2) {
+    goldMine.style.filter = "grayscale(1)";
+    goldMine.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv.2";
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    goldMine.appendChild(lock);
+
+    goldMine.onclick = function () {
+      alert("منجم الذهب مقفول.\nقم بترقية القلعة إلى المستوى 2 أولاً.");
+    };
+  } else {
+    goldMine.style.filter = "none";
+    goldMine.style.opacity = "1";
+    goldMine.onclick = function () {
+      openGoldMinePage();
+    };
+  }
+}
+
+
+
+
+// 2: منجم الخشب (building-2)
+const woodMine = document.getElementById("building-2");
+if (woodMine) {
+  const requiredLevel = 2; // يفتح عند مستوى 2
+
+  woodMine.style.border = "none";
+  woodMine.style.background = "transparent";
+  woodMine.style.width = "120px";
+  woodMine.style.height = "140px";
+  woodMine.style.position = "absolute";
+  woodMine.style.left = buildingPositions[1].left;
+  woodMine.style.top = buildingPositions[1].top;
+  woodMine.style.transform = "translate(-50%, -50%)";
+  woodMine.style.zIndex = 95;
+  woodMine.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = "woodmine.png";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  woodMine.appendChild(img);
+
+  // صندوق مستوى منجم الخشب (يظهر فقط لو المبنى مفتوح)
+  const woodStatusBox = document.createElement("div");
+  woodStatusBox.id = "wood-mine-status-box";
+  woodStatusBox.style.position = "absolute";
+  woodStatusBox.style.bottom = "-18px";
+  woodStatusBox.style.left = "50%";
+  woodStatusBox.style.transform = "translateX(-50%)";
+  woodStatusBox.style.background = "rgba(0,0,0,0.7)";
+  woodStatusBox.style.padding = "2px 6px";
+  woodStatusBox.style.borderRadius = "8px";
+  woodStatusBox.style.fontSize = "10px";
+  woodStatusBox.style.minWidth = "70px";
+  woodStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    woodMine.style.filter = "grayscale(1)";
+    woodMine.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    woodMine.appendChild(lock);
+
+    woodMine.onclick = function () {
+      alert("منجم الخشب مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    woodMine.style.filter = "none";
+    woodMine.style.opacity = "1";
+    woodMine.onclick = function () {
+      openWoodMinePage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    woodStatusBox.textContent = "Lv." + (buildingLevels.woodMine || 1);
+    woodMine.appendChild(woodStatusBox);
+  }
+}
+
+
+
+   // 3: المدرسة (building-3)
+const school = document.getElementById("building-3");
+if (school) {
+  const requiredLevel = 3; // تفتح عند مستوى 3
+
+  school.style.border = "none";
+  school.style.background = "transparent";
+  school.style.width = "100px";
+  school.style.height = "160px";
+  school.style.position = "absolute";
+  school.style.left = buildingPositions[2].left;
+  school.style.top = buildingPositions[2].top;
+  school.style.transform = "translate(-50%, -50%)";
+  school.style.zIndex = 95;
+  school.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = "school.png";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  school.appendChild(img);
+
+  // صندوق مستوى المدرسة (يظهر فقط لو المبنى مفتوح)
+  const schoolStatusBox = document.createElement("div");
+  schoolStatusBox.id = "school-status-box";
+  schoolStatusBox.style.position = "absolute";
+  schoolStatusBox.style.bottom = "-18px";
+  schoolStatusBox.style.left = "50%";
+  schoolStatusBox.style.transform = "translateX(-50%)";
+  schoolStatusBox.style.background = "rgba(0,0,0,0.7)";
+  schoolStatusBox.style.padding = "2px 6px";
+  schoolStatusBox.style.borderRadius = "8px";
+  schoolStatusBox.style.fontSize = "10px";
+  schoolStatusBox.style.minWidth = "70px";
+  schoolStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    school.style.filter = "grayscale(1)";
+    school.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    school.appendChild(lock);
+
+    school.onclick = function () {
+      alert("المدرسة مقفولة.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    school.style.filter = "none";
+    school.style.opacity = "1";
+    school.onclick = function () {
+      openSchoolPage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    schoolStatusBox.textContent = "Lv." + (buildingLevels.school || 1);
+    school.appendChild(schoolStatusBox);
+  }
+}
+
+
+
+  // 4: برج الهجوم (building-4)
+const attackTower = document.getElementById("building-4");
+if (attackTower) {
+  const requiredLevel = 5; // يفتح عند مستوى 5
+
+  attackTower.style.border = "none";
+  attackTower.style.background = "transparent";
+  attackTower.style.width = "200px";
+  attackTower.style.height = "180px";
+  attackTower.style.position = "absolute";
+  attackTower.style.left = buildingPositions[3].left;
+  attackTower.style.top = buildingPositions[3].top;
+  attackTower.style.transform = "translate(-50%, -50%)";
+  attackTower.style.zIndex = 95;
+  attackTower.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = "attack_tower.png";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  attackTower.appendChild(img);
+
+  // صندوق مستوى برج الهجوم (يظهر فقط لو المبنى مفتوح)
+  const attackStatusBox = document.createElement("div");
+  attackStatusBox.id = "attack-tower-status-box";
+  attackStatusBox.style.position = "absolute";
+  attackStatusBox.style.bottom = "-18px";
+  attackStatusBox.style.left = "50%";
+  attackStatusBox.style.transform = "translateX(-50%)";
+  attackStatusBox.style.background = "rgba(0,0,0,0.7)";
+  attackStatusBox.style.padding = "2px 6px";
+  attackStatusBox.style.borderRadius = "8px";
+  attackStatusBox.style.fontSize = "10px";
+  attackStatusBox.style.minWidth = "70px";
+  attackStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    attackTower.style.filter = "grayscale(1)";
+    attackTower.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    attackTower.appendChild(lock);
+
+    attackTower.onclick = function () {
+      alert("برج الهجوم مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    attackTower.style.filter = "none";
+    attackTower.style.opacity = "1";
+    attackTower.onclick = function () {
+      openAttackArmyPage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    attackStatusBox.textContent = "Lv." + (buildingLevels.attackTower || 1);
+    attackTower.appendChild(attackStatusBox);
+  }
+}
+
+
+
+  // 5: برج الدفاع (building-5)
+const defenseTower = document.getElementById("building-5");
+if (defenseTower) {
+  const requiredLevel = 7; // يفتح عند مستوى 7
+
+  defenseTower.style.border = "none";
+  defenseTower.style.background = "transparent";
+  defenseTower.style.width = "200px";
+  defenseTower.style.height = "180px";
+  defenseTower.style.position = "absolute";
+  defenseTower.style.left = buildingPositions[4].left;
+  defenseTower.style.top = buildingPositions[4].top;
+  defenseTower.style.transform = "translate(-50%, -50%)";
+  defenseTower.style.zIndex = 95;
+  defenseTower.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = "defense_tower.png";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  defenseTower.appendChild(img);
+
+  // صندوق مستوى برج الدفاع (يظهر فقط لو المبنى مفتوح)
+  const defenseStatusBox = document.createElement("div");
+  defenseStatusBox.id = "defense-tower-status-box";
+  defenseStatusBox.style.position = "absolute";
+  defenseStatusBox.style.bottom = "-18px";
+  defenseStatusBox.style.left = "50%";
+  defenseStatusBox.style.transform = "translateX(-50%)";
+  defenseStatusBox.style.background = "rgba(0,0,0,0.7)";
+  defenseStatusBox.style.padding = "2px 6px";
+  defenseStatusBox.style.borderRadius = "8px";
+  defenseStatusBox.style.fontSize = "10px";
+  defenseStatusBox.style.minWidth = "70px";
+  defenseStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    defenseTower.style.filter = "grayscale(1)";
+    defenseTower.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    defenseTower.appendChild(lock);
+
+    defenseTower.onclick = function () {
+      alert("برج الدفاع مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    defenseTower.style.filter = "none";
+    defenseTower.style.opacity = "1";
+    defenseTower.onclick = function () {
+      openHealthArmyPage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    defenseStatusBox.textContent = "Lv." + (buildingLevels.defenseTower || 1);
+    defenseTower.appendChild(defenseStatusBox);
+  }
+}
+
+
+
+    // 6: مزرعة اللحم (building-6)
+const meatFarm = document.getElementById("building-6");
+if (meatFarm) {
+  const requiredLevel = 2; // تفتح عند مستوى 2
+
+  meatFarm.style.border = "none";
+  meatFarm.style.background = "transparent";
+  meatFarm.style.width = "170px";
+  meatFarm.style.height = "170px";
+  meatFarm.style.position = "absolute";
+  meatFarm.style.left = buildingPositions[5].left;
+  meatFarm.style.top = buildingPositions[5].top;
+  meatFarm.style.transform = "translate(-50%, -50%)";
+  meatFarm.style.zIndex = 95;
+  meatFarm.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = "meatfarm.png";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  meatFarm.appendChild(img);
+
+  // صندوق مستوى مزرعة اللحم (يظهر فقط لو المبنى مفتوح)
+  const meatStatusBox = document.createElement("div");
+  meatStatusBox.id = "meat-farm-status-box";
+  meatStatusBox.style.position = "absolute";
+  meatStatusBox.style.bottom = "-18px";
+  meatStatusBox.style.left = "50%";
+  meatStatusBox.style.transform = "translateX(-50%)";
+  meatStatusBox.style.background = "rgba(0,0,0,0.7)";
+  meatStatusBox.style.padding = "2px 6px";
+  meatStatusBox.style.borderRadius = "8px";
+  meatStatusBox.style.fontSize = "10px";
+  meatStatusBox.style.minWidth = "70px";
+  meatStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    meatFarm.style.filter = "grayscale(1)";
+    meatFarm.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    meatFarm.appendChild(lock);
+
+    meatFarm.onclick = function () {
+      alert("مزرعة اللحم مقفولة.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    meatFarm.style.filter = "none";
+    meatFarm.style.opacity = "1";
+    meatFarm.onclick = function () {
+      openMeatFarmPage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    meatStatusBox.textContent = "Lv." + (buildingLevels.meatFarm || 1);
+    meatFarm.appendChild(meatStatusBox);
+  }
+}
+
+   // 7: قاعة الأبطال (building-7)
+const heroesHall = document.getElementById("building-7");
+if (heroesHall) {
+  const requiredLevel = 4; // تفتح عند مستوى 4
+
+  heroesHall.style.border = "none";
+  heroesHall.style.background = "transparent";
+  heroesHall.style.width = "140px";
+  heroesHall.style.height = "160px";
+  heroesHall.style.position = "absolute";
+  heroesHall.style.left = buildingPositions[6].left;
+  heroesHall.style.top = buildingPositions[6].top;
+  heroesHall.style.transform = "translate(-50%, -50%)";
+  heroesHall.style.zIndex = 95;
+  heroesHall.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = "heroes_hall.png";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  heroesHall.appendChild(img);
+
+  // صندوق مستوى قاعة الأبطال (يظهر فقط لو المبنى مفتوح)
+  const heroesHallStatusBox = document.createElement("div");
+  heroesHallStatusBox.id = "heroes-hall-status-box";
+  heroesHallStatusBox.style.position = "absolute";
+  heroesHallStatusBox.style.bottom = "-18px";
+  heroesHallStatusBox.style.left = "50%";
+  heroesHallStatusBox.style.transform = "translateX(-50%)";
+  heroesHallStatusBox.style.background = "rgba(0,0,0,0.7)";
+  heroesHallStatusBox.style.padding = "2px 6px";
+  heroesHallStatusBox.style.borderRadius = "8px";
+  heroesHallStatusBox.style.fontSize = "10px";
+  heroesHallStatusBox.style.minWidth = "70px";
+  heroesHallStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    heroesHall.style.filter = "grayscale(1)";
+    heroesHall.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    heroesHall.appendChild(lock);
+
+    heroesHall.onclick = function () {
+      alert("قاعة الأبطال مقفولة.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    heroesHall.style.filter = "none";
+    heroesHall.style.opacity = "1";
+    heroesHall.onclick = function () {
+      openHeroesHallPage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    heroesHallStatusBox.textContent = "Lv." + (buildingLevels.heroesHall || 1);
+    heroesHall.appendChild(heroesHallStatusBox);
+  }
+}
+
+
+
+  // 8: السوق (building-8)
+const market = document.getElementById("building-8");
+if (market) {
+  const requiredLevel = 6; // يفتح عند مستوى 6
+
+  market.style.border = "none";
+  market.style.background = "transparent";
+  market.style.width = "120px";
+  market.style.height = "140px";
+  market.style.position = "absolute";
+  market.style.left = buildingPositions[7].left;
+  market.style.top = buildingPositions[7].top;
+  market.style.transform = "translate(-50%, -50%)";
+  market.style.zIndex = 95;
+  market.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = "market.png";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  market.appendChild(img);
+
+  // صندوق مستوى السوق (يظهر فقط لو المبنى مفتوح)
+  const marketStatusBox = document.createElement("div");
+  marketStatusBox.id = "market-status-box";
+  marketStatusBox.style.position = "absolute";
+  marketStatusBox.style.bottom = "-18px";
+  marketStatusBox.style.left = "50%";
+  marketStatusBox.style.transform = "translateX(-50%)";
+  marketStatusBox.style.background = "rgba(0,0,0,0.7)";
+  marketStatusBox.style.padding = "2px 6px";
+  marketStatusBox.style.borderRadius = "8px";
+  marketStatusBox.style.fontSize = "10px";
+  marketStatusBox.style.minWidth = "70px";
+  marketStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    market.style.filter = "grayscale(1)";
+    market.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    market.appendChild(lock);
+
+    market.onclick = function () {
+      alert("السوق مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    market.style.filter = "none";
+    market.style.opacity = "1";
+    market.onclick = function () {
+      openMarketPage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    marketStatusBox.textContent = "Lv." + (buildingLevels.market || 1);
+    market.appendChild(marketStatusBox);
+  }
+}
+
+
+  // 9: برج البوست (building-9)
+const booster = document.getElementById("building-9");
+if (booster) {
+  const requiredLevel = 8; // يفتح عند مستوى 8
+
+  booster.style.border = "none";
+  booster.style.background = "transparent";
+  booster.style.width = "120px";
+  booster.style.height = "140px";
+  booster.style.position = "absolute";
+  booster.style.left = buildingPositions[8].left;
+  booster.style.top = buildingPositions[8].top;
+  booster.style.transform = "translate(-50%, -50%)";
+  booster.style.zIndex = 95;
+  booster.innerHTML = "";
+
+  const boosterImg = document.createElement("img");
+  boosterImg.src = "booster_tower.png";
+  boosterImg.style.width = "100%";
+  boosterImg.style.height = "100%";
+  boosterImg.style.objectFit = "contain";
+  boosterImg.style.pointerEvents = "none";
+  booster.appendChild(boosterImg);
+
+  // صندوق مستوى برج البوست (يظهر فقط لو المبنى مفتوح)
+  const boosterStatusBox = document.createElement("div");
+  boosterStatusBox.id = "booster-tower-status-box";
+  boosterStatusBox.style.position = "absolute";
+  boosterStatusBox.style.bottom = "-18px";
+  boosterStatusBox.style.left = "50%";
+  boosterStatusBox.style.transform = "translateX(-50%)";
+  boosterStatusBox.style.background = "rgba(0,0,0,0.7)";
+  boosterStatusBox.style.padding = "2px 6px";
+  boosterStatusBox.style.borderRadius = "8px";
+  boosterStatusBox.style.fontSize = "10px";
+  boosterStatusBox.style.minWidth = "70px";
+  boosterStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    booster.style.filter = "grayscale(1)";
+    booster.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    booster.appendChild(lock);
+
+    booster.onclick = function () {
+      alert("برج البوست مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    booster.style.filter = "none";
+    booster.style.opacity = "1";
+    booster.onclick = function () {
+      openBoosterTowerPage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    boosterStatusBox.textContent = "Lv." + (buildingLevels.booster || 1);
+    booster.appendChild(boosterStatusBox);
+  }
+}
+
+
+ // 10: المستشفى (building-10)
+const hospital = document.getElementById("building-10");
+if (hospital) {
+  const requiredLevel = 10; // تفتح عند مستوى 10
+
+  hospital.style.border = "none";
+  hospital.style.background = "transparent";
+  hospital.style.width = "120px";
+  hospital.style.height = "140px";
+  hospital.style.position = "absolute";
+  hospital.style.left = buildingPositions[9].left;
+  hospital.style.top = buildingPositions[9].top;
+  hospital.style.transform = "translate(-50%, -50%)";
+  hospital.style.zIndex = 95;
+  hospital.innerHTML = "";
+
+  const hospitalImg = document.createElement("img");
+  hospitalImg.src = "hospital.png";
+  hospitalImg.style.width = "100%";
+  hospitalImg.style.height = "100%";
+  hospitalImg.style.objectFit = "contain";
+  hospitalImg.style.pointerEvents = "none";
+  hospital.appendChild(hospitalImg);
+
+  // صندوق مستوى المستشفى (يظهر فقط لو المبنى مفتوح)
+  const hospitalStatusBox = document.createElement("div");
+  hospitalStatusBox.id = "hospital-status-box";
+  hospitalStatusBox.style.position = "absolute";
+  hospitalStatusBox.style.bottom = "-18px";
+  hospitalStatusBox.style.left = "50%";
+  hospitalStatusBox.style.transform = "translateX(-50%)";
+  hospitalStatusBox.style.background = "rgba(0,0,0,0.7)";
+  hospitalStatusBox.style.padding = "2px 6px";
+  hospitalStatusBox.style.borderRadius = "8px";
+  hospitalStatusBox.style.fontSize = "10px";
+  hospitalStatusBox.style.minWidth = "70px";
+  hospitalStatusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    hospital.style.filter = "grayscale(1)";
+    hospital.style.opacity = "0.5";
+
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + requiredLevel;
+    lock.style.position = "absolute";
+    lock.style.bottom = "4px";
+    lock.style.left = "50%";
+    lock.style.transform = "translateX(-50%)";
+    lock.style.background = "rgba(0,0,0,0.7)";
+    lock.style.padding = "2px 6px";
+    lock.style.borderRadius = "8px";
+    lock.style.fontSize = "10px";
+    hospital.appendChild(lock);
+
+    hospital.onclick = function () {
+      alert("المستشفى مقفولة.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    hospital.style.filter = "none";
+    hospital.style.opacity = "1";
+    hospital.onclick = function () {
+      openHospitalPage();
+    };
+
+    // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
+    hospitalStatusBox.textContent = "Lv." + (buildingLevels.hospital || 1);
+    hospital.appendChild(hospitalStatusBox);
+  }
+}
+
+    addTopBar();
+    addBottomBar();
+    inviteBtn.style.display = "flex";
+    // startResourceAutoUpdate();  // وقفناها مؤقتًا
+
+
+    const rightArrowMenu = document.querySelector(".right-arrow-menu");
+    if (rightArrowMenu) {
+      rightArrowMenu.style.display = "block";
+    }
+
+    const tutorialDone = localStorage.getItem(TUTORIAL_DONE_KEY) === "1";
+    if (!tutorialDone) {
+      showTutorialStep();
+    }
+  } // نهاية if (!document.getElementById("city-bg"))
+}   // نهاية function enterCity
+function highlightBuildingInCity(buildingKey) {
+  let buildingId = null;
+  for (const cfg of Object.values(BUILDINGS_CONFIG)) {
+    if (cfg.key === buildingKey) {
+      buildingId = cfg.id; // مثال: "building-1"
+      break;
+    }
+  }
+  if (!buildingId) {
+    console.warn("No building id found for key:", buildingKey);
+    return;
+  }
+
+  const el = document.getElementById(buildingId);
+  if (!el) {
+    console.warn("Building element not found:", buildingId);
+    return;
+  }
+
+  const oldPointer = el.querySelector(".building-pointer");
+  if (oldPointer) {
+    oldPointer.remove();
+  }
+
+  el.style.position = el.style.position || "absolute";
+
+  const pointer = document.createElement("div");
+  pointer.className = "building-pointer";
+  pointer.style.position = "absolute";
+  pointer.style.left = "50%";
+  pointer.style.top = "50%";
+  pointer.style.transform = "translate(-50%, -50%) scale(1)";
+  pointer.style.width = "40px";
+  pointer.style.height = "40px";
+  pointer.style.borderRadius = "50%";
+  pointer.style.background = "rgba(0,0,0,0.6)";
+  pointer.style.display = "flex";
+  pointer.style.alignItems = "center";
+  pointer.style.justifyContent = "center";
+  pointer.style.zIndex = "999";
+  pointer.style.cursor = "pointer";
+
+  const icon = document.createElement("div");
+  icon.textContent = "👆";
+  icon.style.fontSize = "22px";
+  pointer.appendChild(icon);
+
+  el.appendChild(pointer);
+
+  let elapsed = 0;
+  const duration = 5000;
+  const interval = 200;
+
+  const pulse = setInterval(() => {
+    elapsed += interval;
+    const scale = pointer.style.transform.includes("scale(1.1)")
+      ? "translate(-50%, -50%) scale(1)"
+      : "translate(-50%, -50%) scale(1.1)";
+    pointer.style.transform = scale;
+
+    if (elapsed >= duration) {
+      clearInterval(pulse);
+      if (pointer && pointer.parentNode) {
+        pointer.remove();
+      }
+    }
+  }, interval);
+
+  pointer.onclick = () => {
+    clearInterval(pulse);
+    if (pointer && pointer.parentNode) {
+      pointer.remove();
+    }
+  };
+}
+
+function openGoldMinePage() {
+  initGoldMinePanel();
+  const panel = document.getElementById("gold-mine-panel");
+  if (panel) panel.style.display = "block";
+}
+
+
+function openWoodMinePage() {
+  initWoodMinePanel();
+  const panel = document.getElementById("wood-mine-panel");
+  if (panel) panel.style.display = "block";
+}
+
+
+function openSchoolPage() {
+  initSchoolPanel();
+  const panel = document.getElementById("school-panel");
+  if (panel) panel.style.display = "block";
+}
+function openAttackArmyPage() {
+  initAttackArmyPanel();
+  const panel = document.getElementById("attack-army-panel");
+  if (panel) panel.style.display = "block";
+}
+function openHealthArmyPage() {
+  initHealthArmyPanel();
+  const panel = document.getElementById("health-army-panel");
+  if (panel) panel.style.display = "block";
+}
+
+function openMeatFarmPage() {
+  initMeatFarmPanel();
+  const panel = document.getElementById("meat-farm-panel");
+  if (panel) panel.style.display = "block";
+}
+function openHeroesHallPage() {
+  initHeroesHallPanel();
+  const panel = document.getElementById("heroes-hall-panel");
+  if (panel) panel.style.display = "block";
+}
+
+function openMarketPage() {
+  initMarketPanel();
+  const panel = document.getElementById("market-panel");
+  if (panel) panel.style.display = "block";
+}
+function openBoosterTowerPage() {
+  initBoosterTowerPanel();
+  const panel = document.getElementById("booster-tower-panel");
+  if (panel) panel.style.display = "block";
+}
+
+function openHospitalPage() {
+  initHospitalPanel();
+  const panel = document.getElementById("hospital-panel");
+  if (panel) panel.style.display = "block";
+}
+// إنشاء بانل متجر الموارد مرة واحدة
+function initResourceShopPanel() {
+  if (document.getElementById("resource-shop-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "resource-shop-panel";
+  panel.className = "resource-shop-panel hidden";
+
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const titleEl = document.createElement("div");
+  titleEl.id = "resource-shop-title";
+  titleEl.style.fontWeight = "bold";
+  titleEl.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = closeResourceShop;
+
+  header.appendChild(titleEl);
+  header.appendChild(closeBtn);
+
+  const subEl = document.createElement("div");
+  subEl.id = "resource-shop-sub";
+  subEl.style.fontSize = "13px";
+  subEl.style.marginBottom = "10px";
+  subEl.style.color = "#9ca3af";
+
+  const content = document.createElement("div");
+  content.id = "resource-shop-content";
+
+  panel.appendChild(header);
+  panel.appendChild(subEl);
+  panel.appendChild(content);
+
+  document.body.appendChild(panel);
+    const startBtn = panel.querySelector("#gold-mine-start-upgrade-btn");
+  if (startBtn) {
+    startBtn.onclick = () => {
+      startGoldMineUpgrade();
+    };
+  }
+
+  updateGoldMineUpgradeTab();
+
+}
+function initGoldMinePanel() {
+  if (document.getElementById("gold-mine-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "gold-mine-panel";
+  panel.className = "game-page-panel gold-mine-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  // Header
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "منجم الذهب";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  // Tabs buttons
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchGoldMineTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15"; // الافتراضي
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+    // Tabs content containers
+  const infoTab = document.createElement("div");
+  infoTab.id = "gold-mine-tab-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "gold-mine-tab-upgrade";
+  upgradeTab.style.display = "none";
+
+  // تبويب المعلومات
+  infoTab.innerHTML = `
+    <div style="font-size:13px; line-height:1.6;">
+      <div>المستوى الحالي: <span id="gold-mine-info-level">${goldMineLevel}</span></div>
+      <div style="margin-top:4px;">
+        إنتاج الذهب/ساعة (افتراضي): 
+        <span id="gold-mine-info-production">${goldMineLevel * 100}</span>
+      </div>
+    </div>
+  `;
+
+  // تبويب الترقية
+  upgradeTab.innerHTML = `
+    <div style="font-size:13px; line-height:1.6;">
+      <div>من المستوى: <span id="gold-mine-upgrade-current-level">${goldMineLevel}</span></div>
+      <div>إلى المستوى: <span id="gold-mine-upgrade-next-level">${goldMineLevel + 1}</span></div>
+      <div style="margin-top:6px;">تكلفة ذهب: <span id="gold-mine-upgrade-gold-cost">0</span></div>
+      <div>تكلفة خشب: <span id="gold-mine-upgrade-wood-cost">0</span></div>
+      <div>تكلفة لحم: <span id="gold-mine-upgrade-food-cost">0</span></div>
+      <div>وقت الترقية: <span id="gold-mine-upgrade-time">0 ثانية</span></div>
+
+      <button id="gold-mine-start-upgrade-btn"
+              style="width:100%; margin-top:8px; padding:8px; border:none; border-radius:10px; background:#facc15; color:#111827; font-weight:bold; cursor:pointer;">
+        بدء ترقية منجم الذهب
+      </button>
+
+      <div id="gold-mine-upgrade-progress-wrapper" style="margin-top:8px; display:none;">
+        <div style="width:100%; height:8px; background:#374151; border-radius:999px; overflow:hidden;">
+          <div id="gold-mine-upgrade-progress-fill" style="width:0%; height:100%; background:#22c55e;"></div>
+        </div>
+        <div style="margin-top:4px; font-size:12px; text-align:center;">
+          متبقٍ: <span id="gold-mine-upgrade-remaining-time">0</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+  const startBtn = document.getElementById("gold-mine-start-upgrade-btn");
+  if (startBtn) {
+    startBtn.onclick = function () {
+      startGoldMineUpgrade();
+    };
+  }
+
+  updateGoldMineUpgradeTab();
+
+  // دالة تبديل التابات
+  function switchGoldMineTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+
+  // نخليها متاحة عالمياً لو احتجنا
+  window.switchGoldMineTab = switchGoldMineTab;
+}
+function initWoodMinePanel() {
+  if (document.getElementById("wood-mine-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "wood-mine-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "منجم الخشب";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "wood-mine-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "wood-mine-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات لمنجم الخشب (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية لمنجم الخشب (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+function initSchoolPanel() {
+  if (document.getElementById("school-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "school-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "المدرسة";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "school-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "school-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات للمدرسة (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية للمدرسة (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+function initSchoolPanel() {
+  if (document.getElementById("school-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "school-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "المدرسة";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "school-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "school-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات للمدرسة (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية للمدرسة (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+
+function initMarketPanel() {
+  if (document.getElementById("market-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "market-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  // Header
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "السوق";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  // Tabs row
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  // Tabs content
+  const infoTab = document.createElement("div");
+  infoTab.id = "market-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "market-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات للسوق (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية للسوق (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+function initMeatFarmPanel() {
+  if (document.getElementById("meat-farm-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "meat-farm-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";   // ← هنا من غير " جوّه "
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "مزرعة اللحم";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151"; // ← نفس الفكرة هنا
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "meat-farm-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "meat-farm-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات لمزرعة اللحم (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية لمزرعة اللحم (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+function initHospitalPanel() {
+  if (document.getElementById("hospital-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "hospital-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "المستشفى";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "hospital-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "hospital-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات للمستشفى (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية للمستشفى (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+function initAttackArmyPanel() {
+  if (document.getElementById("attack-army-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "attack-army-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "مبنى جيش الهجوم";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "attack-army-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "attack-army-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات لمبنى جيش الهجوم (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية لمبنى جيش الهجوم (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+function initHealthArmyPanel() {
+  if (document.getElementById("health-army-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "health-army-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "مبنى جيش الصحة";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "health-army-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "health-army-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات لمبنى جيش الصحة (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية لمبنى جيش الصحة (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+function initHeroesHallPanel() {
+  if (document.getElementById("heroes-hall-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "heroes-hall-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "قاعة الأبطال";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "heroes-hall-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "heroes-hall-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات لقاعة الأبطال (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية لقاعة الأبطال (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+function initBoosterTowerPanel() {
+  if (document.getElementById("booster-tower-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "booster-tower-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "برج البوست";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
+  }
+
+  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  infoTabBtn.style.color = "#facc15";
+
+  tabsRow.appendChild(infoTabBtn);
+  tabsRow.appendChild(upgradeTabBtn);
+  panel.appendChild(tabsRow);
+
+  const infoTab = document.createElement("div");
+  infoTab.id = "booster-tower-panel-info";
+
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "booster-tower-panel-upgrade";
+  upgradeTab.style.display = "none";
+
+  infoTab.textContent = "هنا قسم المعلومات لبرج البوست (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية لبرج البوست (هنظبطه بعدين).";
+
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
+
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
+    }
+  }
+}
+
+
+// Right arrow options
+const rightArrowBtn = document.getElementById("right-arrow-btn");
+const rightOptions = document.getElementById("right-options");
+
+if (rightArrowBtn && rightOptions) {
+  rightArrowBtn.addEventListener("click", () => {
+    rightOptions.classList.toggle("open");
+    rightArrowBtn.classList.toggle("open");
+  });
+}
+
+function closeRightMenu() {
+  if (!rightOptions || !rightArrowBtn) return;
+  rightOptions.classList.remove("open");
+  rightArrowBtn.classList.remove("open");
+}
+
+const inviteIcon = document.getElementById("invite-icon");
+const pvpIcon = document.getElementById("pvp-icon");
+const chatIcon = document.getElementById("chat-icon");
+const passIcon = document.getElementById("pass-icon");
+
+
+// ربط الشات
+const chatBackBtn = document.querySelector(".chat-back-btn");
+
+if (chatIcon) {
+  chatIcon.addEventListener("click", () => {
+    openChat();
+    closeRightMenu();
+  });
+}
+
+if (chatBackBtn) {
+  chatBackBtn.addEventListener("click", closeChat);
+}
+
+
+function addTopBar() {
+  if (document.getElementById("top-bar")) return;
+
+  const topBar = document.createElement("div");
+  topBar.id = "top-bar";
+
+  // حاوية الصورة + الباور
+  const avatarWrapper = document.createElement("div");
+  avatarWrapper.style.display = "flex";
+  avatarWrapper.style.flexDirection = "column";
+  avatarWrapper.style.alignItems = "center";
+  avatarWrapper.style.gap = "2px";
+
+  const avatar = document.createElement("img");
+  avatar.id = "player-avatar";
+  avatar.src = currentHero + ".png";
+  avatar.addEventListener("click", openProfile);
+
+  // سطر القوة تحت الصورة
+  const powerLine = document.createElement("div");
+  powerLine.id = "topbar-power";
+  powerLine.style.fontSize = "11px";
+  powerLine.style.color = "#facc15";
+  powerLine.textContent = "Power: " + totalPower;
+
+  avatarWrapper.appendChild(avatar);
+  avatarWrapper.appendChild(powerLine);
+
+  const resourcesDiv = document.createElement("div");
+  resourcesDiv.id = "resources";
+
+  function updateRes() {
+    resourcesDiv.innerHTML = "";
+    for (const r in resources) {
+      const rDiv = document.createElement("div");
+      rDiv.innerHTML = `${
+        r === "gold" ? "🪙" :
+        r === "food" ? "🍖" :
+        r === "wood" ? "🌲" : "💎"
+      }<br>${resources[r]}`;
+
+      if (r === "gold" || r === "wood" || r === "food") {
+        rDiv.style.cursor = "pointer";
+        rDiv.onclick = () => openResourceShop(r);
+      }
+
+      resourcesDiv.appendChild(rDiv);
+    }
+
+    // تحديث سطر الباور كل ما التوب بار يتحدث
+    const powerEl = document.getElementById("topbar-power");
+    if (powerEl) {
+      powerEl.textContent = "Power: " + totalPower;
+    }
+  }
+
+  updateRes();
+  setInterval(updateRes, 2000);
+
+  // زر المنيو بنفس فكرتك القديمة
+  const menuBtn = document.createElement("span");
+  menuBtn.id = "menu-btn";
+  menuBtn.textContent = "☰";
+
+  topBar.appendChild(avatarWrapper);
+  topBar.appendChild(resourcesDiv);
+  topBar.appendChild(menuBtn);
+
+  cityScreen.appendChild(topBar);
+}
+
+
+// دالة مساعدة لو حبيت تحدث التوب بار يدويًا
+function updateTopBar() {
+  const resourcesDiv = document.getElementById("resources");
+  if (!resourcesDiv) return;
+
+  resourcesDiv.innerHTML = "";
+  for (const r in resources) {
+    const rDiv = document.createElement("div");
+    rDiv.innerHTML = `${
+      r === "gold"
+        ? "🪙"
+        : r === "food"
+        ? "🍖"
+        : r === "wood"
+        ? "🌲"
+        : "💎"
+    }<br>${resources[r]}`;
+
+    if (r === "gold" || r === "wood" || r === "food") {
+      rDiv.style.cursor = "pointer";
+      rDiv.onclick = () => openResourceShop(r);
+    }
+
+    resourcesDiv.appendChild(rDiv);
+  }
+}
+
+     /* --- Bottom Bar --- */
+function addBottomBar() {
+  if (document.getElementById("bottom-bar")) return;
+  const bottomBar = document.createElement("div");
+  bottomBar.id = "bottom-bar";
+  bottomBar.style.zIndex = 100;
+  const items = [
+    { name: "City", icon: "🏙️" },
+    { name: "Task", icon: "📋" },
+    { name: "War", icon: "⚔️" },
+    { name: "Clan", icon: "🏰" },
+    { name: "Fight", icon: "🔥" },
+  ];
+
+  items.forEach((item) => {
+  const div = document.createElement("div");
+  div.classList.add("bar-item");
+
+  if (item.name === "City") {
+    div.classList.add("bar-item-active");
+  }
+
+  div.innerHTML = `<span>${item.icon}</span>${item.name}`;
+
+  if (item.name === "Task") {
+    div.addEventListener("click", openTasksPage);
+  } else if (item.name === "Clan") {
+    div.addEventListener("click", openClanPage);
+  }
+
+  bottomBar.appendChild(div);
+});
+
+
+  cityScreen.appendChild(bottomBar);
+}
+
+      /* --- Tasks --- */
+      function generateDailyTasks() {
+        tasks = [
+          { desc: "Collect 100 gold", completed: false, reward: { gold: 100 } },
+          { desc: "Collect 50 wood", completed: false, reward: { wood: 50 } },
+          {
+            desc: "Check Castle Upgrade",
+            completed: false,
+            reward: { gem: 10 },
+          },
+        ];
+      }
+      generateDailyTasks();
+
+      function renderTasksPage() {
+        tasksPageContent.innerHTML = "";
+        tasks.forEach((t, i) => {
+          const div = document.createElement("div");
+          div.className = "task-item";
+          if (t.completed) div.classList.add("completed");
+          div.textContent = t.desc + (t.completed ? " ✅" : "");
+          div.addEventListener("click", () => {
+            if (!t.completed) {
+              t.completed = true;
+              for (const r in t.reward) resources[r] += t.reward[r];
+              renderTasksPage();
+            }
+          });
+          tasksPageContent.appendChild(div);
+        });
+      }
+
+   /* --- Profile --- */
+function openProfile() {
+  const statsPage = document.getElementById("stats-page");
+  if (!statsPage) return;
+
+  const playerName = localStorage.getItem("playerName") || "Player";
+  const currentHeroStored = localStorage.getItem("hero") || "elephant";
+  currentHero = currentHeroStored;
+
+  // عناصر الـ DOM
+  const nameEl = document.getElementById("profile-name");
+  const metaEl = document.getElementById("profile-meta");
+  const subEl = document.getElementById("profile-sub");
+  const heroImg = document.getElementById("profile-hero-img");
+  const castleLevelEl = document.getElementById("profile-castle-level");
+  const buildingsLevelEl = document.getElementById("profile-buildings-level");
+  const powerEl = document.getElementById("profile-power");
+
+  // الاسم
+  if (nameEl) {
+    nameEl.textContent = playerName;
+  }
+
+  // صورة الهيرو
+  if (heroImg) {
+    heroImg.src = currentHero + ".png";
+  }
+
+  // تاريخ الانضمام
+  let joinDate = localStorage.getItem("joinDate");
+  if (!joinDate) {
+    joinDate = new Date().toISOString();
+    localStorage.setItem("joinDate", joinDate);
+  }
+  const diffDays = Math.floor(
+    (new Date() - new Date(joinDate)) / (1000 * 60 * 60 * 24)
+  );
+  if (subEl) {
+    subEl.textContent = `Joined: ${diffDays} days | Clan: None`;
+  }
+
+  // Castle Lv و Power في السطر الأساسي
+  if (metaEl) {
+    metaEl.textContent = `Castle Lv. ${castleLevel} • Power ${totalPower}`;
+  }
+
+  // أرقام الـ grid
+  if (castleLevelEl) {
+    castleLevelEl.textContent = castleLevel.toString();
+  }
+
+  if (buildingsLevelEl) {
+    const sumLevels =
+      (buildingLevels.goldMine || 1) +
+      (buildingLevels.woodMine || 1) +
+      (buildingLevels.meatFarm || 1) +
+      (buildingLevels.school || 1) +
+      (buildingLevels.hospital || 1);
+    buildingsLevelEl.textContent = sumLevels.toString();
+  }
+
+  if (powerEl) {
+    powerEl.textContent = totalPower.toString();
+  }
+
+  // عرض الجيش (نفس فكرتك القديمة)
+  renderArmy();
+
+  // إظهار البانل
+  statsPage.classList.remove("game-page-hidden");
+}
+
+function closeStats() {
+  const statsPage = document.getElementById("stats-page");
+  if (statsPage) {
+    statsPage.classList.add("game-page-hidden");
+  }
+}
+
+function renderArmy() {
+  armyContainer.innerHTML = "";
+  army.forEach((u) => {
+    const div = document.createElement("div");
+    div.className = "army-card";
+    div.innerHTML = `<img src="${u.img}" width="50" height="50">
+<span>⚔️ ${u.attack}</span>
+<span>🛡️ ${u.defense}</span>
+<span>🎒 ${u.capacity}</span>`;
+    armyContainer.appendChild(div);
+  });
+}
+
+function changeHero() {
+  document.getElementById("hero-selection").classList.remove("hidden");
+}
+
+function selectHero(heroChoice) {
+  if (heroes[heroChoice]) {
+    currentHero = heroChoice;
+    profileHeroImg.src = currentHero + ".png";
+    localStorage.setItem("hero", currentHero);
+    document.getElementById("player-avatar").src = currentHero + ".png";
+    closeHeroSelection();
+  }
+}
+
+function closeHeroSelection() {
+  document.getElementById("hero-selection").classList.add("hidden");
+}
+
+      /* --- Invite --- */
+      let inviteCode = localStorage.getItem("inviteCode");
+      if (!inviteCode) {
+        inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        localStorage.setItem("inviteCode", inviteCode);
+      }
+      inviteLinkInput.value = `https://t.me/raidex_mini_app?start=${inviteCode}`;
+      let invitedFriends = JSON.parse(
+        localStorage.getItem("invitedFriends") || "[]"
+      );
+      function updateFriendsList() {
+        invitedFriendsList.innerHTML = "";
+        if (invitedFriends.length === 0)
+          invitedFriendsList.innerHTML = "<li>No friends joined yet.</li>";
+        else
+          invitedFriends.forEach((f) => {
+            const li = document.createElement("li");
+            li.textContent = f;
+            li.style.padding = "5px 0";
+            invitedFriendsList.appendChild(li);
+          });
+      }
+      updateFriendsList();
+      function openInvites() {
+        invitesPage.classList.remove("hidden");
+      }
+      function closeInvites() {
+        invitesPage.classList.add("hidden");
+      }
+      inviteBtn.addEventListener("click", openInvites);
+
+
+
+   /* --- Start App --- */
+window.addEventListener("load", () => {
+  const selectedHero = localStorage.getItem("hero");
+  let width = 0;
+  const interval = setInterval(() => {
+    width++;
+    loadingFill1.style.width = width + "%";
+    loadingFill1.textContent = width + "%";
+    if (width >= 100) {
+      clearInterval(interval);
+      document.getElementById("loading1").style.display = "none";
+
+      // تحميل حالة اللعبة (الموارد + مستوى القلعة)
+      loadGameState();
+loadBuildingsState();    
+      recalcBuildingsUnlockByCastleLevel(); 
+            loadClanState();
+
+      if (!selectedHero) {
+        characterScreen.style.display = "block";
+      } else {
+        currentHero = selectedHero;
+        enterCity();
+      }
+    }
+  }, 30);
+    wireClanButtons();
+
+});
+
+  window.addEventListener("load", () => {
+  // Language Modal
+  const languageSetting = document.getElementById("language-setting");
+  const languageModal = document.getElementById("language-modal");
+  if (languageSetting) {
+    languageSetting.addEventListener("click", () => {
+      languageModal.classList.remove("hidden");
+    });
+  }
+
+  // Telegram / Twitter
+  const telegramSetting = document.getElementById("telegram-setting");
+  if (telegramSetting) {
+    telegramSetting.addEventListener("click", () => {
+      window.open("https://t.me/Raidex_Official", "_blank");
+    });
+  }
+
+  const twitterSetting = document.getElementById("twitter-setting");
+  if (twitterSetting) {
+    twitterSetting.addEventListener("click", () => {
+      window.open("https://x.com/raidexgames", "_blank");
+    });
+  }
+
+  // Terms of Use
+  const termsSetting = document.getElementById("terms-setting");
+  if (termsSetting) {
+    termsSetting.addEventListener("click", () => {
+      alert(
+        "Terms of Use:\n\nBy using this game, you agree to follow the rules and guidelines. Respect other players and avoid cheating. All data collected will be handled according to our Privacy Policy."
+      );
+    });
+  }
+
+  // Privacy Policy
+  const privacySetting = document.getElementById("privacy-setting");
+  if (privacySetting) {
+    privacySetting.addEventListener("click", () => {
+      alert(
+        "Privacy Policy:\n\nWe respect your privacy. Any data collected (username, game progress) is stored securely and will not be shared with third parties. You can request data deletion at any time."
+      );
+    });
+  }
+    // ⬇️⬇️ هنا أضف ربط زر الترقية والإلغاء ⬇️⬇️
+  const castleStartUpgradeBtn = document.getElementById("castle-start-upgrade-btn");
+  if (castleStartUpgradeBtn) {
+    castleStartUpgradeBtn.addEventListener("click", () => {
+      startCastlePanelUpgrade();
+    });
+  }
+
+  const castleCancelUpgradeBtn = document.getElementById("castle-cancel-upgrade-btn");
+  if (castleCancelUpgradeBtn) {
+    castleCancelUpgradeBtn.addEventListener("click", () => {
+      cancelCastlePanelUpgrade();
+    });
+  }
+});
+
+// ===== Castle Panel logic (فتح/قفل) =====
+function openCastlePanel() {
+  const panel = document.getElementById("castle-panel");
+  if (!panel) return;
+  panel.classList.remove("castle-hidden");
+  panel.classList.add("castle-visible");
+
+  updateCastleInfoTab();
+  updateCastleUpgradeTab();
+}
+function openBuildingPanel(buildingKey) {
+  // 1) إغلاق لوحة القلعة
+  const castlePanel = document.getElementById("castle-panel");
+  if (castlePanel) {
+    castlePanel.classList.remove("castle-visible");
+    castlePanel.classList.add("castle-hidden");
+  }
+
+  // 2) التأكد إن صفحة المدينة ظاهرة
+  const cityScreen = document.getElementById("city-screen");
+  if (cityScreen) {
+    cityScreen.style.display = "block";
+  }
+
+  // 3) هايلايت على المبنى
+  highlightBuildingInCity(buildingKey);
+}
+
+
+function closeCastlePanel() {
+  const panel = document.getElementById("castle-panel");
+  if (!panel) return;
+  panel.classList.remove("castle-visible");
+  panel.classList.add("castle-hidden");
+}
+
+// ربط زر السهم جوه panel + تجهيز popup إلغاء الترقية
+document.addEventListener("DOMContentLoaded", () => {
+  // زر الرجوع
+  const backBtn = document.getElementById("castle-back-btn");
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      closeCastlePanel();
+    });
+  }
+
+  // عناصر popup الإلغاء
+  const castleCancelPopup = document.getElementById("castle-cancel-popup");
+  const castleCancelConfirmBtn = document.getElementById("castle-cancel-confirm");
+  const castleCancelDismissBtn = document.getElementById("castle-cancel-dismiss");
+
+  // إخفاء popup في البداية
+  if (castleCancelPopup) {
+    castleCancelPopup.style.display = "none";
+  }
+
+  // زر "إلغاء الترقية" في panel القلعة
+  const castleCancelUpgradeBtn = document.getElementById("castle-cancel-upgrade-btn");
+  if (castleCancelUpgradeBtn) {
+    castleCancelUpgradeBtn.addEventListener("click", () => {
+      cancelCastlePanelUpgrade();
+    });
+  }
+
+  // حفظ العناصر في window عشان نستخدمها في الدالة
+  window.castleCancelPopup = castleCancelPopup;
+  window.castleCancelConfirmBtn = castleCancelConfirmBtn;
+  window.castleCancelDismissBtn = castleCancelDismissBtn;
+});
+
+// تبديل تبويبات القلعة
+document.addEventListener("DOMContentLoaded", () => {
+  const castleTabButtons = document.querySelectorAll(".castle-tab-button");
+  const castleTabContents = document.querySelectorAll(".castle-tab-content");
+
+  castleTabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-tab");
+
+      // فعّل الزر المختار
+      castleTabButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // أظهر المحتوى المناسب
+      castleTabContents.forEach((content) => {
+        if (content.id === targetId) {
+          content.classList.add("active");
+        } else {
+          content.classList.remove("active");
+        }
+      });
+    });
+  });
+});
+// تحديث تبويب "معلومات"
+function updateCastleInfoTab() {
+  const levelEl = document.getElementById("castle-info-level");
+  const powerEl = document.getElementById("castle-info-power");
+  const storageEl = document.getElementById("castle-info-storage");
+
+  if (levelEl) levelEl.textContent = castleLevel.toString();
+  if (powerEl) powerEl.textContent = getCastlePowerForLevel(castleLevel).toString();
+  if (storageEl) storageEl.textContent = getCastleStorageCapacity(castleLevel).toString();
+}
+function getCastleRequirementsForLevel(nextLevel) {
+  const req = CASTLE_LEVEL_REQUIREMENTS[nextLevel];
+  if (!req) return null;
+  return req.requiredBuildings || null;
+}
+
+// تحديث تبويب "ترقية"
+function updateCastleUpgradeTab() {
+  const currentLevelEl = document.getElementById("castle-upgrade-current-level");
+  const nextLevelEl = document.getElementById("castle-upgrade-next-level");
+  const goldCostEl = document.getElementById("castle-upgrade-gold-cost");
+  const woodCostEl = document.getElementById("castle-upgrade-wood-cost");
+  const foodCostEl = document.getElementById("castle-upgrade-food-cost");
+  const timeEl = document.getElementById("castle-upgrade-time");
+
+  const currentLevel = castleLevel;
+  const nextLevel = Math.min(castleLevel + 1, castleMaxLevel);
+
+  const goldCost = getCastleGoldCost(currentLevel);
+  const woodCost = getCastleWoodCost(currentLevel);
+  const foodCost = getCastleFoodCost(currentLevel);
+  const upgradeTimeSec = getCastleUpgradeTime(currentLevel);
+
+  if (currentLevelEl) currentLevelEl.textContent = currentLevel.toString();
+  if (nextLevelEl) nextLevelEl.textContent = nextLevel.toString();
+  if (goldCostEl) goldCostEl.textContent = goldCost.toString();
+  if (woodCostEl) woodCostEl.textContent = woodCost.toString();
+  if (foodCostEl) foodCostEl.textContent = foodCost.toString();
+  if (timeEl) timeEl.textContent = formatDuration(upgradeTimeSec);
+  // ----- عرض المباني المطلوبة للترقية -----
+  const reqContainer = document.getElementById("castle-upgrade-required-buildings");
+  if (!reqContainer) return;
+
+  reqContainer.innerHTML = "";
+
+  const requirements = getCastleRequirementsForLevel(nextLevel);
+  if (!requirements) {
+    return; // مفيش متطلبات خاصة للمستوى ده
+  }
+
+  const title = document.createElement("div");
+  title.textContent = "لترقية القلعة يجب تطوير هذه المباني:";
+  title.style.fontSize = "12px";
+  title.style.margin = "6px 0 4px 0";
+  reqContainer.appendChild(title);
+
+  const row = document.createElement("div");
+  row.style.display = "flex";
+  row.style.flexWrap = "wrap";
+  row.style.gap = "6px";
+  reqContainer.appendChild(row);
+
+  for (const [key, neededLevel] of Object.entries(requirements)) {
+    const currentLvl = buildingLevels[key] || 0;
+    const ok = currentLvl >= neededLevel;
+
+    const item = document.createElement("div");
+    item.style.minWidth = "90px";
+    item.style.padding = "4px 6px";
+    item.style.borderRadius = "8px";
+    item.style.background = "rgba(15, 23, 42, 0.9)";
+    item.style.fontSize = "11px";
+    item.style.textAlign = "center";
+item.style.cursor = "pointer";
+item.onclick = () => {
+  openBuildingPanel(key);
+};
+
+    const img = document.createElement("img");
+    img.src = getBuildingImageByKey(key);
+    img.style.width = "28px";
+    img.style.height = "28px";
+    img.style.objectFit = "contain";
+    img.style.display = "block";
+    img.style.margin = "0 auto 2px auto";
+
+    const name = document.createElement("div");
+    name.style.marginBottom = "2px";
+    name.textContent = getBuildingNameByKey(key);
+
+    const status = document.createElement("div");
+    status.textContent = `المطلوب: ${neededLevel} - الحالي: ${currentLvl}`;
+    status.style.color = ok ? "#22c55e" : "#ef4444";
+
+    item.appendChild(img);
+    item.appendChild(name);
+    item.appendChild(status);
+    row.appendChild(item);
+  }
+}
+function updateGoldMineUpgradeTab() {
+  const currentLevelEl = document.getElementById("gold-mine-upgrade-current-level");
+  const nextLevelEl    = document.getElementById("gold-mine-upgrade-next-level");
+  const goldCostEl     = document.getElementById("gold-mine-upgrade-gold-cost");
+  const woodCostEl     = document.getElementById("gold-mine-upgrade-wood-cost");
+  const foodCostEl     = document.getElementById("gold-mine-upgrade-food-cost");
+  const timeEl         = document.getElementById("gold-mine-upgrade-time");
+
+  const infoLevelEl    = document.getElementById("gold-mine-info-level");
+  const infoProdEl     = document.getElementById("gold-mine-info-production");
+
+  const level     = goldMineLevel;
+  const nextLevel = goldMineLevel + 1;
+
+  const goldCost = getCastleGoldCost(level);
+  const woodCost = getCastleWoodCost(level);
+  const foodCost = getCastleFoodCost(level);
+  const timeSec  = getCastleUpgradeTime(level);
+
+  if (currentLevelEl) currentLevelEl.textContent = level.toString();
+  if (nextLevelEl)    nextLevelEl.textContent    = nextLevel.toString();
+  if (goldCostEl)     goldCostEl.textContent     = goldCost.toString();
+  if (woodCostEl)     woodCostEl.textContent     = woodCost.toString();
+  if (foodCostEl)     foodCostEl.textContent     = foodCost.toString();
+  if (timeEl)         timeEl.textContent         = formatDuration(timeSec);
+
+  if (infoLevelEl) infoLevelEl.textContent = level.toString();
+  if (infoProdEl)  infoProdEl.textContent  = (level * 100).toString();
+}
+
+function startGoldMineUpgrade() {
+  if (goldMineUpgradeInProgress) return;
+
+  const level = goldMineLevel;
+  const goldCost = getCastleGoldCost(level);
+  const woodCost = getCastleWoodCost(level);
+  const foodCost = getCastleFoodCost(level);
+  const upgradeTimeSec = getCastleUpgradeTime(level);
+
+  if (resources.gold < goldCost ||
+      resources.wood < woodCost ||
+      resources.food < foodCost) {
+    alert("الموارد غير كافية لترقية منجم الذهب.");
+    return;
+  }
+
+  resources.gold -= goldCost;
+  resources.wood -= woodCost;
+  resources.food -= foodCost;
+
+  lastGoldMineGoldCost = goldCost;
+  lastGoldMineWoodCost = woodCost;
+  lastGoldMineFoodCost = foodCost;
+
+  if (typeof updateTopBar === "function") {
+    updateTopBar();
+  }
+
+  goldMineUpgradeInProgress     = true;
+  goldMineUpgradeRemainingTime  = upgradeTimeSec;
+  goldMineUpgradeFinishAt       = Date.now() + upgradeTimeSec * 1000;
+
+  saveGameState();
+
+  const wrapper = document.getElementById("gold-mine-upgrade-progress-wrapper");
+  const fill    = document.getElementById("gold-mine-upgrade-progress-fill");
+  const timeEl  = document.getElementById("gold-mine-upgrade-remaining-time");
+
+  if (wrapper) wrapper.style.display = "block";
+  if (timeEl)  timeEl.textContent   = formatDuration(goldMineUpgradeRemainingTime);
+  if (fill)    fill.style.width     = "100%";
+
+  const totalTime = upgradeTimeSec;
+
+  if (goldMineUpgradeInterval) clearInterval(goldMineUpgradeInterval);
+  goldMineUpgradeInterval = setInterval(() => {
+    goldMineUpgradeRemainingTime -= 1;
+    if (goldMineUpgradeRemainingTime < 0) goldMineUpgradeRemainingTime = 0;
+
+    if (timeEl) {
+      timeEl.textContent = formatDuration(goldMineUpgradeRemainingTime);
+    }
+
+    const ratio = totalTime > 0 ? goldMineUpgradeRemainingTime / totalTime : 0;
+    if (fill) {
+      const percent = Math.max(0, Math.min(100, ratio * 100));
+      fill.style.width = percent + "%";
+    }
+
+    if (goldMineUpgradeRemainingTime <= 0) {
+      clearInterval(goldMineUpgradeInterval);
+      goldMineUpgradeInterval = null;
+      finishGoldMineUpgrade();
+    }
+  }, 1000);
+}
+
+function finishGoldMineUpgrade() {
+  goldMineUpgradeInProgress = false;
+  goldMineUpgradeFinishAt   = null;
+
+  goldMineLevel += 1;
+  buildingLevels.goldMine = goldMineLevel;
+
+  updateGoldMineUpgradeTab();
+
+  const wrapper = document.getElementById("gold-mine-upgrade-progress-wrapper");
+  const fill    = document.getElementById("gold-mine-upgrade-progress-fill");
+  const timeEl  = document.getElementById("gold-mine-upgrade-remaining-time");
+
+  if (wrapper) wrapper.style.display = "none";
+  if (fill)    fill.style.width     = "0%";
+  if (timeEl)  timeEl.textContent   = formatDuration(0);
+
+  saveGameState();
+}
+
+function startCastlePanelUpgrade() {
+  if (upgradeInProgress) {
+    return; // في ترقية شغالة بالفعل
+  }
+
+  if (castleLevel >= castleMaxLevel) {
+    alert("وصلت لأقصى مستوى للقلعة");
+    return;
+  }
+
+  // 👇 أضف السطور دي هنا
+  const nextLevel = castleLevel + 1;
+  if (!canUpgradeCastleTo(nextLevel)) {
+    alert("طوّر مباني الموارد (والشروط المطلوبة) قبل ترقية القلعة.");
+    return;
+  }
+  const level = castleLevel;
+  const goldCost = getCastleGoldCost(level);
+  const woodCost = getCastleWoodCost(level);
+  const foodCost = getCastleFoodCost(level);
+const upgradeTimeSec = getCastleUpgradeTime(level);
+console.log("DEBUG resources:", resources);
+console.log("DEBUG cost:", { goldCost, woodCost, foodCost });
+
+
+ // خصم الموارد
+resources.gold -= goldCost;
+resources.wood -= woodCost;
+resources.food -= foodCost;
+
+// حفظ آخر تكلفة (للإرجاع عند الإلغاء)
+lastUpgradeGoldCost = goldCost;
+lastUpgradeWoodCost = woodCost;
+lastUpgradeFoodCost = foodCost;
+
+// تحديث شريط الموارد فوق لو عندك دالة
+if (typeof updateTopBar === "function") {
+  updateTopBar();
+}
+
+// تجهيز حالة الترقية
+upgradeInProgress = true;
+upgradeRemainingTime = upgradeTimeSec;
+// نحسب وقت انتهاء الترقية
+upgradeFinishAt = Date.now() + upgradeTimeSec * 1000;
+
+// حفظ الحالة بعد خصم الموارد وبدء الترقية
+saveGameState();
+
+// إظهار شريط التقدم
+const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
+const progressFill = document.getElementById("castle-upgrade-progress-fill");
+const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
+
+if (progressWrapper) progressWrapper.style.display = "block";
+
+const totalTime = upgradeTimeSec;
+if (progressFill) progressFill.style.width = "100%";
+if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
+
+// نحدّث تبويب الترقية بالبداية
+updateCastleUpgradeTab();
+
+// مؤقت الترقية
+if (upgradeInterval) clearInterval(upgradeInterval);
+
+upgradeInterval = setInterval(() => {
+  upgradeRemainingTime -= 1;
+  if (upgradeRemainingTime < 0) upgradeRemainingTime = 0;
+
+  if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
+
+  const ratio = totalTime > 0 ? upgradeRemainingTime / totalTime : 0;
+  if (progressFill) {
+    const percent = Math.max(0, Math.min(100, ratio * 100));
+    progressFill.style.width = percent + "%";
+  }
+
+  if (upgradeRemainingTime <= 0) {
+    clearInterval(upgradeInterval);
+    upgradeInterval = null;
+    finishCastlePanelUpgrade();
+  }
+}, 1000);
+}
+function startGoldMineUpgrade() {
+  if (goldMineUpgradeInProgress) return;
+
+  const level = goldMineLevel;
+  const goldCost = getCastleGoldCost(level);
+  const woodCost = getCastleWoodCost(level);
+  const foodCost = getCastleFoodCost(level);
+  const upgradeTimeSec = getCastleUpgradeTime(level);
+
+  if (resources.gold < goldCost ||
+      resources.wood < woodCost ||
+      resources.food < foodCost) {
+    alert("الموارد غير كافية لترقية منجم الذهب.");
+    return;
+  }
+
+  resources.gold -= goldCost;
+  resources.wood -= woodCost;
+  resources.food -= foodCost;
+
+  lastGoldMineGoldCost = goldCost;
+  lastGoldMineWoodCost = woodCost;
+  lastGoldMineFoodCost = foodCost;
+
+  if (typeof updateTopBar === "function") {
+    updateTopBar();
+  }
+
+  goldMineUpgradeInProgress     = true;
+  goldMineUpgradeRemainingTime  = upgradeTimeSec;
+  goldMineUpgradeFinishAt       = Date.now() + upgradeTimeSec * 1000;
+
+  saveGameState();
+
+  const wrapper = document.getElementById("gold-mine-upgrade-progress-wrapper");
+  const fill    = document.getElementById("gold-mine-upgrade-progress-fill");
+  const timeEl  = document.getElementById("gold-mine-upgrade-remaining-time");
+
+  if (wrapper) wrapper.style.display = "block";
+  if (timeEl)  timeEl.textContent   = formatDuration(goldMineUpgradeRemainingTime);
+  if (fill)    fill.style.width     = "100%";
+
+  const totalTime = upgradeTimeSec;
+
+  if (goldMineUpgradeInterval) clearInterval(goldMineUpgradeInterval);
+  goldMineUpgradeInterval = setInterval(() => {
+    goldMineUpgradeRemainingTime -= 1;
+    if (goldMineUpgradeRemainingTime < 0) goldMineUpgradeRemainingTime = 0;
+
+    if (timeEl) {
+      timeEl.textContent = formatDuration(goldMineUpgradeRemainingTime);
+    }
+
+    const ratio = totalTime > 0 ? goldMineUpgradeRemainingTime / totalTime : 0;
+    if (fill) {
+      const percent = Math.max(0, Math.min(100, ratio * 100));
+      fill.style.width = percent + "%";
+    }
+
+    if (goldMineUpgradeRemainingTime <= 0) {
+      clearInterval(goldMineUpgradeInterval);
+      goldMineUpgradeInterval = null;
+      finishGoldMineUpgrade();
+    }
+  }, 1000);
+}
+
+function finishGoldMineUpgrade() {
+  goldMineUpgradeInProgress = false;
+  goldMineUpgradeFinishAt   = null;
+
+  goldMineLevel += 1;
+  buildingLevels.goldMine = goldMineLevel;
+
+  updateGoldMineUpgradeTab();
+
+  const wrapper = document.getElementById("gold-mine-upgrade-progress-wrapper");
+  const fill    = document.getElementById("gold-mine-upgrade-progress-fill");
+  const timeEl  = document.getElementById("gold-mine-upgrade-remaining-time");
+
+  if (wrapper) wrapper.style.display = "none";
+  if (fill)    fill.style.width     = "0%";
+  if (timeEl)  timeEl.textContent   = formatDuration(0);
+
+  saveGameState();
+}
+
+// ← هنا قفلنا الدالة صح
+function cancelCastlePanelUpgrade() {
+  if (!upgradeInProgress) return;
+
+  if (!window.castleCancelPopup || !window.castleCancelConfirmBtn || !window.castleCancelDismissBtn) {
+    return;
+  }
+
+  // إظهار الـ popup
+  window.castleCancelPopup.style.display = "flex";
+
+  // زر "إلغاء" في popup
+  window.castleCancelDismissBtn.onclick = () => {
+    window.castleCancelPopup.style.display = "none";
+  };
+
+  // زر "موافق" في popup
+  window.castleCancelConfirmBtn.onclick = () => {
+    window.castleCancelPopup.style.display = "none";
+
+    // استرجاع 50% من الموارد المنفقة
+    resources.gold += Math.floor(lastUpgradeGoldCost * 0.5);
+    resources.wood += Math.floor(lastUpgradeWoodCost * 0.5);
+    resources.food += Math.floor(lastUpgradeFoodCost * 0.5);
+
+    if (upgradeInterval) {
+      clearInterval(upgradeInterval);
+      upgradeInterval = null;
+    }
+
+    upgradeInProgress = false;
+
+    const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
+    const progressFill = document.getElementById("castle-upgrade-progress-fill");
+    const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
+
+    if (progressWrapper) progressWrapper.style.display = "none";
+    if (progressFill) progressFill.style.width = "0%";
+    if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(0);
+
+    updateCastleInfoTab();
+    updateCastleUpgradeTab();
+    saveGameState();
+  };
+}
+
+function finishCastlePanelUpgrade() {
+  upgradeInProgress = false;
+  currentUpgradeType = null;
+
+  // زيادة مستوى القلعة
+  if (castleLevel < castleMaxLevel) {
+    castleLevel += 1;
+  }
+
+  // إعادة الحسابات
+  recalculatePower();
+  updateCastleInfoTab();
+  updateCastleUpgradeTab();
+
+  // إعادة ضبط شريط التقدم
+  const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
+  const progressFill = document.getElementById("castle-upgrade-progress-fill");
+  const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
+
+  if (progressWrapper) progressWrapper.style.display = "none";
+  if (progressFill) progressFill.style.width = "0%";
+  if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(0);
+
+  // حفظ الحالة بعد الترقية
+  saveGameState();
+}
+
+// ===== Chat logic (نسخة بسيطة ثابتة) =====
+let currentChatTab = "global";
+
+function openChat() {
+  const panel = document.getElementById("chat-panel");
+  if (!panel) return;
+  panel.classList.remove("chat-hidden");
+  panel.classList.add("chat-visible");
+}
+
+function closeChat() {
+  const panel = document.getElementById("chat-panel");
+  if (!panel) return;
+  panel.classList.remove("chat-visible");
+  panel.classList.add("chat-hidden");
+}
+
+function switchChatTab(tabKey) {
+  currentChatTab = tabKey;
+
+  const chatTabs = document.querySelectorAll(".chat-tab");
+  const chatAreas = {
+    global: document.getElementById("chat-global"),
+    clan: document.getElementById("chat-clan"),
+    friends: document.getElementById("chat-friends"),
+    system: document.getElementById("chat-system"),
+  };
+
+  chatTabs.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.chat === tabKey);
+  });
+
+  Object.keys(chatAreas).forEach((key) => {
+    if (!chatAreas[key]) return;
+    if (key === tabKey) {
+      chatAreas[key].classList.remove("chat-hidden");
+    } else {
+      chatAreas[key].classList.add("chat-hidden");
+    }
+  });
+}
+
+function handleSendChat() {
+  const input = document.getElementById("chat-input");
+  const text = input ? input.value.trim() : "";
+  if (!text) return;
+
+  const areaId = "chat-" + currentChatTab;
+  const area = document.getElementById(areaId);
+  if (!area) return;
+
+  const div = document.createElement("div");
+  div.className = "chat-message me";
+  div.textContent = text;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+
+  input.value = "";
+}
+
+// ربط الأزرار بعد تحميل الصفحة
+window.addEventListener("load", () => {
+  const chatIcon = document.getElementById("chat-icon");
+  const chatBackBtn = document.querySelector(".chat-back-btn");
+  const chatTabs = document.querySelectorAll(".chat-tab");
+  const chatSendBtn = document.getElementById("chat-send-btn");
+  const chatInput = document.getElementById("chat-input");
+
+  if (chatIcon) {
+    chatIcon.addEventListener("click", () => {
+      openChat();
+      if (typeof closeRightMenu === "function") closeRightMenu();
+    });
+  }
+
+  if (chatBackBtn) {
+    chatBackBtn.addEventListener("click", closeChat);
+  }
+
+  if (chatTabs && chatTabs.length) {
+    chatTabs.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.chat;
+        if (!key) return;
+        switchChatTab(key);
+      });
+    });
+  }
+
+  if (chatSendBtn) {
+    chatSendBtn.addEventListener("click", handleSendChat);
+  }
+
+  if (chatInput) {
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleSendChat();
+    });
+  }
+
+  switchChatTab("global");
+});
+/* --- Start App --- */
+window.addEventListener("load", () => {
+  const selectedHero = localStorage.getItem("hero");
+  let width = 0;
+  const interval = setInterval(() => {
+    width++;
+    loadingFill1.style.width = width + "%";
+    loadingFill1.textContent = width + "%";
+    if (width >= 100) {
+      clearInterval(interval);
+      document.getElementById("loading1").style.display = "none";
+
+      // تحميل حالة اللعبة (الموارد + مستوى القلعة)
+      loadGameState();
+      loadBuildingsState();
+      recalcBuildingsUnlockByCastleLevel();
+      loadClanState();
+
+      // بعد ما كل حاجة اتحملت و الـ DOM جاهز
+      wireClanButtons();
+
+      if (!selectedHero) {
+        characterScreen.style.display = "block";
+      } else {
+        currentHero = selectedHero;
+        enterCity();
+      }
+    }
+  }, 30);
+});
+
+// ===== Clan basic state (محلي) =====
+const CLAN_STATE_KEY = "raidex_clan_state_v1";
+
+let clanState = {
+  name: null,
+  role: null,     // "leader" | "member"
+  members: [],    // [{name, role}]
+};
+
+function loadClanState() {
+  try {
+    const raw = localStorage.getItem(CLAN_STATE_KEY);
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    clanState = {
+      ...clanState,
+      ...state,
+    };
+  } catch (e) {
+    console.error("Error loading clan state", e);
+  }
+}
+
+function saveClanState() {
+  try {
+    localStorage.setItem(CLAN_STATE_KEY, JSON.stringify(clanState));
+  } catch (e) {
+    console.error("Error saving clan state", e);
+  }
+}
+
+// كلانات مقترحة وهمية
+const SUGGESTED_CLANS = [
+  { name: "Raidex Warriors", members: 12, minCastleLevel: 3 },
+  { name: "Desert Kings", members: 8, minCastleLevel: 1 },
+  { name: "Shadow Legion", members: 20, minCastleLevel: 5 },
+  { name: "Night Raiders", members: 15, minCastleLevel: 2 },
+  { name: "Dragon Hearts", members: 30, minCastleLevel: 4 },
+];
+function wireClanButtons() {
+  const createBtn = document.getElementById("clan-create-btn");
+  const joinBtn = document.getElementById("clan-join-btn");
+  const createTopBtn = document.getElementById("clan-create-top-btn");
+
+  // نستخدم زر الإنشاء اللي فوق لو موجود، لو مش موجود نرجع للقديم
+  const anyCreateBtn = createTopBtn || createBtn;
+
+  if (anyCreateBtn) {
+    anyCreateBtn.onclick = createClan;
+  }
+
+  if (joinBtn) {
+    joinBtn.onclick = () => {
+      if (SUGGESTED_CLANS.length > 0) {
+        joinClan(SUGGESTED_CLANS[0].name);
+      }
+    };
+  }
+}
+
+function renderClanPage() {
+  const listBox = document.getElementById("clan-list");
+  const headerSub = document.getElementById("clan-header-sub");
+  const guestView = document.getElementById("clan-guest-view");
+  const memberView = document.getElementById("clan-member-view");
+
+  const memberNameEl = document.getElementById("clan-member-name");
+  const memberRoleEl = document.getElementById("clan-member-role");
+  const memberCountEl = document.getElementById("clan-member-count");
+  const leaveBtn = document.getElementById("clan-leave-btn");
+  const overviewExtra = document.getElementById("clan-overview-extra");
+
+  if (!listBox || !headerSub || !guestView || !memberView) return;
+
+  // لو مفيش كلان: نعرض واجهة Guest
+  if (!clanState.name) {
+    guestView.style.display = "block";
+    memberView.style.display = "none";
+    headerSub.textContent = "Join or create a clan to play with others";
+  } else {
+    guestView.style.display = "none";
+    memberView.style.display = "block";
+    headerSub.textContent = `Clan: ${clanState.name}`;
+
+    if (memberNameEl) {
+      memberNameEl.textContent = clanState.name;
+    }
+
+    if (memberRoleEl) {
+      const roleLabel =
+        clanState.role === "leader" ? "Leader" : "Member";
+      memberRoleEl.textContent = `Your role: ${roleLabel}`;
+    }
+
+    if (memberCountEl) {
+      memberCountEl.textContent = `Members: ${clanState.members.length}`;
+    }
+
+    if (leaveBtn) {
+      leaveBtn.onclick = leaveClan;
+    }
+
+    if (overviewExtra) {
+      overviewExtra.innerHTML = "";
+
+      const row1 = document.createElement("div");
+      row1.textContent = "Clan level: 1 (placeholder)";
+
+      const row2 = document.createElement("div");
+      row2.textContent = "Total power: 0 (placeholder)";
+
+      const row3 = document.createElement("div");
+      row3.textContent =
+        clanState.role === "leader"
+          ? "You can manage this clan in Settings tab."
+          : "Only the leader can change clan settings.";
+
+      overviewExtra.appendChild(row1);
+      overviewExtra.appendChild(row2);
+      overviewExtra.appendChild(row3);
+    }
+
+    // دايمًا لما نفتح member view نخلي تبويب overview هو اللي ظاهر
+    switchClanTab("overview");
+  }
+
+  // قائمة الكلانات المتاحة (للـ Guest)
+  listBox.innerHTML = "";
+  SUGGESTED_CLANS.forEach((c) => {
+    const row = document.createElement("div");
+    row.style.padding = "6px 8px";
+    row.style.marginBottom = "4px";
+    row.style.borderRadius = "10px";
+    row.style.background = "rgba(15,23,42,0.9)";
+    row.style.border = "1px solid rgba(148,163,184,0.4)";
+    row.style.display = "flex";
+    row.style.justifyContent = "space-between";
+    row.style.alignItems = "center";
+    row.style.fontSize = "13px";
+
+    row.innerHTML = `
+      <div>
+        <div style="font-weight:bold;">${c.name}</div>
+        <div style="font-size:11px; color:#9ca3af;">
+          ${c.members} members • Min Castle Lv. ${c.minCastleLevel}
+        </div>
+      </div>
+      <button style="padding:4px 10px; border:none; border-radius:999px; background:#0ea5e9; color:#0b1120; font-size:11px; cursor:pointer;">
+        Join
+      </button>
+    `;
+
+    const joinBtn = row.querySelector("button");
+    joinBtn.onclick = () => {
+      joinClan(c.name);
+    };
+
+    listBox.appendChild(row);
+  });
+
+  // ربط أزرار التبويبات
+  const tabButtons = document.querySelectorAll(".clan-tab-btn");
+  tabButtons.forEach((btn) => {
+    btn.onclick = () => {
+      const key = btn.dataset.tab;
+      if (!key) return;
+      switchClanTab(key);
+    };
+  });
+}
+
+function createClan() {
+  const name = prompt("Enter clan name:");
+  if (!name) return;
+
+  const playerName = localStorage.getItem("playerName") || "Player";
+
+  clanState.name = name;
+  clanState.role = "leader";
+  clanState.members = [{ name: playerName, role: "leader" }];
+
+  saveClanState();
+  renderClanPage();
+}
+
+function joinClan(name) {
+  const playerName = localStorage.getItem("playerName") || "Player";
+
+  clanState.name = name;
+  clanState.role = "member";
+  clanState.members = [{ name: playerName, role: "member" }];
+
+  saveClanState();
+  renderClanPage();
+}
+
+function leaveClan() {
+  if (!clanState.name) return;
+
+  const confirmLeave = confirm(
+    `Are you sure you want to leave clan "${clanState.name}"?`
+  );
+  if (!confirmLeave) return;
+
+  clanState.name = null;
+  clanState.role = null;
+  clanState.members = [];
+
+  saveClanState();
+  renderClanPage();
+}
+
+function switchClanTab(key) {
+  const panels = document.querySelectorAll(".clan-tab-panel");
+  const buttons = document.querySelectorAll(".clan-tab-btn");
+
+  panels.forEach((p) => {
+    p.style.display = p.id === `clan-tab-${key}` ? "block" : "none";
+  });
+
+  buttons.forEach((b) => {
+    if (b.dataset.tab === key) {
+      b.style.color = "#facc15";
+    } else {
+      b.style.color = "#9ca3af";
+    }
+  });
+}
+
+/* ============================
+   Unified Page Manager + Resource Shop Styling
+   ============================ */
+
+// 1) Helper: مدير صفحات بين الـ top-bar والـ bottom-bar
+const GAME_PAGE_IDS = ["tasks-page", "invites-page", "resource-shop-panel", "clan-page"];
+
+function hideAllGamePages() {
+  GAME_PAGE_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add("game-page-hidden");
+    }
+  });
+}
+
+function showGamePage(id) {
+  hideAllGamePages();
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.remove("game-page-hidden");
+  }
+}
+
+// === Tasks Page ===
+function openTasksPage() {
+  const tasksPage = document.getElementById("tasks-page");
+  if (!tasksPage) return;
+  showGamePage("tasks-page");
+  if (typeof renderTasksPage === "function") {
+    renderTasksPage();
+  }
+}
+
+function closeTasksPage() {
+  const tasksPage = document.getElementById("tasks-page");
+  if (!tasksPage) return;
+  tasksPage.classList.add("game-page-hidden");
+}
+
+// === Invites Page ===
+function openInvites() {
+  const invitesPage = document.getElementById("invites-page");
+  if (!invitesPage) return;
+  showGamePage("invites-page");
+}
+
+function closeInvites() {
+  const invitesPage = document.getElementById("invites-page");
+  if (!invitesPage) return;
+  invitesPage.classList.add("game-page-hidden");
+}
+// === Clan Page ===
+function openClanPage() {
+  showGamePage("clan-page");
+  renderClanPage();
+}
+
+function closeClanPage() {
+  const clanPage = document.getElementById("clan-page");
+  if (!clanPage) return;
+  clanPage.classList.add("game-page-hidden");
+}
+
+
+// 2) تحسين متجر الموارد + توحيد مكانه بين البارين
+
+// نضمن أن الـ panel له الـ class الصحيح
+(function initResourceShopLayoutOnce() {
+  const panel = document.getElementById("resource-shop-panel");
+  if (!panel) return;
+  panel.classList.add("game-page-panel", "game-page-hidden");
+})();
+
+let currentShopResource = "gold"; // gold | wood | food
+
+function openResourceShop(resourceType) {
+    console.log("openResourceShop called with:", resourceType);
+  currentShopResource = resourceType || currentShopResource || "gold";
+
+  const panel   = document.getElementById("resource-shop-panel");
+  const titleEl = document.getElementById("resource-shop-title");
+  const subEl   = document.getElementById("resource-shop-sub");
+  const content = document.getElementById("resource-shop-content");
+
+  if (!panel || !titleEl || !subEl || !content) return;
+
+  const nameAr =
+    currentShopResource === "gold" ? "الذهب" :
+    currentShopResource === "wood" ? "الخشب" :
+    "اللحم";
+
+  titleEl.textContent = `شراء ${nameAr}`;
+  subEl.textContent   = `اختر باقة ${nameAr} تريد شراءها بالجواهر`;
+
+  content.innerHTML = "";
+
+  RESOURCE_PACKS.forEach(pack => {
+    const btn = document.createElement("button");
+    btn.className = "resource-pack-btn";
+
+    if (currentShopResource === "gold") {
+      btn.classList.add("resource-pack-gold");
+    } else if (currentShopResource === "wood") {
+      btn.classList.add("resource-pack-wood");
+    } else {
+      btn.classList.add("resource-pack-food");
+    }
+
+    btn.innerHTML = `
+      <div>
+        <div>${pack.amount.toLocaleString()}</div>
+        <span class="amount">وحدة من ${nameAr}</span>
+      </div>
+      <span class="price">${pack.costGem.toLocaleString()} 💎</span>
+    `;
+    btn.onclick = () => {
+      buyResourcePack(currentShopResource, pack.amount, pack.costGem);
+    };
+    content.appendChild(btn);
+  });
+
+  showGamePage("resource-shop-panel");
+}
+
+function closeResourceShop() {
+  const panel = document.getElementById("resource-shop-panel");
+  if (!panel) return;
+  panel.classList.add("game-page-hidden");
+}
+
+// 3) نربط bottom bar زر المهام لو مش مربوط
+(function wireBottomBarButtons() {
+  const bottomBar = document.getElementById("bottom-bar");
+  if (!bottomBar) return;
+
+  const items = bottomBar.querySelectorAll(".bar-item");
+  items.forEach(item => {
+    const text = (item.textContent || "").trim().toLowerCase();
+    if (text === "task" || text === "tasks") {
+      item.onclick = openTasksPage;
+    }
+  });
+})();
+document.addEventListener("DOMContentLoaded", function () {
+  function openBuildingUpgradePanel() {
+    const panel = document.getElementById("building-panel");
+    panel.classList.remove("hidden");
+  }
+
+  function closeBuildingUpgradePanel() {
+    const panel = document.getElementById("building-panel");
+    panel.classList.add("hidden");
+  }
+
+  const closeBtn = document.getElementById("building-panel-close-btn");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeBuildingUpgradePanel);
+  }
+
+  // للاختبار المؤقت
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const castleStartUpgradeBtn = document.getElementById("castle-start-upgrade-btn");
+  if (castleStartUpgradeBtn) {
+    castleStartUpgradeBtn.addEventListener("click", () => {
+      startCastlePanelUpgrade();
+    });
+  }
+
+  const castleCancelUpgradeBtn = document.getElementById("castle-cancel-upgrade-btn");
+  if (castleCancelUpgradeBtn) {
+    castleCancelUpgradeBtn.addEventListener("click", () => {
+      cancelCastlePanelUpgrade();
+    });
+  }
+});
+    </script>
+
+      <div id="settings-screen">
+    <div class="settings-header">
+      <span>⚙️ Settings</span>
+      <button onclick="closeSettings()">✖</button>
+    </div>
+
+    <div class="settings-content">
+
+    <div class="setting-item" id="language-setting">🌐 Language</div>
+
+    <div class="setting-item" id="telegram-setting">📢 Telegram Channel</div>
+
+    <div class="setting-item" id="twitter-setting">🐦 Twitter Channel</div>
+
+    <div class="setting-item" id="terms-setting">📜 Terms of Use</div>
+
+    <div class="setting-item" id="privacy-setting">🔒 Privacy Policy</div>
+    </div>
+
+    <div id="language-modal" class="full-page hidden">
+  <div style="margin: auto; background: #1e293b; padding: 20px; border-radius: 15px; width: 80%; max-width: 300px; text-align: center;">
+    <h3 style="color:white;">Select Language / اختر اللغة</h3>
+    <button style="margin: 10px; padding: 8px 15px; border-radius: 10px; border:none; background:#007bff; color:white; cursor:pointer;" onclick="setLanguage('en')">English</button>
+    <button style="margin: 10px; padding: 8px 15px; border-radius: 10px; border:none; background:#007bff; color:white; cursor:pointer;" onclick="setLanguage('ar')">العربية</button>
+    <br>
+    <button style="margin-top: 10px; padding: 6px 12px; border-radius: 10px; border:none; background:#555; color:white; cursor:pointer;" onclick="closeLanguageModal()">Cancel</button>
+  </div>
+  </div>
+  </div>
+  <div id="tutorial-overlay" style="display:none;">
+  <div id="tutorial-box">
+    <p id="tutorial-text"></p>
+    <button id="tutorial-next">التالي</button>
+  </div>
+</div>
+<div id="castle-cancel-popup" class="full-page hidden">
+  <div class="page-content" style="max-width: 320px; margin:auto; margin-top: 30vh; text-align:center; background:#1e293b; color:#fff; padding:16px; border-radius:14px;">
+    <p style="margin-bottom:12px;">
+      ستفقد 50% من الموارد المُنفَقة على الترقية. هل تريد المتابعة؟
+    </p>
+    <button id="castle-cancel-confirm"
+            style="margin:4px; padding:6px 14px; border-radius:10px; border:none; background:#ef4444; color:#fff; cursor:pointer;">
+      موافق
+    </button>
+    <button id="castle-cancel-dismiss"
+            style="margin:4px; padding:6px 14px; border-radius:10px; border:none; background:#4b5563; color:#fff; cursor:pointer;">
+      إلغاء
+    </button>
+  </div>
+</div>
+<!-- Chat Panel between top and bottom bars (بسيط) -->
+<div id="chat-panel" class="chat-hidden">
+  <div class="chat-header">
+    <button class="chat-back-btn">←</button>
+    <div class="chat-tabs">
+      <button class="chat-tab active" data-chat="global">Global</button>
+      <button class="chat-tab" data-chat="clan">Clan</button>
+      <button class="chat-tab" data-chat="friends">Friends</button>
+      <button class="chat-tab" data-chat="system">System</button>
+    </div>
+  </div>
+
+  <div class="chat-body">
+    <div id="chat-global" class="chat-messages"></div>
+    <div id="chat-clan" class="chat-messages chat-hidden"></div>
+    <div id="chat-friends" class="chat-messages chat-hidden"></div>
+    <div id="chat-system" class="chat-messages chat-hidden"></div>
+  </div>
+
+  <div class="chat-input-row">
+    <input id="chat-input" type="text" placeholder="Type a message..." />
+    <button id="chat-send-btn">Send</button>
+  </div>
+</div>
+<script>
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  tg && tg.ready();
+
+  const user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+
+  console.log("Telegram user from WebApp:", user);
+
+  const API_BASE = "https://raidex-backend-production.up.railway.app";
+
+  async function registerTelegramPlayer() {
+    if (!user) {
+      console.log("No Telegram user data available.");
+      return;
+    }
+
+    try {
+      const res = await fetch(API_BASE + "/register-telegram-player", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          telegramId: user.id,
+          telegramName: user.username || user.first_name || "Unknown"
+        })
+      });
+
+      const data = await res.json();
+      console.log("Registered Telegram player:", data);
+    } catch (err) {
+      console.error("Error registering telegram player:", err);
+    }
+  }
+
+  window.addEventListener("load", () => {
+    registerTelegramPlayer();
+  });
+</script>
+
+
+  </body>
+</html>
