@@ -6324,10 +6324,40 @@ window.addEventListener("load", () => {
       if (e.key === "Enter") handleSendChat();
     });
   }
+  // أول تحميل للرسائل
+  loadGlobalChatMessages();
+  // تحديث كل 10 ثواني
+  setInterval(loadGlobalChatMessages, 10000);
 
   // التبويب الافتراضي
   switchChatTab("global");
 });
+// ===== جلب رسائل الجلوبال من السيرفر =====
+async function loadGlobalChatMessages() {
+  const area = document.getElementById("chat-global");
+  if (!area) return;
+
+  try {
+    const res = await fetch(
+      "https://raidex-backend-production.up.railway.app/chat/latest?chatType=global&limit=50"
+    );
+    const data = await res.json();
+    if (!data || !Array.isArray(data.messages)) return;
+
+    area.innerHTML = "";
+
+    data.messages.forEach((msg) => {
+      const div = document.createElement("div");
+      div.className = "chat-message";
+      div.textContent = msg.name + ": " + msg.text;
+      area.appendChild(div);
+    });
+
+    area.scrollTop = area.scrollHeight;
+  } catch (e) {
+    console.error("Error loading global chat messages", e);
+  }
+}
 
     </script>
 
