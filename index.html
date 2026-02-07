@@ -910,15 +910,17 @@
   font-weight: bold;
   cursor: pointer;
 }
-/* ===== Castle Panel بسيط بين الـ top-bar و bottom-bar ===== */
+
+/* Castle Panel بين الـ top-bar والـ bottom-bar */
+/* Castle Panel بين الـ top-bar والـ bottom-bar */
 #castle-panel {
   position: absolute;
   left: 0;
   right: 0;
-  top: 80px;     /* نفس ارتفاع الـ top-bar */
-  bottom: 70px;  /* نفس ارتفاع الـ bottom-bar */
+  top: 80px;   /* نفس ارتفاع game-page-panel */
+  bottom: 70px;/* فوق الـ bottom bar */
   background: rgba(0, 0, 0, 0.7);
-  z-index: 240;
+  z-index: 260; /* أعلى شوية من صفحات الجيم اللي z-index=240 */
   color: #fff;
   padding: 10px;
   box-sizing: border-box;
@@ -1709,76 +1711,77 @@
       </div>
     </div>
 
-  <div id="clan-member-view" style="display:none;">
-  <!-- هيدر الكلان -->
-  <div id="clan-member-header"
-       style="padding:10px; margin-bottom:10px; border-radius:10px; background:rgba(15,23,42,0.9); border:1px solid rgba(148,163,184,0.4); font-size:13px;">
-    <div id="clan-member-name" style="font-weight:bold; font-size:14px;"></div>
-    <div id="clan-member-role" style="color:#9ca3af; margin-top:2px;"></div>
-    <div id="clan-member-count" style="color:#9ca3af; margin-top:2px;"></div>
-  </div>
+    <div id="clan-member-view" style="display:none;">
+      <!-- هيدر الكلان -->
+      <div id="clan-member-header"
+           style="padding:10px; margin-bottom:10px; border-radius:10px; background:rgba(15,23,42,0.9); border:1px solid rgba(148,163,184,0.4); font-size:13px;">
+        <div id="clan-member-name" style="font-weight:bold; font-size:14px;"></div>
+        <div id="clan-member-role" style="color:#9ca3af; margin-top:2px;"></div>
+        <div id="clan-member-count" style="color:#9ca3af; margin-top:2px;"></div>
+      </div>
 
-  <!-- زر الخروج من الكلان -->
-  <button id="clan-leave-btn"
-          style="padding:6px 12px; border:none; border-radius:999px; background:#ef4444; color:#0b1120; font-size:12px; font-weight:bold; cursor:pointer; margin-bottom:10px;">
-    Leave Clan
-  </button>
+      <!-- زر الخروج من الكلان -->
+      <button id="clan-leave-btn"
+              style="padding:6px 12px; border:none; border-radius:999px; background:#ef4444; color:#0b1120; font-size:12px; font-weight:bold; cursor:pointer; margin-bottom:10px;">
+        Leave Clan
+      </button>
 
-  <!-- شريط التبويبات -->
-  <div id="clan-tabs-row"
-       style="display:flex; border-bottom:1px solid #374151; margin-bottom:8px; font-size:12px;">
-    <button class="clan-tab-btn" data-tab="overview"
-            style="flex:1; padding:6px 0; border:none; background:transparent; color:#facc15; font-weight:bold; cursor:pointer;">
-      Overview
-    </button>
-    <button class="clan-tab-btn" data-tab="members"
-            style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
-      Members
-    </button>
-    <button class="clan-tab-btn" data-tab="chat"
-            style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
-      Chat
-    </button>
-    <button class="clan-tab-btn" data-tab="wars"
-            style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
-      Wars
-    </button>
-    <button class="clan-tab-btn" data-tab="settings"
-            style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
-      Settings
-    </button>
-  </div>
+      <!-- شريط التبويبات -->
+      <div id="clan-tabs-row"
+           style="display:flex; border-bottom:1px solid #374151; margin-bottom:8px; font-size:12px;">
+        <button class="clan-tab-btn" data-tab="overview"
+                style="flex:1; padding:6px 0; border:none; background:transparent; color:#facc15; font-weight:bold; cursor:pointer;">
+          Overview
+        </button>
+        <button class="clan-tab-btn" data-tab="members"
+                style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
+          Members
+        </button>
+        <button class="clan-tab-btn" data-tab="chat"
+                style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
+          Chat
+        </button>
+        <button class="clan-tab-btn" data-tab="wars"
+                style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
+          Wars
+        </button>
+        <button class="clan-tab-btn" data-tab="settings"
+                style="flex:1; padding:6px 0; border:none; background:transparent; color:#9ca3af; font-weight:bold; cursor:pointer;">
+          Settings
+        </button>
+      </div>
 
-  <!-- محتوى التبويبات -->
-  <div id="clan-tab-overview" class="clan-tab-panel" style="font-size:12px;">
-    <div style="margin-bottom:6px; color:#9ca3af;">
-      Basic clan stats and info will appear here.
-    </div>
-    <div id="clan-overview-extra"></div>
-  </div>
+      <!-- محتوى التبويبات -->
+      <div id="clan-tab-overview" class="clan-tab-panel" style="font-size:12px;">
+        <div style="margin-bottom:6px; color:#9ca3af;">
+          Basic clan stats and info will appear here.
+        </div>
+        <div id="clan-overview-extra"></div>
+      </div>
 
-  <div id="clan-tab-members" class="clan-tab-panel" style="display:none; font-size:12px;">
-    Members list and roles will appear here.
-  </div>
+      <div id="clan-tab-members" class="clan-tab-panel" style="display:none; font-size:12px;">
+        Members list and roles will appear here.
+      </div>
 
-  <div id="clan-tab-chat" class="clan-tab-panel" style="display:none; font-size:12px;">
-    Clan chat integration will appear here.
-  </div>
+      <div id="clan-tab-chat" class="clan-tab-panel" style="display:none; font-size:12px;">
+        Clan chat integration will appear here.
+      </div>
 
-  <div id="clan-tab-wars" class="clan-tab-panel" style="display:none; font-size:12px;">
-    Clan wars/raids info will appear here.
-  </div>
+      <div id="clan-tab-wars" class="clan-tab-panel" style="display:none; font-size:12px;">
+        Clan wars/raids info will appear here.
+      </div>
 
-  <div id="clan-tab-settings" class="clan-tab-panel" style="display:none; font-size:12px;">
-    Settings (leader only) will appear here.
-  </div>
-</div>
-
+      <div id="clan-tab-settings" class="clan-tab-panel" style="display:none; font-size:12px;">
+        Settings (leader only) will appear here.
+      </div>
+    </div> <!-- نهاية clan-member-view -->
+  </div> <!-- نهاية page-content -->
+</div> <!-- نهاية clan-page -->
 
 <!-- Castle Panel (ثابت بين الـ top-bar و bottom-bar) -->
 <div id="castle-panel" class="castle-hidden">
   <div class="castle-panel-header">
-    <button id="castle-back-btn" class="castle-back-btn">←</button>
+    <button id="castle-back-btn" class="castle-back-btn" onclick="closeCastlePanel()">←</button>
     <div class="castle-title">القلعة</div>
   </div>
 
@@ -5164,30 +5167,20 @@ loadBuildingsState();
 function openCastlePanel() {
   const panel = document.getElementById("castle-panel");
   if (!panel) return;
+  // اقفل كل صفحات الجيم اللي بين التوب والبوتم بار
+  hideAllGamePages(); // تستخدم GAME_PAGE_IDS
+  // ظاهر بانل القلعة
   panel.classList.remove("castle-hidden");
   panel.classList.add("castle-visible");
 
-  updateCastleInfoTab();
-  updateCastleUpgradeTab();
-}
-function openBuildingPanel(buildingKey) {
-  // 1) إغلاق لوحة القلعة
-  const castlePanel = document.getElementById("castle-panel");
-  if (castlePanel) {
-    castlePanel.classList.remove("castle-visible");
-    castlePanel.classList.add("castle-hidden");
+  // حدّث التبويبات
+  if (typeof updateCastleInfoTab === "function") {
+    updateCastleInfoTab();
   }
-
-  // 2) التأكد إن صفحة المدينة ظاهرة
-  const cityScreen = document.getElementById("city-screen");
-  if (cityScreen) {
-    cityScreen.style.display = "block";
+  if (typeof updateCastleUpgradeTab === "function") {
+    updateCastleUpgradeTab();
   }
-
-  // 3) هايلايت على المبنى
-  highlightBuildingInCity(buildingKey);
 }
-
 
 function closeCastlePanel() {
   const panel = document.getElementById("castle-panel");
@@ -6136,9 +6129,9 @@ document.addEventListener("DOMContentLoaded", function () {
   if (closeBtn) {
     closeBtn.addEventListener("click", closeBuildingUpgradePanel);
   }
-
   // للاختبار المؤقت
 });
+
 document.addEventListener("DOMContentLoaded", () => {
   const castleStartUpgradeBtn = document.getElementById("castle-start-upgrade-btn");
   if (castleStartUpgradeBtn) {
@@ -6179,21 +6172,6 @@ async function loadGlobalChatMessages() {
   } catch (e) {
     console.error("Error loading global chat messages", e);
   }
-}
-function openChat() {
-  const panel = document.getElementById("chat-panel");
-  console.log("openChat CALLED, panel =", panel);
-  if (!panel) return;
-  panel.classList.remove("chat-hidden");
-  panel.classList.add("chat-visible");
-}
-
-function closeChat() {
-  const panel = document.getElementById("chat-panel");
-  console.log("closeChat CALLED, panel =", panel);
-  if (!panel) return;
-  panel.classList.remove("chat-visible");
-  panel.classList.add("chat-hidden");
 }
 // ===== Chat logic مع تبويبات + إرسال للسيرفر =====
 let currentChatTab = "global";
