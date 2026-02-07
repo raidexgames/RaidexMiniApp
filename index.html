@@ -116,13 +116,17 @@
         width: 100%;
         border-radius: 10px;
       }
-    /* City */
+ /* City */
 #city-screen {
   display: none;
   height: 100vh;
   background: #121a2f;
   position: relative;
+  overflow-y: auto;              /* سحب فوق وتحت */
+  overflow-x: hidden;            /* مفيش يمين/يسار */
+  -webkit-overflow-scrolling: touch;
 }
+
 
 .right-arrow-menu {
   position: fixed;
