@@ -697,41 +697,29 @@
 
 /* ===== Chat Panel between top and bottom bars ===== */
 #chat-panel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 80px;
-  bottom: 70px;
-  background: rgba(15, 23, 42, 0.97);
-  z-index: 250;
-  display: flex;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 400px;
+  height: 60%;
+  background: #020617;
+  border: 2px solid #facc15;
+  border-radius: 16px;
+  padding: 10px;
+  z-index: 10000;
+  display: none;
   flex-direction: column;
-  transform: translateY(100%);
-  transition: transform 0.25s ease-out;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
 }
 
 #chat-panel.chat-hidden {
   display: none;
-  pointer-events: none;
-  transform: translateY(100%);
 }
 
 #chat-panel.chat-visible {
   display: flex;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-
-
-/* حالة مخفية / ظاهرة */
-#chat-panel.chat-hidden {
-  pointer-events: none;
-  transform: translateY(100%);
-}
-#chat-panel.chat-visible {
-  pointer-events: auto;
-  transform: translateY(0);
 }
 
 /* الهيدر + السهم + التابات */
@@ -1304,7 +1292,6 @@
   border: 1px dashed rgba(148, 163, 184, 0.8);
 }
 
-
 /* === Resource Shop Buttons Styling by type === */
 .resource-pack-btn {
   width: 100%;
@@ -1408,8 +1395,35 @@
     </div>
   </div>
 </div>
-    <!-- City -->
-    <div id="city-screen"></div>
+<!-- City -->
+<div id="city-screen">
+  <!-- Chat Panel (الجديد) -->
+  <div id="chat-panel" class="chat-hidden">
+   <div class="chat-header">
+  <button class="chat-back-btn">←</button>
+  <div class="chat-tabs">
+    <button class="chat-tab active" data-chat="global">Global</button>
+    <button class="chat-tab" data-chat="clan">Clan</button>
+    <button class="chat-tab" data-chat="friends">Friends</button>
+    <button class="chat-tab" data-chat="system">System</button>
+  </div>
+</div>
+
+<div class="chat-body">
+  <div id="chat-global" class="chat-messages"></div>
+  <div id="chat-clan" class="chat-messages chat-hidden"></div>
+  <div id="chat-friends" class="chat-messages chat-hidden"></div>
+  <div id="chat-system" class="chat-messages chat-hidden"></div>
+</div>
+
+
+    <div class="chat-input-row">
+      <input id="chat-input" type="text" placeholder="Type a message..." />
+      <button id="chat-send-btn">Send</button>
+    </div>
+  </div>
+</div>
+
 
     <!-- ======================================================
          ORIGINAL BODY (UNCHANGED)
@@ -2418,9 +2432,6 @@ function showTutorialStep() {
     };
   }
 }
-
-
-
       /* --- DOM Elements --- */
       const loadingFill1 = document.getElementById("loading-fill1");
       const characterScreen = document.getElementById("character-screen");
@@ -5705,134 +5716,7 @@ function finishCastlePanelUpgrade() {
   saveGameState();
 }
 
-// ===== Chat logic (نسخة بسيطة ثابتة) =====
-let currentChatTab = "global";
 
-function openChat() {
-  const panel = document.getElementById("chat-panel");
-  if (!panel) return;
-  panel.classList.remove("chat-hidden");
-  panel.classList.add("chat-visible");
-}
-
-function closeChat() {
-  const panel = document.getElementById("chat-panel");
-  if (!panel) return;
-  panel.classList.remove("chat-visible");
-  panel.classList.add("chat-hidden");
-}
-
-function switchChatTab(tabKey) {
-  currentChatTab = tabKey;
-
-  const chatTabs = document.querySelectorAll(".chat-tab");
-  const chatAreas = {
-    global: document.getElementById("chat-global"),
-    clan: document.getElementById("chat-clan"),
-    friends: document.getElementById("chat-friends"),
-    system: document.getElementById("chat-system"),
-  };
-
-  chatTabs.forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.chat === tabKey);
-  });
-
-  Object.keys(chatAreas).forEach((key) => {
-    if (!chatAreas[key]) return;
-    if (key === tabKey) {
-      chatAreas[key].classList.remove("chat-hidden");
-    } else {
-      chatAreas[key].classList.add("chat-hidden");
-    }
-  });
-}
-
-async function handleSendChat() {
-  const input = document.getElementById("chat-input");
-  const text = input ? input.value.trim() : "";
-  if (!text) return;
-
-  // نحدد المساحة بناءً على التبويب الحالي (global / clan / private...)
-  const areaId = "chat-" + currentChatTab;
-  const area = document.getElementById(areaId);
-  if (!area) return;
-
-  // نضيف الرسالة محليًا فورًا عشان اللاعب يحس بالسرعة
-  const div = document.createElement("div");
-  div.className = "chat-message me";
-  div.textContent = text;
-  area.appendChild(div);
-  area.scrollTop = area.scrollHeight;
-
-  // نفرّغ حقل الكتابة
-  input.value = "";
-
-  // لو التبويب الحالي هو الجلوبال: نبعت الرسالة للسيرفر
-  if (currentChatTab === "global") {
-    try {
-      // TODO: غيّر الرابط ده لعنوان الـ backend بتاعك لو مختلف
-      const res = await fetch("https://raidex-backend-production.up.railway.app/chat/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // هنا تقدر تبعت بيانات اللاعب اللي عندك
-          name: localStorage.getItem("playerName") || "Player",
-          text: text,
-          chatType: "global"
-        })
-      });
-
-      const data = await res.json();
-      // ممكن في المستقبل نتحقق من data.ok أو أي رد تاني
-      console.log("Chat send result:", data);
-    } catch (e) {
-      console.error("Error sending chat message", e);
-    }
-  }
-}
-
-
-// ربط الأزرار بعد تحميل الصفحة
-window.addEventListener("load", () => {
-  const chatIcon = document.getElementById("chat-icon");
-  const chatBackBtn = document.querySelector(".chat-back-btn");
-  const chatTabs = document.querySelectorAll(".chat-tab");
-  const chatSendBtn = document.getElementById("chat-send-btn");
-  const chatInput = document.getElementById("chat-input");
-
-  if (chatIcon) {
-    chatIcon.addEventListener("click", () => {
-      openChat();
-      if (typeof closeRightMenu === "function") closeRightMenu();
-    });
-  }
-
-  if (chatBackBtn) {
-    chatBackBtn.addEventListener("click", closeChat);
-  }
-
-  if (chatTabs && chatTabs.length) {
-    chatTabs.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const key = btn.dataset.chat;
-        if (!key) return;
-        switchChatTab(key);
-      });
-    });
-  }
-
-  if (chatSendBtn) {
-    chatSendBtn.addEventListener("click", handleSendChat);
-  }
-
-  if (chatInput) {
-    chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") handleSendChat();
-    });
-  }
-
-  switchChatTab("global");
-});
 /* --- Start App --- */
 window.addEventListener("load", () => {
   const selectedHero = localStorage.getItem("hero");
@@ -6296,6 +6180,154 @@ async function loadGlobalChatMessages() {
     console.error("Error loading global chat messages", e);
   }
 }
+function openChat() {
+  const panel = document.getElementById("chat-panel");
+  console.log("openChat CALLED, panel =", panel);
+  if (!panel) return;
+  panel.classList.remove("chat-hidden");
+  panel.classList.add("chat-visible");
+}
+
+function closeChat() {
+  const panel = document.getElementById("chat-panel");
+  console.log("closeChat CALLED, panel =", panel);
+  if (!panel) return;
+  panel.classList.remove("chat-visible");
+  panel.classList.add("chat-hidden");
+}
+// ===== Chat logic مع تبويبات + إرسال للسيرفر =====
+let currentChatTab = "global";
+
+function openChat() {
+  const panel = document.getElementById("chat-panel");
+  if (!panel) return;
+  panel.classList.remove("chat-hidden");
+  panel.classList.add("chat-visible");
+}
+
+function closeChat() {
+  const panel = document.getElementById("chat-panel");
+  if (!panel) return;
+  panel.classList.remove("chat-visible");
+  panel.classList.add("chat-hidden");
+}
+
+function switchChatTab(tabKey) {
+  currentChatTab = tabKey;
+
+  const chatTabs = document.querySelectorAll(".chat-tab");
+  const chatAreas = {
+    global: document.getElementById("chat-global"),
+    clan: document.getElementById("chat-clan"),
+    friends: document.getElementById("chat-friends"),
+    system: document.getElementById("chat-system"),
+  };
+
+  // فعّل التبويب المختار
+  chatTabs.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.chat === tabKey);
+  });
+
+  // إظهار/إخفاء المساحات
+  Object.keys(chatAreas).forEach((key) => {
+    const area = chatAreas[key];
+    if (!area) return;
+    if (key === tabKey) {
+      area.classList.remove("chat-hidden");
+    } else {
+      area.classList.add("chat-hidden");
+    }
+  });
+}
+
+function addChatMessageToArea(tabKey, text, isMe = false) {
+  const areaId =
+    tabKey === "global" ? "chat-global" :
+    tabKey === "clan" ? "chat-clan" :
+    tabKey === "friends" ? "chat-friends" :
+    "chat-system";
+
+  const area = document.getElementById(areaId);
+  if (!area) return;
+
+  const div = document.createElement("div");
+  div.className = "chat-message";
+  if (isMe) div.style.color = "#facc15";
+  div.textContent = text;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+async function handleSendChat() {
+  const input = document.getElementById("chat-input");
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  // نضيف الرسالة محليًا في التبويب الحالي
+  addChatMessageToArea(currentChatTab, text, true);
+  input.value = "";
+
+  // لو جلوبال، نبعتها للسيرفر
+  if (currentChatTab === "global") {
+    try {
+      const res = await fetch("https://raidex-backend-production.up.railway.app/chat/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: localStorage.getItem("playerName") || "Player",
+          text: text,
+          chatType: "global",
+        }),
+      });
+
+      const data = await res.json();
+      console.log("Chat send result:", data);
+    } catch (e) {
+      console.error("Error sending chat message", e);
+    }
+  }
+}
+
+// ربط الأزرار بعد تحميل الصفحة
+window.addEventListener("load", () => {
+  const chatIcon   = document.getElementById("chat-icon");
+  const chatBackBtn = document.querySelector(".chat-back-btn");
+  const chatTabs   = document.querySelectorAll(".chat-tab");
+  const chatSendBtn = document.getElementById("chat-send-btn");
+  const chatInput  = document.getElementById("chat-input");
+
+  if (chatIcon) {
+    chatIcon.addEventListener("click", openChat);
+  }
+
+  if (chatBackBtn) {
+    chatBackBtn.addEventListener("click", closeChat);
+  }
+
+  if (chatTabs && chatTabs.length) {
+    chatTabs.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.chat;
+        if (!key) return;
+        switchChatTab(key);
+      });
+    });
+  }
+
+  if (chatSendBtn) {
+    chatSendBtn.addEventListener("click", handleSendChat);
+  }
+
+  if (chatInput) {
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleSendChat();
+    });
+  }
+
+  // التبويب الافتراضي
+  switchChatTab("global");
+});
 
     </script>
 
@@ -6347,30 +6379,6 @@ async function loadGlobalChatMessages() {
             style="margin:4px; padding:6px 14px; border-radius:10px; border:none; background:#4b5563; color:#fff; cursor:pointer;">
       إلغاء
     </button>
-  </div>
-</div>
-<!-- Chat Panel between top and bottom bars (بسيط) -->
-<div id="chat-panel" class="chat-hidden">
-  <div class="chat-header">
-    <button class="chat-back-btn">←</button>
-    <div class="chat-tabs">
-      <button class="chat-tab active" data-chat="global">Global</button>
-      <button class="chat-tab" data-chat="clan">Clan</button>
-      <button class="chat-tab" data-chat="friends">Friends</button>
-      <button class="chat-tab" data-chat="system">System</button>
-    </div>
-  </div>
-
-  <div class="chat-body">
-    <div id="chat-global" class="chat-messages"></div>
-    <div id="chat-clan" class="chat-messages chat-hidden"></div>
-    <div id="chat-friends" class="chat-messages chat-hidden"></div>
-    <div id="chat-system" class="chat-messages chat-hidden"></div>
-  </div>
-
-  <div class="chat-input-row">
-    <input id="chat-input" type="text" placeholder="Type a message..." />
-    <button id="chat-send-btn">Send</button>
   </div>
 </div>
 <script>
