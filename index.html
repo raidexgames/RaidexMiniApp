@@ -28,14 +28,6 @@
     background-color: var(--tg-theme-bg-color, #0b1220);
     color: var(--tg-theme-text-color, #ffffff);
   }
-  .game-root {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;              /* هنا السحب */
-  -webkit-overflow-scrolling: touch;
-}
 
       /* --- Styles الأساسيه --- */
       html,
@@ -116,17 +108,13 @@
         width: 100%;
         border-radius: 10px;
       }
- /* City */
+    /* City */
 #city-screen {
   display: none;
   height: 100vh;
   background: #121a2f;
   position: relative;
-  overflow-y: auto;              /* سحب فوق وتحت */
-  overflow-x: hidden;            /* مفيش يمين/يسار */
-  -webkit-overflow-scrolling: touch;
 }
-
 
 .right-arrow-menu {
   position: fixed;
@@ -1394,7 +1382,6 @@
     </style>
   </head>
   <body>
-     <div class="game-root">
     <!-- Loading -->
     <div id="loading1" class="loading-container">
       <img src="background1.png" />
@@ -5760,23 +5747,50 @@ function switchChatTab(tabKey) {
   });
 }
 
-function handleSendChat() {
+async function handleSendChat() {
   const input = document.getElementById("chat-input");
   const text = input ? input.value.trim() : "";
   if (!text) return;
 
+  // نحدد المساحة بناءً على التبويب الحالي (global / clan / private...)
   const areaId = "chat-" + currentChatTab;
   const area = document.getElementById(areaId);
   if (!area) return;
 
+  // نضيف الرسالة محليًا فورًا عشان اللاعب يحس بالسرعة
   const div = document.createElement("div");
   div.className = "chat-message me";
   div.textContent = text;
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
 
+  // نفرّغ حقل الكتابة
   input.value = "";
+
+  // لو التبويب الحالي هو الجلوبال: نبعت الرسالة للسيرفر
+  if (currentChatTab === "global") {
+    try {
+      // TODO: غيّر الرابط ده لعنوان الـ backend بتاعك لو مختلف
+      const res = await fetch("https://raidex-backend-production.up.railway.app/chat/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // هنا تقدر تبعت بيانات اللاعب اللي عندك
+          name: localStorage.getItem("playerName") || "Player",
+          text: text,
+          chatType: "global"
+        })
+      });
+
+      const data = await res.json();
+      // ممكن في المستقبل نتحقق من data.ok أو أي رد تاني
+      console.log("Chat send result:", data);
+    } catch (e) {
+      console.error("Error sending chat message", e);
+    }
+  }
 }
+
 
 // ربط الأزرار بعد تحميل الصفحة
 window.addEventListener("load", () => {
@@ -6256,6 +6270,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+// ===== Global chat fetch (عرض الرسائل من السيرفر) =====
+let lastChatFetchTime = 0;
+
+async function loadGlobalChatMessages() {
+  const area = document.getElementById("chat-global");
+  if (!area) return;
+
+  try {
+    const res = await fetch("https://raidex-backend-production.up.railway.app/chat/latest?chatType=global&limit=50");
+    const data = await res.json();
+    if (!data || !Array.isArray(data.messages)) return;
+
+    area.innerHTML = "";
+
+    data.messages.forEach((msg) => {
+      const div = document.createElement("div");
+      div.className = "chat-message";
+      div.textContent = msg.name + ": " + msg.text;
+      area.appendChild(div);
+    });
+
+    area.scrollTop = area.scrollHeight;
+  } catch (e) {
+    console.error("Error loading global chat messages", e);
+  }
+}
+
     </script>
 
       <div id="settings-screen">
@@ -6370,6 +6411,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 </script>
 
-</div>
   </body>
 </html>
