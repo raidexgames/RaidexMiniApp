@@ -3886,110 +3886,6 @@ function initSchoolPanel() {
     }
   }
 }
-function initSchoolPanel() {
-  if (document.getElementById("school-panel")) return;
-
-  const panel = document.createElement("div");
-  panel.id = "school-panel";
-  panel.className = "game-page-panel";
-  panel.style.position = "fixed";
-  panel.style.top = "50%";
-  panel.style.left = "50%";
-  panel.style.transform = "translate(-50%, -50%)";
-  panel.style.width = "80%";
-  panel.style.maxWidth = "400px";
-  panel.style.background = "#020617";
-  panel.style.border = "2px solid #facc15";
-  panel.style.borderRadius = "16px";
-  panel.style.padding = "12px";
-  panel.style.zIndex = "9999";
-  panel.style.color = "#e5e7eb";
-  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
-  panel.style.display = "none";
-
-  const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.justifyContent = "space-between";
-  header.style.alignItems = "center";
-  header.style.marginBottom = "8px";
-
-  const title = document.createElement("div");
-  title.textContent = "المدرسة";
-  title.style.fontWeight = "bold";
-  title.style.fontSize = "18px";
-
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "✖";
-  closeBtn.style.background = "transparent";
-  closeBtn.style.border = "none";
-  closeBtn.style.color = "#e5e7eb";
-  closeBtn.style.fontSize = "18px";
-  closeBtn.style.cursor = "pointer";
-  closeBtn.onclick = () => {
-    panel.style.display = "none";
-  };
-
-  header.appendChild(title);
-  header.appendChild(closeBtn);
-  panel.appendChild(header);
-
-  const tabsRow = document.createElement("div");
-  tabsRow.style.display = "flex";
-  tabsRow.style.marginBottom = "10px";
-  tabsRow.style.borderBottom = "1px solid #374151";
-
-  function makeTabButton(key, label) {
-    const btn = document.createElement("button");
-    btn.textContent = label;
-    btn.dataset.tab = key;
-    btn.style.flex = "1";
-    btn.style.padding = "6px 0";
-    btn.style.border = "none";
-    btn.style.background = "transparent";
-    btn.style.color = "#9ca3af";
-    btn.style.cursor = "pointer";
-    btn.style.fontWeight = "bold";
-    btn.onclick = () => switchTab(key);
-    return btn;
-  }
-
-  const infoTabBtn = makeTabButton("info", "المعلومات");
-  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
-  infoTabBtn.style.color = "#facc15";
-
-  tabsRow.appendChild(infoTabBtn);
-  tabsRow.appendChild(upgradeTabBtn);
-  panel.appendChild(tabsRow);
-
-  const infoTab = document.createElement("div");
-  infoTab.id = "school-panel-info";
-
-  const upgradeTab = document.createElement("div");
-  upgradeTab.id = "school-panel-upgrade";
-  upgradeTab.style.display = "none";
-
-  infoTab.textContent = "هنا قسم المعلومات للمدرسة (هنظبطه بعدين).";
-  upgradeTab.textContent = "هنا قسم الترقية للمدرسة (هنظبطه بعدين).";
-
-  panel.appendChild(infoTab);
-  panel.appendChild(upgradeTab);
-
-  document.body.appendChild(panel);
-
-  function switchTab(key) {
-    if (key === "info") {
-      infoTab.style.display = "block";
-      upgradeTab.style.display = "none";
-      infoTabBtn.style.color = "#facc15";
-      upgradeTabBtn.style.color = "#9ca3af";
-    } else {
-      infoTab.style.display = "none";
-      upgradeTab.style.display = "block";
-      infoTabBtn.style.color = "#9ca3af";
-      upgradeTabBtn.style.color = "#facc15";
-    }
-  }
-}
 
 function initMarketPanel() {
   if (document.getElementById("market-panel")) return;
@@ -4306,6 +4202,49 @@ function initHospitalPanel() {
     }
   }
 }
+// تعريف الجنود لكل بطل
+const HERO_ARMIES = {
+  elephant: [
+    { key: "ele_atk_soldier_1", name: "فيل مهاجم 1", img: "elephant_atk_soldier1.png", atk: 10,  hp: 60,  levelRequired: 1 },
+    { key: "ele_atk_soldier_2", name: "فيل مهاجم 2", img: "elephant_atk_soldier2.png", atk: 18,  hp: 90,  levelRequired: 10 },
+    { key: "ele_atk_soldier_3", name: "فيل مهاجم 3", img: "elephant_atk_soldier3.png", atk: 28,  hp: 130, levelRequired: 25 },
+    { key: "ele_atk_soldier_4", name: "فيل مهاجم 4", img: "elephant_atk_soldier4.png", atk: 40,  hp: 180, levelRequired: 35 }
+  ],
+  tiger: [
+    { key: "tig_soldier_1", name: "جندي نمر 1", img: "tiger_atk_soldier1.png", atk: 15, hp: 30, levelRequired: 1 },
+    { key: "tig_soldier_2", name: "جندي نمر 2", img: "tiger_atk_soldier2.png", atk: 25, hp: 45, levelRequired: 10 },
+    { key: "tig_soldier_3", name: "جندي نمر 3", img: "tiger_atk_soldier3.png", atk: 40, hp: 60, levelRequired: 25 },
+    { key: "tig_soldier_4", name: "جندي نمر 4", img: "tiger_atk_soldier4.png", atk: 60, hp: 80, levelRequired: 35 }
+  ],
+  kong: [
+    { key: "kong_atk_soldier_1", name: "كونج مهاجم 1", img: "kong_atk_soldier1.png", atk: 20, hp: 50, levelRequired: 1 },
+    { key: "kong_atk_soldier_2", name: "كونج مهاجم 2", img: "kong_atk_soldier2.png", atk: 35, hp: 75, levelRequired: 10 },
+    { key: "kong_atk_soldier_3", name: "كونج مهاجم 3", img: "kong_atk_soldier3.png", atk: 55, hp: 100, levelRequired: 25 },
+    { key: "kong_atk_soldier_4", name: "كونج مهاجم 4", img: "kong_atk_soldier4.png", atk: 80, hp: 140, levelRequired: 35 }
+  ]
+};
+let trainedArmy = {
+  elephant: {
+    ele_atk_soldier_1: 0,
+    ele_atk_soldier_2: 0,
+    ele_atk_soldier_3: 0,
+    ele_atk_soldier_4: 0
+  },
+  tiger: {
+    tig_soldier_1: 0,
+    tig_soldier_2: 0,
+    tig_soldier_3: 0,
+    tig_soldier_4: 0
+  },
+  kong: {
+    kong_atk_soldier_1: 0,
+    kong_atk_soldier_2: 0,
+    kong_atk_soldier_3: 0,
+    kong_atk_soldier_4: 0
+  }
+};
+
+
 function initAttackArmyPanel() {
   if (document.getElementById("attack-army-panel")) return;
 
@@ -4373,7 +4312,7 @@ function initAttackArmyPanel() {
     return btn;
   }
 
-  const infoTabBtn = makeTabButton("info", "المعلومات");
+  const infoTabBtn = makeTabButton("info", "التدريب");
   const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
   infoTabBtn.style.color = "#facc15";
 
@@ -4381,20 +4320,117 @@ function initAttackArmyPanel() {
   tabsRow.appendChild(upgradeTabBtn);
   panel.appendChild(tabsRow);
 
-  const infoTab = document.createElement("div");
-  infoTab.id = "attack-army-panel-info";
+ const infoTab = document.createElement("div");
+infoTab.id = "attack-army-panel-info";
 
-  const upgradeTab = document.createElement("div");
-  upgradeTab.id = "attack-army-panel-upgrade";
-  upgradeTab.style.display = "none";
+// جوّه تبويب التدريب: صف كروت + اسم مختار + تفاصيل
+infoTab.innerHTML = `
+  <div id="attack-army-cards-row"
+       style="display:flex; gap:8px; margin-bottom:10px; justify-content:space-between;"></div>
+  <div id="attack-army-selected-name"
+       style="font-weight:bold; text-align:center; margin-bottom:8px;"></div>
+  <div id="attack-army-detail"
+       style="display:flex; gap:10px; align-items:center; justify-content:center;"></div>
+`;
 
-  infoTab.textContent = "هنا قسم المعلومات لمبنى جيش الهجوم (هنظبطه بعدين).";
-  upgradeTab.textContent = "هنا قسم الترقية لمبنى جيش الهجوم (هنظبطه بعدين).";
+const upgradeTab = document.createElement("div");
+upgradeTab.id = "attack-army-panel-upgrade";
+upgradeTab.style.display = "none";
+upgradeTab.textContent = "هنا قسم الترقية لمبنى جيش الهجوم (هنظبطه بعدين).";
 
-  panel.appendChild(infoTab);
-  panel.appendChild(upgradeTab);
+panel.appendChild(infoTab);
+panel.appendChild(upgradeTab);
 
-  document.body.appendChild(panel);
+  const cardsRow = infoTab.querySelector("#attack-army-cards-row");
+  const selectedNameEl = infoTab.querySelector("#attack-army-selected-name");
+  const detailEl = infoTab.querySelector("#attack-army-detail");
+
+function renderAttackArmyTraining() {
+  const armyList = HERO_ARMIES[currentHero] || [];
+  const attackBuildingLevel = buildingLevels.attackTower || 1;
+
+  cardsRow.innerHTML = "";
+  selectedNameEl.textContent = "";
+  detailEl.innerHTML = "";
+
+  if (!armyList.length) {
+    selectedNameEl.textContent = "لا توجد وحدات متاحة لهذه الشخصية حالياً.";
+    return;
+  }
+
+  armyList.forEach((unit, index) => {
+    const isLocked = attackBuildingLevel < unit.levelRequired;
+
+    const card = document.createElement("div");
+    card.style.flex = "1";
+    card.style.background = "rgba(15,23,42,0.9)";
+    card.style.border = "1px solid rgba(148,163,184,0.6)";
+    card.style.borderRadius = "10px";
+    card.style.padding = "4px";
+    card.style.textAlign = "center";
+    card.style.fontSize = "11px";
+    card.style.cursor = "pointer";
+    card.style.transition = "0.2s";
+    card.style.position = "relative";
+
+    if (isLocked) {
+      card.style.opacity = "0.5";
+    }
+
+    card.innerHTML = `
+      <div style="width:100%; height:40px; margin-bottom:4px; position:relative;">
+        <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+        ${isLocked ? `
+          <div style="
+            position:absolute; inset:0;
+            display:flex; align-items:center; justify-content:center;
+            background:rgba(0,0,0,0.4);
+            font-size:14px; font-weight:bold; color:#facc15;
+          ">
+            🔒 Lv.${unit.levelRequired}
+          </div>
+        ` : ""}
+      </div>
+      <div>${unit.name}</div>
+    `;
+
+    card.onclick = () => {
+      Array.from(cardsRow.children).forEach(c => c.style.outline = "none");
+      card.style.outline = "2px solid #facc15";
+
+      selectedNameEl.textContent = unit.name;
+
+      detailEl.innerHTML = `
+        <div style="width:80px; height:80px; flex-shrink:0;">
+          <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+        </div>
+        <div style="font-size:13px; line-height:1.6;">
+          <div>الهجوم: ${unit.atk}</div>
+          <div>الصحة: ${unit.hp}</div>
+          ${isLocked ? `
+            <div style="color:#f97316; margin-top:6px;">
+              هذه الوحدة مقفولة. تحتاج مبنى جيش الهجوم لفل ${unit.levelRequired} لفتح التدريب.
+            </div>
+          ` : `
+            <div style="color:#22c55e; margin-top:6px;">
+              هذه الوحدة متاحة للتدريب.
+            </div>
+          `}
+        </div>
+      `;
+    };
+
+    if (index === 0) {
+      setTimeout(() => card.onclick(), 0);
+    }
+
+    cardsRow.appendChild(card);
+  });
+}
+
+renderAttackArmyTraining();
+
+document.body.appendChild(panel);
 
   function switchTab(key) {
     if (key === "info") {
@@ -4477,8 +4513,8 @@ function initHealthArmyPanel() {
     return btn;
   }
 
-  const infoTabBtn = makeTabButton("info", "المعلومات");
-  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  const infoTabBtn = makeTabButton("info", "التدريب");
+const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
   infoTabBtn.style.color = "#facc15";
 
   tabsRow.appendChild(infoTabBtn);
@@ -4761,6 +4797,13 @@ if (chatBackBtn) {
   chatBackBtn.addEventListener("click", closeChat);
 }
 
+function formatNumberShort(n) {
+  n = Number(n) || 0;
+  if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B";
+  if (n >= 1_000_000)     return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000)         return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  return n.toString();
+}
 
 function addTopBar() {
   if (document.getElementById("top-bar")) return;
@@ -4793,30 +4836,32 @@ function addTopBar() {
   const resourcesDiv = document.createElement("div");
   resourcesDiv.id = "resources";
 
-  function updateRes() {
-    resourcesDiv.innerHTML = "";
-    for (const r in resources) {
-      const rDiv = document.createElement("div");
-      rDiv.innerHTML = `${
-        r === "gold" ? "🪙" :
-        r === "food" ? "🍖" :
-        r === "wood" ? "🌲" : "💎"
-      }<br>${resources[r]}`;
+ function updateRes() {
+  resourcesDiv.innerHTML = "";
+  for (const r in resources) {
+    const rDiv = document.createElement("div");
+    const value = formatNumberShort(resources[r]);
 
-      if (r === "gold" || r === "wood" || r === "food") {
-        rDiv.style.cursor = "pointer";
-        rDiv.onclick = () => openResourceShop(r);
-      }
+    rDiv.innerHTML = `${
+      r === "gold" ? "🪙" :
+      r === "food" ? "🍖" :
+      r === "wood" ? "🌲" : "💎"
+    }<br>${value}`;
 
-      resourcesDiv.appendChild(rDiv);
+    if (r === "gold" || r === "wood" || r === "food") {
+      rDiv.style.cursor = "pointer";
+      rDiv.onclick = () => openResourceShop(r);
     }
 
-    // تحديث سطر الباور كل ما التوب بار يتحدث
-    const powerEl = document.getElementById("topbar-power");
-    if (powerEl) {
-      powerEl.textContent = "Power: " + totalPower;
-    }
+    resourcesDiv.appendChild(rDiv);
   }
+
+  const powerEl = document.getElementById("topbar-power");
+  if (powerEl) {
+    powerEl.textContent = "Power: " + totalPower;
+  }
+}
+
 
   updateRes();
   setInterval(updateRes, 2000);
@@ -6335,6 +6380,96 @@ async function loadGlobalChatMessages() {
   } catch (e) {
     console.error("Error loading global chat messages", e);
   }
+}
+// ===== DEV TOOLS (لك أنت فقط من الكونسول) =====
+
+// فعّل/أغلق وضع المطور من الكونسول:
+// window.__DEV_GOD_MODE__ = true أو false
+window.__DEV_GOD_MODE__ = false;
+
+// دالة مساعدة داخلية
+function devLog(msg) {
+  console.log("%c[DEV]", "color:#facc15;font-weight:bold;", msg);
+}
+
+// ضبط موارد + مستوى قلعة
+function devSetState(options) {
+  if (!window.__DEV_GOD_MODE__) {
+    devLog("God mode مغلق. نفّذ: window.__DEV_GOD_MODE__ = true أولا.");
+    return;
+  }
+
+  options = options || {};
+
+  // موارد
+  if (options.resources) {
+    resources.gold = options.resources.gold ?? resources.gold;
+    resources.wood = options.resources.wood ?? resources.wood;
+    resources.food = options.resources.food ?? resources.food;
+    resources.gem  = options.resources.gem  ?? resources.gem;
+  }
+
+  // مستوى القلعة
+  if (typeof options.castleLevel === "number") {
+    castleLevel = options.castleLevel;
+  }
+
+  // مستويات مباني (لو حابب)
+  if (options.buildingLevels) {
+    for (const [key, lvl] of Object.entries(options.buildingLevels)) {
+      buildingLevels[key] = lvl;
+    }
+  }
+
+  saveGameState();
+  recalcBuildingsUnlockByCastleLevel && recalcBuildingsUnlockByCastleLevel();
+  recalculatePower && recalculatePower();
+  if (typeof updateTopBar === "function") updateTopBar();
+
+  devLog("تم تحديث الحالة (resources / castle / buildings).");
+}
+
+// دوال سريعة جاهزة
+function devMaxAll() {
+  devSetState({
+    castleLevel: 50,
+    resources: {
+      gold: 999999999,
+      wood: 999999999,
+      food: 999999999,
+      gem:  999999
+    },
+    buildingLevels: {
+      goldMine: 50,
+      woodMine: 50,
+      meatFarm: 50,
+      school: 50,
+      attackTower: 50,
+      defenseTower: 50,
+      heroesHall: 50,
+      market: 50,
+      booster: 50,
+      hospital: 50
+    }
+  });
+}
+
+function devCastleTo(level) {
+  devSetState({ castleLevel: level });
+}
+
+function devAddResources({ gold = 0, wood = 0, food = 0, gem = 0 } = {}) {
+  if (!window.__DEV_GOD_MODE__) {
+    devLog("God mode مغلق. نفّذ: window.__DEV_GOD_MODE__ = true أولا.");
+    return;
+  }
+  resources.gold += gold;
+  resources.wood += wood;
+  resources.food += food;
+  resources.gem  += gem;
+  saveGameState();
+  if (typeof updateTopBar === "function") updateTopBar();
+  devLog(`+${gold} gold, +${wood} wood, +${food} food, +${gem} gem`);
 }
 
     </script>
