@@ -330,6 +330,20 @@
   box-shadow: 0 0 0 3px #facc15;
   border-radius: 12px;
 }
+.building-upgrade-time {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #1e90ff; /* أزرق */
+  text-shadow:
+    0 0 4px rgba(30, 144, 255, 0.9),
+    0 0 8px rgba(30, 144, 255, 0.7),
+    0 0 12px rgba(30, 144, 255, 0.5);
+  text-align: center;
+  pointer-events: none;
+}
+
+
 
       /* Top bar */
       #top-bar {
@@ -4613,20 +4627,19 @@ goldMine.style.background = "transparent";
     goldBar.appendChild(goldFill);
     goldMine.appendChild(goldBar);
 
-    // نص الوقت المتبقي تحت الشريط
-    let goldTime = document.getElementById("gold-mine-upgrade-remaining-time");
-    if (!goldTime) {
-      goldTime = document.createElement("div");
-      goldTime.id = "gold-mine-upgrade-remaining-time";
-      goldTime.style.position = "absolute";
-      goldTime.style.bottom = "-46px";
-      goldTime.style.left = "50%";
-      goldTime.style.transform = "translateX(-50%)";
-      goldTime.style.fontSize = "10px";
-      goldTime.style.color = "#e5e7eb";
-      goldTime.textContent = "";
-      goldMine.appendChild(goldTime);
-    }
+ // نص الوقت المتبقي تحت الشريط
+let goldTime = document.getElementById("gold-mine-upgrade-remaining-time");
+if (!goldTime) {
+  goldTime = document.createElement("div");
+  goldTime.id = "gold-mine-upgrade-remaining-time";
+  goldTime.className = "building-upgrade-time";
+  goldTime.style.position = "absolute";
+  goldTime.style.bottom = "-44px";
+  goldTime.style.left = "50%";
+  goldTime.style.transform = "translateX(-50%)";
+  goldTime.textContent = "";
+  goldMine.appendChild(goldTime);
+}
   }
 
   // هنا هنستخدم رقم ثابت: لحد ما نوصل ليفيل 2 المنجم مقفول
@@ -4723,21 +4736,20 @@ if (woodMine) {
     woodMine.appendChild(woodBar);
   }
 
-  // الوقت المتبقي تحت البار، مربوط بالمبنى
-  let woodTime = document.getElementById("wood-mine-upgrade-bar-time");
-  if (!woodTime) {
-    woodTime = document.createElement("div");
-    woodTime.id = "wood-mine-upgrade-bar-time";
-    woodTime.style.position = "absolute";
-    woodTime.style.bottom = "-44px"; // تحت البار
-    woodTime.style.left = "50%";
-    woodTime.style.transform = "translateX(-50%)";
-    woodTime.style.fontSize = "10px";
-    woodTime.style.color = "#e5e7eb";
-    woodTime.style.textAlign = "center";
-    woodTime.textContent = "";
-    woodMine.appendChild(woodTime);
-  }
+// الوقت المتبقي تحت البار، مربوط بالمبنى
+let woodTime = document.getElementById("wood-mine-upgrade-bar-time");
+if (!woodTime) {
+  woodTime = document.createElement("div");
+  woodTime.id = "wood-mine-upgrade-bar-time";
+  woodTime.className = "building-upgrade-time";
+  woodTime.style.position = "absolute";
+  woodTime.style.bottom = "-44px"; // تحت البار
+  woodTime.style.left = "50%";
+  woodTime.style.transform = "translateX(-50%)";
+  woodTime.textContent = "";
+  woodMine.appendChild(woodTime);
+}
+
 
   if (castleLevel < requiredLevel) {
     woodMine.style.filter = "grayscale(1)";
@@ -4843,22 +4855,19 @@ if (school) {
     school.appendChild(schoolBar);
   }
 
-  // الوقت تحت البار، مربوط بالمبنى نفسه
- let schoolTime = document.getElementById("school-upgrade-bar-time");
+ // الوقت تحت البار، مربوط بالمبنى نفسه
+let schoolTime = document.getElementById("school-upgrade-bar-time");
 if (!schoolTime) {
   schoolTime = document.createElement("div");
   schoolTime.id = "school-upgrade-bar-time";
+  schoolTime.className = "building-upgrade-time";
   schoolTime.style.position = "absolute";
   schoolTime.style.bottom = "-44px";
   schoolTime.style.left = "50%";
   schoolTime.style.transform = "translateX(-50%)";
-  schoolTime.style.fontSize = "10px";
-  schoolTime.style.color = "#e5e7eb";
-  schoolTime.style.textAlign = "center";
   schoolTime.textContent = "";
   school.appendChild(schoolTime);
 }
-
 
   if (castleLevel < requiredLevel) {
     school.style.filter = "grayscale(1)";
@@ -4962,21 +4971,20 @@ if (attackTower) {
     attackTower.appendChild(attackBar);
   }
 
-  // الوقت تحت البار، مربوط بالمبنى نفسه (زي gold-mine-upgrade-remaining-time)
- let attackTime = document.getElementById("attack-tower-upgrade-bar-time");
+// الوقت تحت البار، مربوط بالمبنى نفسه (زي gold-mine-upgrade-remaining-time)
+let attackTime = document.getElementById("attack-tower-upgrade-bar-time");
 if (!attackTime) {
   attackTime = document.createElement("div");
   attackTime.id = "attack-tower-upgrade-bar-time";
+  attackTime.className = "building-upgrade-time";
   attackTime.style.position = "absolute";
   attackTime.style.bottom = "-44px";
   attackTime.style.left = "50%";
   attackTime.style.transform = "translateX(-50%)";
-  attackTime.style.fontSize = "10px";
-  attackTime.style.color = "#e5e7eb";
-  attackTime.style.textAlign = "center";
   attackTime.textContent = "";
   attackTower.appendChild(attackTime);
 }
+
 
 
   if (castleLevel < requiredLevel) {
@@ -5082,21 +5090,20 @@ if (defenseTower) {
     defenseTower.appendChild(defenseBar);
   }
 
-  // الوقت تحت البار، على مستوى المبنى (زي الخشب)
-  let defenseTime = document.getElementById("defense-tower-upgrade-bar-time");
-  if (!defenseTime) {
-    defenseTime = document.createElement("div");
-    defenseTime.id = "defense-tower-upgrade-bar-time";
-    defenseTime.style.position = "absolute";
-    defenseTime.style.bottom = "-44px";
-    defenseTime.style.left = "50%";
-    defenseTime.style.transform = "translateX(-50%)";
-    defenseTime.style.fontSize = "10px";
-    defenseTime.style.textAlign = "center";
-    defenseTime.style.color = "#e5e7eb";
-    defenseTime.textContent = "";
-    defenseTower.appendChild(defenseTime);
-  }
+// الوقت تحت البار، على مستوى المبنى (زي الخشب)
+let defenseTime = document.getElementById("defense-tower-upgrade-bar-time");
+if (!defenseTime) {
+  defenseTime = document.createElement("div");
+  defenseTime.id = "defense-tower-upgrade-bar-time";
+  defenseTime.className = "building-upgrade-time";
+  defenseTime.style.position = "absolute";
+  defenseTime.style.bottom = "-44px";
+  defenseTime.style.left = "50%";
+  defenseTime.style.transform = "translateX(-50%)";
+  defenseTime.textContent = "";
+  defenseTower.appendChild(defenseTime);
+}
+
 
 
   if (castleLevel < requiredLevel) {
@@ -5200,21 +5207,19 @@ if (meatFarm) {
     meatFarm.appendChild(meatBar);
   }
 
-  // الوقت تحت البار، على مستوى المبنى
-  let meatTime = document.getElementById("meat-farm-upgrade-bar-time");
-  if (!meatTime) {
-    meatTime = document.createElement("div");
-    meatTime.id = "meat-farm-upgrade-bar-time";
-    meatTime.style.position = "absolute";
-    meatTime.style.bottom = "-44px"; // تحت البار
-    meatTime.style.left = "50%";
-    meatTime.style.transform = "translateX(-50%)";
-    meatTime.style.fontSize = "10px";
-    meatTime.style.textAlign = "center";
-    meatTime.style.color = "#e5e7eb";
-    meatTime.textContent = "";
-    meatFarm.appendChild(meatTime);
-  }
+// الوقت تحت البار، على مستوى المبنى
+let meatTime = document.getElementById("meat-farm-upgrade-bar-time");
+if (!meatTime) {
+  meatTime = document.createElement("div");
+  meatTime.id = "meat-farm-upgrade-bar-time";
+  meatTime.className = "building-upgrade-time";
+  meatTime.style.position = "absolute";
+  meatTime.style.bottom = "-44px";
+  meatTime.style.left = "50%";
+  meatTime.style.transform = "translateX(-50%)";
+  meatTime.textContent = "";
+  meatFarm.appendChild(meatTime);
+}
 
   if (castleLevel < requiredLevel) {
     meatFarm.style.filter = "grayscale(1)";
@@ -5315,18 +5320,21 @@ if (heroesHall) {
     fill.style.background = "#facc15";
     heroesBar.appendChild(fill);
 
-    const heroesTime = document.createElement("div");
-heroesTime.id = "heroes-hall-upgrade-bar-time";
-heroesTime.style.position = "absolute";
-heroesTime.style.bottom = "-44px";      // زي المدرسة/الخشب
-heroesTime.style.left = "50%";
-heroesTime.style.transform = "translateX(-50%)";
-heroesTime.style.fontSize = "10px";
-heroesTime.style.color = "#e5e7eb";
-heroesTime.style.textAlign = "center";
-heroesTime.textContent = "";
-heroesHall.appendChild(heroesTime);     // خارج البار، على مستوى المبنى
-heroesHall.appendChild(heroesBar);
+    // الوقت المتبقي تحت البار، مربوط بمبنى قاعة الأبطال
+    let heroesTime = document.getElementById("heroes-hall-upgrade-bar-time");
+    if (!heroesTime) {
+      heroesTime = document.createElement("div");
+      heroesTime.id = "heroes-hall-upgrade-bar-time";
+      heroesTime.className = "building-upgrade-time";
+      heroesTime.style.position = "absolute";
+      heroesTime.style.bottom = "-44px"; // زي المدرسة/الخشب
+      heroesTime.style.left = "50%";
+      heroesTime.style.transform = "translateX(-50%)";
+      heroesTime.textContent = "";
+      heroesHall.appendChild(heroesTime); // خارج البار، على مستوى المبنى
+    }
+
+    heroesHall.appendChild(heroesBar);
   }
 
   if (castleLevel < requiredLevel) {
@@ -5367,6 +5375,7 @@ heroesHall.appendChild(heroesBar);
     heroesHall.appendChild(heroesHallStatusBox);
   }
 }
+
 
 
 // 8: السوق (building-8)
@@ -5433,21 +5442,20 @@ if (market) {
     market.appendChild(marketBar);
   }
 
-  // الوقت تحت البار، على مستوى المبنى
-  let marketTime = document.getElementById("market-upgrade-bar-time");
-  if (!marketTime) {
-    marketTime = document.createElement("div");
-    marketTime.id = "market-upgrade-bar-time";
-    marketTime.style.position = "absolute";
-    marketTime.style.bottom = "-44px";
-    marketTime.style.left = "50%";
-    marketTime.style.transform = "translateX(-50%)";
-    marketTime.style.fontSize = "10px";
-    marketTime.style.textAlign = "center";
-    marketTime.style.color = "#e5e7eb";
-    marketTime.textContent = "";
-    market.appendChild(marketTime);
-  }
+// الوقت تحت البار، على مستوى المبنى
+let marketTime = document.getElementById("market-upgrade-bar-time");
+if (!marketTime) {
+  marketTime = document.createElement("div");
+  marketTime.id = "market-upgrade-bar-time";
+  marketTime.className = "building-upgrade-time";
+  marketTime.style.position = "absolute";
+  marketTime.style.bottom = "-44px";
+  marketTime.style.left = "50%";
+  marketTime.style.transform = "translateX(-50%)";
+  marketTime.textContent = "";
+  market.appendChild(marketTime);
+}
+
 
   if (castleLevel < requiredLevel) {
     market.style.filter = "grayscale(1)";
@@ -5554,21 +5562,20 @@ if (booster) {
     booster.appendChild(boosterBar);
   }
 
-  // الوقت تحت البار، على مستوى المبنى
-  let boosterTime = document.getElementById("booster-tower-upgrade-bar-time");
-  if (!boosterTime) {
-    boosterTime = document.createElement("div");
-    boosterTime.id = "booster-tower-upgrade-bar-time";
-    boosterTime.style.position = "absolute";
-    boosterTime.style.bottom = "-44px";
-    boosterTime.style.left = "50%";
-    boosterTime.style.transform = "translateX(-50%)";
-    boosterTime.style.fontSize = "10px";
-    boosterTime.style.textAlign = "center";
-    boosterTime.style.color = "#e5e7eb";
-    boosterTime.textContent = "";
-    booster.appendChild(boosterTime);
-  }
+ // الوقت تحت البار، على مستوى المبنى
+let boosterTime = document.getElementById("booster-tower-upgrade-bar-time");
+if (!boosterTime) {
+  boosterTime = document.createElement("div");
+  boosterTime.id = "booster-tower-upgrade-bar-time";
+  boosterTime.className = "building-upgrade-time";
+  boosterTime.style.position = "absolute";
+  boosterTime.style.bottom = "-44px";
+  boosterTime.style.left = "50%";
+  boosterTime.style.transform = "translateX(-50%)";
+  boosterTime.textContent = "";
+  booster.appendChild(boosterTime);
+}
+
 
 
   if (castleLevel < requiredLevel) {
