@@ -10343,7 +10343,7 @@ async function loadGlobalChatMessages() {
   if (!area) return;
 
   try {
-    const res = await fetch("https://raidex-backend-production.up.railway.app/chat/latest?chatType=global&limit=50");
+   const res = await fetch(API_BASE + "/chat/latest?chatType=global&limit=50");
     const data = await res.json();
     if (!data || !Array.isArray(data.messages)) return;
 
@@ -10437,7 +10437,7 @@ async function handleSendChat() {
   // لو جلوبال، نبعتها للسيرفر
   if (currentChatTab === "global") {
     try {
-      const res = await fetch("https://raidex-backend-production.up.railway.app/chat/send", {
+      const res = await fetch(API_BASE + "/chat/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -10504,9 +10504,10 @@ async function loadGlobalChatMessages() {
   if (!area) return;
 
   try {
-    const res = await fetch(
-      "https://raidex-backend-production.up.railway.app/chat/latest?chatType=global&limit=50"
-    );
+  const res = await fetch(
+  API_BASE + "/chat/latest?chatType=global&limit=50"
+);
+
     const data = await res.json();
     if (!data || !Array.isArray(data.messages)) return;
 
@@ -10938,7 +10939,7 @@ if (upgradeBtnBottom) {
 
   console.log("Telegram user from WebApp:", user);
 
-  const API_BASE = "https://raidex-backend-production.up.railway.app";
+  const API_BASE = "http://localhost:3000";
 
   async function registerTelegramPlayer() {
     if (!user) {
