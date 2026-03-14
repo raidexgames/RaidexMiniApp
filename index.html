@@ -10345,25 +10345,22 @@ async function loadGlobalChatMessages() {
   try {
     const res = await fetch(API_BASE + "/chat/latest?chatType=global&limit=50");
     const data = await res.json();
-    
-    // السيرفر بيرجع array مباشرة
+
     if (!data || !Array.isArray(data)) return;
 
     area.innerHTML = "";
+    const myName = localStorage.getItem("playerName") || "Player";
 
     data.forEach((msg) => {
-      const div = document.createElement("div");
-      div.className = "chat-message";
-      // السيرفر بيبعت senderName و message
-      div.textContent = (msg.senderName || msg.name) + ": " + (msg.message || msg.text);
-      area.appendChild(div);
+      const isMe = (msg.senderName === myName);
+      addChatMessageToArea("global", msg.message || msg.text, isMe, msg.senderName, null);
     });
 
-    area.scrollTop = area.scrollHeight;
   } catch (e) {
     console.error("Error loading global chat messages", e);
   }
 }
+
 
 // ===== Chat logic مع تبويبات + إرسال للسيرفر =====
 let currentChatTab = "global";
@@ -10410,7 +10407,7 @@ function switchChatTab(tabKey) {
   });
 }
 
-function addChatMessageToArea(tabKey, text, isMe = false) {
+function addChatMessageToArea(tabKey, text, isMe = false, senderName = null, senderHero = null) {
   const areaId =
     tabKey === "global" ? "chat-global" :
     tabKey === "clan" ? "chat-clan" :
@@ -10420,44 +10417,61 @@ function addChatMessageToArea(tabKey, text, isMe = false) {
   const area = document.getElementById(areaId);
   if (!area) return;
 
-  const div = document.createElement("div");
-  div.className = "chat-message";
-  if (isMe) div.style.color = "#facc15";
-  div.textContent = text;
-  area.appendChild(div);
+  const name = senderName || localStorage.getItem("playerName") || "Player";
+  const hero = senderHero || localStorage.getItem("hero") || "elephant";
+  const avatarSrc = hero + ".png";
+
+  const wrapper = document.createElement("div");
+  wrapper.style.display = "flex";
+  wrapper.style.alignItems = "flex-start";
+  wrapper.style.gap = "8px";
+  wrapper.style.marginBottom = "10px";
+  wrapper.style.flexDirection = isMe ? "row-reverse" : "row";
+
+  // صورة اللاعب
+  const avatar = document.createElement("img");
+  avatar.src = avatarSrc;
+  avatar.style.width = "36px";
+  avatar.style.height = "36px";
+  avatar.style.borderRadius = "50%";
+  avatar.style.border = isMe ? "2px solid #facc15" : "2px solid #0ea5e9";
+  avatar.style.objectFit = "cover";
+  avatar.style.flexShrink = "0";
+
+  // الجزء الأيمن: الاسم + الرسالة
+  const bubble = document.createElement("div");
+  bubble.style.maxWidth = "70%";
+  bubble.style.display = "flex";
+  bubble.style.flexDirection = "column";
+  bubble.style.alignItems = isMe ? "flex-end" : "flex-start";
+
+  // الاسم
+  const nameEl = document.createElement("div");
+  nameEl.textContent = name;
+  nameEl.style.fontSize = "11px";
+  nameEl.style.color = isMe ? "#facc15" : "#0ea5e9";
+  nameEl.style.marginBottom = "3px";
+  nameEl.style.fontWeight = "bold";
+
+  // الرسالة
+  const msgEl = document.createElement("div");
+  msgEl.textContent = text;
+  msgEl.style.background = isMe ? "rgba(250,204,21,0.15)" : "rgba(14,165,233,0.15)";
+  msgEl.style.border = isMe ? "1px solid rgba(250,204,21,0.4)" : "1px solid rgba(14,165,233,0.4)";
+  msgEl.style.borderRadius = isMe ? "12px 2px 12px 12px" : "2px 12px 12px 12px";
+  msgEl.style.padding = "6px 10px";
+  msgEl.style.fontSize = "13px";
+  msgEl.style.color = "#e5e7eb";
+  msgEl.style.wordBreak = "break-word";
+
+  bubble.appendChild(nameEl);
+  bubble.appendChild(msgEl);
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(bubble);
+  area.appendChild(wrapper);
   area.scrollTop = area.scrollHeight;
 }
 
-async function handleSendChat() {
-  const input = document.getElementById("chat-input");
-  if (!input) return;
-  const text = input.value.trim();
-  if (!text) return;
-
-  // نضيف الرسالة محليًا في التبويب الحالي
-  addChatMessageToArea(currentChatTab, text, true);
-  input.value = "";
-
-  // لو جلوبال، نبعتها للسيرفر
-  if (currentChatTab === "global") {
-    try {
-      const res = await fetch(API_BASE + "/chat/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: localStorage.getItem("playerName") || "Player",
-          text: text,
-          chatType: "global",
-        }),
-      });
-
-      const data = await res.json();
-      console.log("Chat send result:", data);
-    } catch (e) {
-      console.error("Error sending chat message", e);
-    }
-  }
-}
 
 // ربط الأزرار بعد تحميل الصفحة
 window.addEventListener("load", () => {
