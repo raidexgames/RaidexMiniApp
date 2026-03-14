@@ -3621,9 +3621,25 @@ function saveGameState() {
       currentHealthTrainingUnitKey,
       currentHealthTrainingAmount,
       buildingLevels,
-      buildingUpgrades, // ← السطر الجديد
+      buildingUpgrades,
     };
+
+    // 1) احفظ محلياً زي ما كان
     localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
+
+    // 2) احفظ في Firestore لو اللاعب مسجّل
+    const telegramId = localStorage.getItem("telegramId");
+    if (telegramId) {
+      fetch(API_BASE + "/save-game-state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          telegramId: telegramId,
+          gameState: state
+        })
+      }).catch(err => console.error("Error syncing game state:", err));
+    }
+
   } catch (e) {
     console.error("Error saving game state", e);
   }
@@ -10963,32 +10979,38 @@ if (upgradeBtnBottom) {
  const API_BASE = "https://raidex-backend-production.up.railway.app";
 
 
-  async function registerTelegramPlayer() {
-    if (!user) {
-      console.log("No Telegram user data available.");
-      return;
-    }
-
-    try {
-      const res = await fetch(API_BASE + "/register-telegram-player", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          telegramId: user.id,
-          telegramName: user.username || user.first_name || "Unknown"
-        })
-      });
-
-      const data = await res.json();
-      console.log("Registered Telegram player:", data);
-    } catch (err) {
-      console.error("Error registering telegram player:", err);
-    }
+ async function registerTelegramPlayer() {
+  if (!user) {
+    console.log("No Telegram user data available.");
+    return;
   }
 
-  window.addEventListener("load", () => {
-    registerTelegramPlayer();
-  });
+  try {
+    const res = await fetch(API_BASE + "/register-telegram-player", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        telegramId: user.id,
+        telegramName: user.username || user.first_name || "Unknown"
+      })
+    });
+
+    const data = await res.json();
+    console.log("Registered Telegram player:", data);
+
+    // احفظ الـ telegramId محلياً عشان نستخدمه في saveGameState
+    localStorage.setItem("telegramId", user.id);
+    localStorage.setItem("playerName", user.username || user.first_name || "Unknown");
+
+  } catch (err) {
+    console.error("Error registering telegram player:", err);
+  }
+}
+
+window.addEventListener("load", () => {
+  registerTelegramPlayer();
+});
+
 </script>
 
   </body>
