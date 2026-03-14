@@ -4105,7 +4105,7 @@ function loadGameState() {
   }
 
   try {
-    const raw = localStorage.getItem("raidex_game_state_v3");
+   const raw = localStorage.getItem("raidex_gamestate_v3");
     if (!raw) return;
 
     const state = JSON.parse(raw);
