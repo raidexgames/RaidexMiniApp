@@ -2195,22 +2195,22 @@
 </div>     <!-- نهاية castle-panel -->
 
 <div id="building-panel" class="hidden">
- <div id="building-panel-inner"
-     style="
-             position: fixed;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         width: 80%;
-         max-width: 400px;
-         background: #020617;
-         border: 2px solid #facc15;
-         border-radius: 16px;
-         padding: 12px;
-         z-index: 9999;
-         color: #e5e7eb;
-         box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-       ">
+  <div id="building-panel-inner"
+       style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 400px;
+        background: #020617;
+        border: 2px solid #facc15;
+        border-radius: 16px;
+        padding: 12px;
+        z-index: 9999;
+        color: #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      ">
 
     <!-- Header -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -2224,100 +2224,119 @@
       </button>
     </div>
 
-   <!-- أزرار التابات: معلومات / ترقية -->
-<div style="display:flex; margin-bottom:8px; border-bottom:1px solid rgba(148,163,184,0.5);">
-  <button id="building-tab-info-btn"
-          style="flex:1; padding:6px 0; border:none; background:transparent;
-                 color:#facc15; font-weight:bold; cursor:pointer; font-size:13px;">
-    المعلومات
-  </button>
-  <button id="building-tab-upgrade-btn"
-          style="flex:1; padding:6px 0; border:none; background:transparent;
-                 color:#9ca3af; font-weight:bold; cursor:pointer; font-size:13px;">
-    الترقية
-  </button>
+    <!-- أزرار التابات: معلومات / ترقية -->
+    <div style="display:flex; margin-bottom:8px; border-bottom:1px solid rgba(148,163,184,0.5);">
+      <button id="building-tab-info-btn"
+              style="flex:1; padding:6px 0; border:none; background:transparent;
+                     color:#facc15; font-weight:bold; cursor:pointer; font-size:13px;">
+        المعلومات
+      </button>
+      <button id="building-tab-upgrade-btn"
+              style="flex:1; padding:6px 0; border:none; background:transparent;
+                     color:#9ca3af; font-weight:bold; cursor:pointer; font-size:13px;">
+        الترقية
+      </button>
+    </div>
+
+    <!-- تاب المعلومات -->
+    <div id="building-tab-info">
+      <div style="text-align:center; margin-bottom:8px;">
+        <img id="building-panel-image"
+             src=""
+             alt=""
+             style="width:180px;height:180px;border-radius:18px;
+                    object-fit:cover;border:1px solid rgba(148,163,184,0.8);" />
+      </div>
+
+      <div id="building-panel-desc"
+           style="margin-bottom:8px; font-size:13px; color:#9ca3af; text-align:center;">
+      </div>
+
+      <div style="border-top:1px solid rgba(148,163,184,0.5); margin:8px 0;"></div>
+
+      <div id="building-panel-extra-info"
+           style="font-size:13px; text-align:center;"></div>
+    </div>
+
+    <!-- تاب الترقية -->
+    <div id="building-tab-upgrade" style="display:none; font-size:13px;">
+
+      <!-- صورة المبنى + الليفل الحالي/التالي -->
+      <div style="text-align:center; margin-bottom:8px;">
+        <img id="building-upgrade-image"
+             src=""
+             alt=""
+             style="width:180px;height:180px;border-radius:18px;
+                    object-fit:cover;border:1px solid rgba(148,163,184,0.8);" />
+        <div id="building-upgrade-levels" style="margin-top:4px;"></div>
+      </div>
+
+      <!-- تكاليف الموارد -->
+      <div id="building-upgrade-cost" style="margin-bottom:8px;">
+        <div class="cost-row" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <span style="font-size:16px;">🪙</span>
+          <span>Gold:</span>
+          <span id="building-upgrade-gold-cost">0</span>
+        </div>
+
+        <div class="cost-row" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <span style="font-size:16px;">🌲</span>
+          <span>Wood:</span>
+          <span id="building-upgrade-wood-cost">0</span>
+        </div>
+
+        <div class="cost-row" style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:16px;">🍖</span>
+          <span>Meat:</span>
+          <span id="building-upgrade-food-cost">0</span>
+        </div>
+      </div>
+
+      <!-- وقت الترقية -->
+      <div id="building-upgrade-time" style="margin-bottom:8px;"></div>
+
+      <!-- Progress bar + الوقت المتبقي -->
+      <div id="building-upgrade-progress-wrapper" style="margin-bottom:8px; display:none;">
+        <div style="width:100%; height:8px; background:rgba(148,163,184,0.4); border-radius:999px; overflow:hidden;">
+          <div id="building-upgrade-progress-fill" style="width:0%; height:100%; background:#0ea5e9;"></div>
+        </div>
+        <div style="margin-top:4px; font-size:12px; text-align:center; color:#e5e7eb;">
+          <span id="building-upgrade-remaining-time">0</span>
+        </div>
+      </div>
+
+      <!-- أزرار بدء / إلغاء الترقية -->
+      <button id="building-panel-upgrade-btn"
+              style="width:100%; padding:8px; border:none; border-radius:10px;
+                     background:#0ea5e9; color:#0b1120; font-weight:bold; cursor:pointer; margin-top:4px;">
+        ترقية المبنى
+      </button>
+
+      <button id="building-panel-cancel-upgrade-btn"
+              style="width:100%; padding:6px; border:none; border-radius:10px;
+                     background:#ef4444; color:#0b1120; font-weight:bold; cursor:pointer;
+                     margin-top:4px; display:none;">
+        إلغاء الترقية
+      </button>
+
+      <!-- أزرار تسريع الترقية بالجواهر -->
+      <div id="building-upgrade-speedups"
+           style="margin-top:8px; font-size:11px; text-align:center; display:none;">
+        <div style="margin-bottom:4px; color:#9ca3af;">
+          تسريع الترقية بالجواهر:
+        </div>
+ <div id="building-speedups-row"
+     style="display:flex; flex-direction:column; gap:6px; justify-content:center;">
+  <!-- الصفوف تتبني من JavaScript -->
 </div>
 
-<!-- تاب المعلومات -->
-<div id="building-tab-info">
-  <div style="text-align:center; margin-bottom:8px;">
-    <img id="building-panel-image"
-         src=""
-         alt=""
-         style="width:180px;height:180px;border-radius:18px;
-                object-fit:cover;border:1px solid rgba(148,163,184,0.8);" />
-  </div>
 
-  <div id="building-panel-desc"
-       style="margin-bottom:8px; font-size:13px; color:#9ca3af; text-align:center;">
-  </div>
+      </div>
 
-  <div style="border-top:1px solid rgba(148,163,184,0.5); margin:8px 0;"></div>
+    </div> <!-- نهاية building-tab-upgrade -->
 
-  <div id="building-panel-extra-info"
-       style="font-size:13px; text-align:center;"></div>
-</div>
-
-<!-- تاب الترقية -->
-<div id="building-tab-upgrade" style="display:none; font-size:13px;">
-
-  <!-- صورة المبنى + الليفل الحالي/التالي (نفس مقاس المعلومات) -->
-  <div style="text-align:center; margin-bottom:8px;">
-    <img id="building-upgrade-image"
-         src=""
-         alt=""
-         style="width:180px;height:180px;border-radius:18px;
-                object-fit:cover;border:1px solid rgba(148,163,184,0.8);" />
-    <div id="building-upgrade-levels" style="margin-top:4px;"></div>
-  </div>
-
-  <!-- تكاليف الموارد بالإيموجي -->
-  <div id="building-upgrade-cost" style="margin-bottom:8px;">
-    <div class="cost-row" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-      <span style="font-size:16px;">🪙</span>
-      <span>Gold:</span>
-      <span id="building-upgrade-gold-cost">0</span>
-    </div>
-
-    <div class="cost-row" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-      <span style="font-size:16px;">🌲</span>
-      <span>Wood:</span>
-      <span id="building-upgrade-wood-cost">0</span>
-    </div>
-
-    <div class="cost-row" style="display:flex;align-items:center;gap:6px;">
-      <span style="font-size:16px;">🍖</span>
-      <span>Meat:</span>
-      <span id="building-upgrade-food-cost">0</span>
-    </div>
-  </div>
-
-  <!-- وقت الترقية -->
-  <div id="building-upgrade-time" style="margin-bottom:8px;"></div>
-
-  <!-- Progress bar + الوقت المتبقي -->
-  <div id="building-upgrade-progress-wrapper" style="margin-bottom:8px; display:none;">
-    <div style="width:100%; height:8px; background:rgba(148,163,184,0.4); border-radius:999px; overflow:hidden;">
-      <div id="building-upgrade-progress-fill" style="width:0%; height:100%; background:#0ea5e9;"></div>
-    </div>
-    <div style="margin-top:4px; font-size:12px; text-align:center; color:#e5e7eb;">
-      <span id="building-upgrade-remaining-time">0</span>
-    </div>
-  </div>
-<button id="building-panel-upgrade-btn"
-        style="width:100%; padding:8px; border:none; border-radius:10px;
-               background:#0ea5e9; color:#0b1120; font-weight:bold; cursor:pointer; margin-top:4px;">
-  ترقية المبنى
-</button>
-
-<button id="building-panel-cancel-upgrade-btn"
-        style="width:100%; padding:6px; border:none; border-radius:10px;
-               background:#ef4444; color:#0b1120; font-weight:bold; cursor:pointer;
-               margin-top:4px; display:none;">
-  إلغاء الترقية
-</button>
-</div>
-
+  </div> <!-- نهاية building-panel-inner -->
+</div> <!-- نهاية building-panel -->
 
 <script>
 
@@ -2425,6 +2444,39 @@ let buildingLevels = {
   booster: 1,
   hospital: 1
 };
+// مفتاح التخزين
+const SAVE_KEY = "castle-save-v1";
+
+// حفظ اللعبة
+function saveGame() {
+  try {
+    const data = {
+      buildingLevels,
+      buildingUpgrades,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error("Save error", e);
+  }
+}
+
+// تحميل اللعبة
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.buildingLevels) {
+      buildingLevels = data.buildingLevels;
+    }
+    if (data.buildingUpgrades) {
+      buildingUpgrades = data.buildingUpgrades;
+    }
+  } catch (e) {
+    console.error("Load error", e);
+  }
+}
+
 // حالة ترقيات المباني (لكل مبنى على حدة)
 let buildingUpgrades = {}; // buildingKey => { inProgress, finishAt, totalTime, remainingTime }
 let buildingUpgradeInterval = null;
@@ -3004,14 +3056,25 @@ function updateBuildingUpgradePanelForTimer(buildingKey) {
   const progressWrapper = document.getElementById("building-upgrade-progress-wrapper");
   const progressFill = document.getElementById("building-upgrade-progress-fill");
 
+  // عناصر التسريع الجديدة
+  const speedupsWrapper = document.getElementById("building-upgrade-speedups");
+  const speedupsRow = document.getElementById("building-speedups-row");
+
+  // مفيش ترقية شغالة للمبنى ده
   if (!upgrade || !upgrade.inProgress) {
     if (progressWrapper) progressWrapper.style.display = "none";
     if (panelTimeEl) panelTimeEl.textContent = "";
-    // كمان نظّف اللي في المدينة
+
+    // إخفاء / تنظيف أزرار التسريع
+    if (speedupsWrapper) speedupsWrapper.style.display = "none";
+    if (speedupsRow) speedupsRow.innerHTML = "";
+
+    // تحديث البار اللي فوق المبنى في المدينة
     updateCityBuildingUpgradeBar(buildingKey, upgrade);
     return;
   }
 
+  // في ترقية شغالة
   if (progressWrapper) progressWrapper.style.display = "block";
 
   if (panelTimeEl) {
@@ -3026,9 +3089,95 @@ function updateBuildingUpgradePanelForTimer(buildingKey) {
     progressFill.style.width = percent + "%";
   }
 
-  // هنا أهم سطر: خلّي المدينة تتحدث في نفس الوقت
+  // بناء كروت التسريع الجزئي
+  if (speedupsWrapper && speedupsRow) {
+    // نفضّي أي كروت قديمة
+    speedupsRow.innerHTML = "";
+
+    if (upgrade.remainingTime <= 0) {
+      speedupsWrapper.style.display = "none";
+    } else {
+      speedupsWrapper.style.display = "block";
+
+      BUILDING_SPEEDUPS.forEach(cfg => {
+        if (upgrade.remainingTime <= 0) return;
+// لو نوع التسريع أكبر من الوقت المتبقي، متظهرهوش
+        if (cfg.seconds > upgrade.remainingTime) return;
+        const gemCost = getSpeedupPartialGemCost(cfg.seconds, upgrade.remainingTime);
+
+        // الكارت الخارجي
+        const card = document.createElement("div");
+        card.style.display = "flex";
+        card.style.alignItems = "center";
+        card.style.justifyContent = "space-between";
+        card.style.gap = "8px";
+        card.style.padding = "6px 8px";
+        card.style.background = "rgba(15,23,42,0.9)";
+        card.style.borderRadius = "10px";
+        card.style.border = "1px solid rgba(148,163,184,0.5)";
+
+        // أيقونة الساعة الرملية (يمين)
+        const iconBox = document.createElement("div");
+        iconBox.style.width = "32px";
+        iconBox.style.height = "32px";
+        iconBox.style.borderRadius = "8px";
+        iconBox.style.border = "1px solid rgba(148,163,184,0.5)";
+        iconBox.style.display = "flex";
+        iconBox.style.alignItems = "center";
+        iconBox.style.justifyContent = "center";
+        iconBox.style.background = "rgba(15,23,42,0.95)";
+        iconBox.style.fontSize = "18px";
+        iconBox.textContent = "⏳";
+
+        // النص في المنتصف
+        const textBox = document.createElement("div");
+        textBox.style.flex = "1";
+        textBox.style.textAlign = "right";
+        textBox.style.fontSize = "11px";
+        textBox.style.color = "#e5e7eb";
+
+        const mainLine = document.createElement("div");
+        mainLine.style.fontWeight = "bold";
+        mainLine.textContent = `تسريع لمدة ${formatDuration(cfg.seconds)}`;
+
+        const subLine = document.createElement("div");
+        subLine.style.fontSize = "10px";
+        subLine.style.color = "#9ca3af";
+        subLine.textContent = `يقلل وقت الترقية بمقدار ${formatDuration(cfg.seconds)}`;
+
+        textBox.appendChild(mainLine);
+        textBox.appendChild(subLine);
+
+        // زر الشراء (يسار)
+        const btn = document.createElement("button");
+        btn.style.padding = "6px 10px";
+        btn.style.border = "none";
+        btn.style.borderRadius = "999px";
+        btn.style.fontSize = "11px";
+        btn.style.cursor = "pointer";
+        btn.style.background = "#facc15";
+        btn.style.color = "#111827";
+        btn.style.fontWeight = "bold";
+        btn.textContent = `شراء واستخدام (${gemCost}💎)`;
+
+        btn.onclick = function () {
+          handleBuildingSpeedupPartial(buildingKey, cfg.seconds, gemCost);
+        };
+
+        // ربط العناصر
+        card.appendChild(iconBox);
+        card.appendChild(textBox);
+        card.appendChild(btn);
+        speedupsRow.appendChild(card);
+      });
+    }
+  }
+
+  // تحديث البار اللي فوق المبنى في المدينة
   updateCityBuildingUpgradeBar(buildingKey, upgrade);
 }
+
+
 
 
 function openMiningBuildingPanel(buildingKey) {
@@ -3506,10 +3655,23 @@ function getBuildingNameByKey(key) {
   return key;
 }
 let currentBuildingKey = null;
+// أنواع تسريع ترقية المباني بالوقت
+const BUILDING_SPEEDUPS = [
+  { seconds: 60,    label: "1 د"  },
+  { seconds: 600,   label: "10 د" },
+  { seconds: 1800,  label: "30 د" },
+  { seconds: 3600,  label: "1 س"  },
+  { seconds: 10800, label: "3 س"  }
+];
+
 // إبراز مبنى في المدينة + عرض بالونة info/upgrade فوقه
 function showBuildingPopup(buildingKey) {
   console.log("showBuildingPopup CALLED with", buildingKey);
- currentBuildingKey = buildingKey;
+  currentBuildingKey = buildingKey;
+
+  // هنا نستدعي المربع السفلي حسب نوع المبنى
+  showBuildingActions(buildingKey);   // ← السطر الجديد المهم
+
   const old = document.getElementById("building-popup");
   if (old) old.parentNode.removeChild(old);
 
@@ -3535,29 +3697,28 @@ function showBuildingPopup(buildingKey) {
   popup.style.left = "50%";
   popup.style.top = "0";
   popup.style.transform = "translate(-50%, -110%)";
-   popup.style.background = "rgba(15,23,42,0.98)";
-   popup.style.border = "2px solid #0ea5e9";
- popup.style.borderRadius = "16px";
+  popup.style.background = "rgba(15,23,42,0.98)";
+  popup.style.border = "2px solid #0ea5e9";
+  popup.style.borderRadius = "16px";
   popup.style.padding = "8px 10px";
- popup.style.minWidth = "180px";
+  popup.style.minWidth = "180px";
   popup.style.color = "#e5e7eb";
   popup.style.fontSize = "12px";
   popup.style.zIndex = "300";
-    popup.style.boxShadow = "0 14px 30px rgba(0,0,0,0.85)";
+  popup.style.boxShadow = "0 14px 30px rgba(0,0,0,0.85)";
 
   const header = document.createElement("div");
   header.style.display = "flex";
   header.style.alignItems = "center";
   header.style.gap = "6px";
 
-   const img = document.createElement("img");
+  const img = document.createElement("img");
   img.style.width = "40px";
   img.style.height = "40px";
   img.style.borderRadius = "8px";
   img.style.objectFit = "cover";
   img.style.border = "1px solid rgba(148,163,184,0.8)";
   img.src = getBuildingImageByKey(buildingKey);
-
 
   const titleBox = document.createElement("div");
   titleBox.style.display = "flex";
@@ -3576,7 +3737,6 @@ function showBuildingPopup(buildingKey) {
   const lvl = buildingLevels[buildingKey] || 1;
   levelEl.textContent = "LEVEL " + lvl;
 
-
   titleBox.appendChild(nameEl);
   titleBox.appendChild(levelEl);
   header.appendChild(img);
@@ -3584,10 +3744,12 @@ function showBuildingPopup(buildingKey) {
 
   popup.appendChild(header);
   el.appendChild(popup);
-  // إظهار أزرار الأسفل أول ما نختار مبنى
-const actions = document.getElementById("building-bottom-actions");
-if (actions) actions.style.display = "flex";
+
+  // السطرين دول بقوا مش ضروريين لأن showBuildingActions بيهندلهم
+  // const actions = document.getElementById("building-bottom-actions");
+  // if (actions) actions.style.display = "flex";
 }
+
 
 function getBuildingImageByKey(key) {
   if (key === "goldMine")     return "goldmine.png";
@@ -4098,6 +4260,11 @@ function formatDuration(totalSeconds) {
   // لو مفيش ساعات: mm.ss m (الثواني 2 digits)
   const sStr = seconds.toString().padStart(2, "0");
   return minutes + "." + sStr + "m";
+}
+function getSpeedupPartialGemCost(speedupSeconds, remainingSeconds) {
+  const effective = Math.min(speedupSeconds, Math.max(remainingSeconds, 1));
+  const rate = 30; // كل 30 ثانية تقريبًا = جوهرة (تسعير غالي شوية)
+  return Math.max(1, Math.ceil(effective / rate));
 }
 
 
@@ -10070,38 +10237,103 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-const buildingPanelUpgradeBtn = document.getElementById("building-panel-upgrade-btn");
-if (buildingPanelUpgradeBtn) {
-  buildingPanelUpgradeBtn.addEventListener("click", function () {
-    console.log("CLICK building-panel-upgrade-btn");
+  const buildingPanelUpgradeBtn = document.getElementById("building-panel-upgrade-btn");
+  if (buildingPanelUpgradeBtn) {
+    buildingPanelUpgradeBtn.addEventListener("click", function () {
+      console.log("CLICK building-panel-upgrade-btn");
 
-    if (!currentBuildingKey) {
-      console.log("No currentBuildingKey, cannot upgrade");
-      return;
-    }
-
-    console.log("CALL startGenericBuildingUpgrade with", currentBuildingKey);
-    startGenericBuildingUpgrade(currentBuildingKey);
-
-    // بعد ما نبدأ الترقية، فعّل زر إلغاء الترقية فورًا
-    const cancelBtn = document.getElementById("building-panel-cancel-upgrade-btn");
-    if (cancelBtn) {
-      const up = buildingUpgrades[currentBuildingKey];
-      if (up && up.inProgress) {
-        cancelBtn.style.display = "block";
-        cancelBtn.onclick = function () {
-          cancelBuildingUpgrade(currentBuildingKey);
-          cancelBtn.style.display = "none";
-          updateBuildingUpgradePanelForTimer(currentBuildingKey);
-        };
+      if (!currentBuildingKey) {
+        console.log("No currentBuildingKey, cannot upgrade");
+        return;
       }
-    }
 
-    // تحديث حالة التايمر في البانل بعد بدء الترقية
-    updateBuildingUpgradePanelForTimer(currentBuildingKey);
-  });
-}
+      console.log("CALL startGenericBuildingUpgrade with", currentBuildingKey);
+      startGenericBuildingUpgrade(currentBuildingKey);
+
+      const cancelBtn = document.getElementById("building-panel-cancel-upgrade-btn");
+      if (cancelBtn) {
+        const up = buildingUpgrades[currentBuildingKey];
+        if (up && up.inProgress) {
+          cancelBtn.style.display = "block";
+          cancelBtn.onclick = function () {
+            cancelBuildingUpgrade(currentBuildingKey);
+            cancelBtn.style.display = "none";
+            updateBuildingUpgradePanelForTimer(currentBuildingKey);
+          };
+        }
+      }
+
+      updateBuildingUpgradePanelForTimer(currentBuildingKey);
+    });
+  }
+
+  // ===== أزرار المربع السفلي (INFO / TRAIN + UPGRADE) =====
+  const buildingBottomActions = document.getElementById("building-bottom-actions");
+  const bottomInfoBtn = document.getElementById("bottom-info-btn");
+  const bottomUpgradeBtn = document.getElementById("bottom-upgrade-btn");
+
+  // دالة عامة تستخدمها showBuildingPopup لكل المباني
+  window.showBuildingActions = function (buildingKey) {
+    currentBuildingKey = buildingKey;
+    if (!buildingBottomActions || !bottomInfoBtn || !bottomUpgradeBtn) return;
+
+    buildingBottomActions.style.display = "flex";
+
+    const infoLabel = bottomInfoBtn.querySelector(".ba-label");
+    const upgradeLabel = bottomUpgradeBtn.querySelector(".ba-label");
+
+    // الافتراضي لكل المباني: INFO + UPGRADE
+    if (infoLabel) infoLabel.textContent = "INFO";
+    if (upgradeLabel) upgradeLabel.textContent = "UPGRADE";
+
+    // زر INFO يفتح تاب المعلومات في building-panel
+    bottomInfoBtn.onclick = () => {
+      console.log("INFO for", buildingKey);
+      openBuildingPanel(buildingKey);
+      const tabInfo = document.getElementById("building-tab-info-btn");
+      const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
+      if (tabInfo && tabUpgrade) {
+        tabInfo.classList.add("active");
+        tabUpgrade.classList.remove("active");
+        document.getElementById("building-tab-info").style.display = "block";
+        document.getElementById("building-tab-upgrade").style.display = "none";
+      }
+    };
+
+    // زر UPGRADE يفتح تاب الترقية في نفس البانل
+    bottomUpgradeBtn.onclick = () => {
+      console.log("UPGRADE for", buildingKey);
+      openBuildingPanel(buildingKey);
+      const tabInfo = document.getElementById("building-tab-info-btn");
+      const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
+      if (tabUpgrade && tabInfo) {
+        tabInfo.classList.remove("active");
+        tabUpgrade.classList.add("active");
+        document.getElementById("building-tab-info").style.display = "none";
+        document.getElementById("building-tab-upgrade").style.display = "block";
+      }
+    };
+
+    // لمبنى الهجوم/الدفاع: TRAIN + UPGRADE
+    if (buildingKey === "attackTower" || buildingKey === "defenseTower") {
+      if (infoLabel) infoLabel.textContent = "TRAIN";
+
+      bottomInfoBtn.onclick = () => {
+        if (buildingKey === "attackTower") {
+          initAttackArmyPanel();
+          const panel = document.getElementById("attack-army-panel");
+          if (panel) panel.style.display = "block";
+        } else if (buildingKey === "defenseTower") {
+          initDefenseArmyPanel(); // لازم تكون معرّفها
+          const panel = document.getElementById("defense-army-panel");
+          if (panel) panel.style.display = "block";
+        }
+      };
+    }
+  };
 }); // هنا بتنتهي كل ربطات الـ DOMContentLoaded
+
+
 
 // ===== Global chat fetch (عرض الرسائل من السيرفر) =====
 let lastChatFetchTime = 0;
