@@ -10516,6 +10516,36 @@ window.addEventListener("load", () => {
   // التبويب الافتراضي
   switchChatTab("global");
 });
+async function handleSendChat() {
+  const input = document.getElementById("chat-input");
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  // نضيف الرسالة محليًا فوراً
+  addChatMessageToArea(currentChatTab, text, true);
+  input.value = "";
+
+  // لو جلوبال، نبعتها للسيرفر
+  if (currentChatTab === "global") {
+    try {
+      const res = await fetch(API_BASE + "/chat/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: localStorage.getItem("playerName") || "Player",
+          text: text,
+          chatType: "global",
+        }),
+      });
+      const data = await res.json();
+      console.log("Chat send result:", data);
+    } catch (e) {
+      console.error("Error sending chat message", e);
+    }
+  }
+}
+
 // ===== DEV TOOLS (لك أنت فقط من الكونسول) =====
 
 // فعّل/أغلق وضع المطور من الكونسول:
