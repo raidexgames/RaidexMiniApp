@@ -4077,6 +4077,33 @@ function loadGameState() {
   updateDailyLoginBanner();
   updateDailyLoginIcon();
 
+  // جيب البيانات من Firestore لو اللاعب مسجّل
+  const telegramId = localStorage.getItem("telegramId");
+  if (telegramId) {
+    fetch(API_BASE + "/load-game-state/" + telegramId)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.gameState) {
+          const state = data.gameState;
+
+          // طبّق البيانات من Firestore
+          if (state.castleLevel != null) castleLevel = state.castleLevel;
+          if (state.resources) resources = { ...resources, ...state.resources };
+          if (state.buildingLevels) buildingLevels = { ...buildingLevels, ...state.buildingLevels };
+          if (state.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...state.buildingUpgrades };
+
+          // حدّث الـ localStorage بالبيانات الجديدة
+          localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
+
+          console.log("Game state loaded from Firestore ✅");
+
+          // حدّث الواجهة
+          recalculatePower();
+        }
+      })
+      .catch(err => console.error("Error loading game state from Firestore:", err));
+  }
+
   try {
     const raw = localStorage.getItem("raidex_game_state_v3");
     if (!raw) return;
