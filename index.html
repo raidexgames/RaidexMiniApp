@@ -9497,19 +9497,50 @@ let clanState = {
   members: [],    // [{name, role}]
 };
 
-function loadClanState() {
+async function loadClanState() {
   try {
+    // أولاً جرّب من localStorage
     const raw = localStorage.getItem(CLAN_STATE_KEY);
-    if (!raw) return;
-    const state = JSON.parse(raw);
-    clanState = {
-      ...clanState,
-      ...state,
-    };
+    if (raw) {
+      const state = JSON.parse(raw);
+      clanState = { ...clanState, ...state };
+    }
+
+    // بعدين تحقق من Firestore عشان نتأكد
+    const telegramId = localStorage.getItem("telegramId");
+    if (!telegramId) return;
+
+    const res = await fetch(API_BASE + "/players/" + telegramId);
+    const playerData = await res.json();
+
+    if (playerData.clanId && playerData.clanName) {
+      // اللاعب في كلان في Firestore
+      clanState.clanId = playerData.clanId;
+      clanState.name = playerData.clanName;
+
+      // نجيب دوره في الكلان
+      const clanRes = await fetch(API_BASE + "/clan/" + playerData.clanId);
+      const clanData = await clanRes.json();
+      if (clanData && clanData.members) {
+        const me = clanData.members.find(m => String(m.telegramId) === String(telegramId));
+        if (me) clanState.role = me.role;
+        clanState.members = clanData.members;
+      }
+
+      saveClanState();
+    } else if (!playerData.clanId) {
+      // مفيش كلان في Firestore، امسح من localStorage
+      clanState.name = null;
+      clanState.role = null;
+      clanState.clanId = null;
+      clanState.members = [];
+      saveClanState();
+    }
   } catch (e) {
     console.error("Error loading clan state", e);
   }
 }
+
 
 function saveClanState() {
   try {
