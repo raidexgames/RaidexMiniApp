@@ -8693,6 +8693,7 @@ function closeStats() {
   if (statsPage) {
     statsPage.classList.add("game-page-hidden");
   }
+  showRightArrow();
 }
 
 function renderArmy() {
@@ -8849,17 +8850,14 @@ loadBuildingsState();
   }
 });
 
-// ===== Castle Panel logic (فتح/قفل) =====
 function openCastlePanel() {
+  hideRightArrow(); // ← أخفي السهم
   const panel = document.getElementById("castle-panel");
   if (!panel) return;
-  // اقفل كل صفحات الجيم اللي بين التوب والبوتم بار
-  hideAllGamePages(); // تستخدم GAME_PAGE_IDS
-  // ظاهر بانل القلعة
+  hideAllGamePages();
   panel.classList.remove("castle-hidden");
   panel.classList.add("castle-visible");
 
-  // حدّث التبويبات
   if (typeof updateCastleInfoTab === "function") {
     updateCastleInfoTab();
   }
@@ -8868,11 +8866,13 @@ function openCastlePanel() {
   }
 }
 
+
 function closeCastlePanel() {
   const panel = document.getElementById("castle-panel");
   if (!panel) return;
   panel.classList.remove("castle-visible");
   panel.classList.add("castle-hidden");
+  showRightArrow();
 }
 
 // ربط زر السهم جوه panel + تجهيز popup إلغاء الترقية
@@ -9946,8 +9946,8 @@ function hideAllGamePages() {
       el.classList.add("game-page-hidden");
     }
   });
-  showRightArrow(); // ← نظهر السهم لما كل الـ pages تتقفل
 }
+
 
 
 function showGamePage(id) {
@@ -9977,6 +9977,7 @@ function closeTasksPage() {
   const tasksPage = document.getElementById("tasks-page");
   if (!tasksPage) return;
   tasksPage.classList.add("game-page-hidden");
+  showRightArrow();
 }
 function openDailyLoginPage() {
   showGamePage("daily-login-page");
@@ -9986,6 +9987,7 @@ function openDailyLoginPage() {
 function closeDailyLoginPage() {
   const page = document.getElementById("daily-login-page");
   if (page) page.classList.add("game-page-hidden");
+  showRightArrow();
 }
 function renderDailyLoginCalendar() {
   const container = document.getElementById("daily-login-calendar");
@@ -10483,9 +10485,8 @@ function openInvites() {
 }
 
 function closeInvites() {
-  const invitesPage = document.getElementById("invites-page");
-  if (!invitesPage) return;
-  invitesPage.classList.add("game-page-hidden");
+  invitesPage.classList.add("hidden");
+  showRightArrow();
 }
 // === Clan Page ===
 function openClanPage() {
@@ -10498,6 +10499,7 @@ function closeClanPage() {
   const clanPage = document.getElementById("clan-page");
   if (!clanPage) return;
   clanPage.classList.add("game-page-hidden");
+  showRightArrow();
 }
 
 
