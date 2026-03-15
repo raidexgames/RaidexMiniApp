@@ -11741,6 +11741,19 @@ async function checkFriendRequests() {
     // نقطة على السهم الأيمن
     const arrowBadge = document.getElementById("right-arrow-badge");
     if (arrowBadge) arrowBadge.style.display = count > 0 ? "block" : "none";
+// نقطة على أيقونة الشات في السهم
+const chatIcon = document.getElementById("chat-icon");
+if (chatIcon) {
+  const oldDot = chatIcon.querySelector(".chat-icon-dot");
+  if (oldDot) oldDot.remove();
+  if (count > 0) {
+    const dot = document.createElement("span");
+    dot.className = "chat-icon-dot";
+    dot.style.cssText = "position:absolute; top:-2px; right:-2px; width:10px; height:10px; border-radius:50%; background:#ef4444; box-shadow:0 0 6px rgba(239,68,68,0.9);";
+    chatIcon.style.position = "relative";
+    chatIcon.appendChild(dot);
+  }
+}
 
     // نقطة على تبويب Friends في الشات
     const friendsTab = document.querySelector(".chat-tab[data-chat='friends']");
