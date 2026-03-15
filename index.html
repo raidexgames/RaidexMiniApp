@@ -1632,17 +1632,24 @@
   </button>
 
   <div id="right-options" class="right-options">
-    <button class="icon-circle" id="pvp-icon">
-      <span>⚔️</span>
-    </button>
-    <button class="icon-circle" id="chat-icon">
-      <span>💬</span>
-    </button>
-    <button class="icon-circle" id="pass-icon">
-      <span>🎫</span>
-    </button>
-  </div>
+  <button class="icon-circle" id="pvp-icon">
+    <span>⚔️</span>
+    <span style="font-size:9px; display:block; color:#ffd66b;">PVP</span>
+  </button>
+  <button class="icon-circle" id="chat-icon">
+    <span>💬</span>
+    <span style="font-size:9px; display:block; color:#ffd66b;">Chat</span>
+  </button>
+  <button class="icon-circle" id="pass-icon">
+    <span>🎫</span>
+    <span style="font-size:9px; display:block; color:#ffd66b;">Pass</span>
+  </button>
+  <button class="icon-circle" id="leaderboard-icon" onclick="openLeaderboardPage()">
+    <span>🏆</span>
+    <span style="font-size:9px; display:block; color:#ffd66b;">Top</span>
+  </button>
 </div>
+
 
     <!-- Invite -->
     <div id="invite-btn">🎁</div>
@@ -8224,6 +8231,7 @@ function initBoosterTowerPanel() {
 // Right arrow options
 const rightArrowBtn = document.getElementById("right-arrow-btn");
 const rightOptions = document.getElementById("right-options");
+const rightArrowMenu = document.querySelector(".right-arrow-menu");
 
 if (rightArrowBtn && rightOptions) {
   rightArrowBtn.addEventListener("click", () => {
@@ -8231,6 +8239,17 @@ if (rightArrowBtn && rightOptions) {
     rightArrowBtn.classList.toggle("open");
   });
 }
+
+// دالة نخفي السهم لما بيتفتح Panel
+function hideRightArrow() {
+  if (rightArrowMenu) rightArrowMenu.style.display = "none";
+}
+
+// دالة نظهر السهم تاني لما بيتقفل Panel
+function showRightArrow() {
+  if (rightArrowMenu) rightArrowMenu.style.display = "block";
+}
+
 
 function closeRightMenu() {
   if (!rightOptions || !rightArrowBtn) return;
@@ -9927,25 +9946,31 @@ function hideAllGamePages() {
       el.classList.add("game-page-hidden");
     }
   });
+  showRightArrow(); // ← نظهر السهم لما كل الـ pages تتقفل
 }
+
 
 function showGamePage(id) {
   hideAllGamePages();
+  hideRightArrow(); // ← نخفي السهم لما أي page تتفتح
   const el = document.getElementById(id);
   if (el) {
     el.classList.remove("game-page-hidden");
   }
 }
 
+
 // === Tasks Page ===
 function openTasksPage() {
+  hideRightArrow();  // ← أضف السطر ده
   const tasksPage = document.getElementById("tasks-page");
   if (!tasksPage) return;
 
-  currentTasksTab = "main";        // نضمن يفتح على Main
+  currentTasksTab = "main";
   showGamePage("tasks-page");
-  switchTasksTab("main");          // دي هتنده جواها renderTasksPage
+  switchTasksTab("main");
 }
+
 
 
 function closeTasksPage() {
@@ -10464,6 +10489,7 @@ function closeInvites() {
 }
 // === Clan Page ===
 function openClanPage() {
+showRightArrow();
   showGamePage("clan-page");
   renderClanPage();
 }
