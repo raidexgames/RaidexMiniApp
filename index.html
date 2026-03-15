@@ -2139,7 +2139,6 @@
     <input id="donate-gold-input" type="number" min="0" placeholder="0" style="width:100%; padding:8px; margin:4px 0 12px; background:#1f2937; border:1px solid #374151; color:#e5e7eb; border-radius:8px; box-sizing:border-box;" />
 
    <div style="color:#9ca3af; font-size:12px;">💎 الجواهر (عندك: <span id="donate-my-gems">0</span>)</div>
-
     <input id="donate-gems-input" type="number" min="0" placeholder="0" style="width:100%; padding:8px; margin:4px 0 16px; background:#1f2937; border:1px solid #374151; color:#e5e7eb; border-radius:8px; box-sizing:border-box;" />
 
     <div style="display:flex; gap:8px;">
@@ -3688,10 +3687,12 @@ function saveGameState() {
       fetch(API_BASE + "/save-game-state", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          telegramId: telegramId,
-          gameState: state
-        })
+       body: JSON.stringify({
+  telegramId: telegramId,
+  gameState: state,
+  power: totalPower || 0  // نبعت القوة مع الـ save
+})
+
       }).catch(err => console.error("Error syncing game state:", err));
     }
 
@@ -9583,8 +9584,16 @@ async function renderClanPage() {
     }
 
     if (clanState.clanId) {
+      // تحديث قوة الكلان
+      fetch(API_BASE + "/clan/update-power", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clanId: clanState.clanId })
+      }).catch(err => console.error("Error updating clan power:", err));
+
       try {
         const res = await fetch(API_BASE + "/clan/" + clanState.clanId);
+
         const data = await res.json();
 
         if (data && data.members) {
@@ -9618,6 +9627,11 @@ async function renderClanPage() {
                   <span style="color:#9ca3af; font-size:12px;">👥 الأعضاء</span>
                   <span style="color:#e5e7eb; font-size:12px; font-weight:bold;">${data.members.length}</span>
                 </div>
+                <div style="display:flex; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,0.9); border-radius:10px; border:1px solid rgba(148,163,184,0.2);">
+  <span style="color:#9ca3af; font-size:12px;">⚡ قوة الكلان</span>
+  <span style="color:#facc15; font-size:12px; font-weight:bold;">${(data.totalPower || 0).toLocaleString()}</span>
+</div>
+
                 <div style="display:flex; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,0.9); border-radius:10px; border:1px solid rgba(148,163,184,0.2);">
                   <span style="color:#9ca3af; font-size:12px;">🪙 خزينة الذهب</span>
                   <span style="color:#e5e7eb; font-size:12px;">${(treasury.gold || 0).toLocaleString()}</span>
