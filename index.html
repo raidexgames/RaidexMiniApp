@@ -11486,10 +11486,15 @@ async function loadLeaderboard(tab) {
       else if (currentLbSubTab === "army") data.sort((a, b) => (b.armyPower||0) - (a.armyPower||0));
       else data.sort((a, b) => (b.power||0) - (a.power||0));
     }
-    data.forEach((item, index) => {
+     data.forEach((item, index) => {
       const row = document.createElement("div");
       row.style.cssText = `display:flex; justify-content:space-between; align-items:center; padding:10px 12px; margin-bottom:6px; border-radius:10px; background:${index===0?"rgba(250,204,21,0.15)":index===1?"rgba(148,163,184,0.15)":index===2?"rgba(234,88,12,0.15)":"rgba(15,23,42,0.9)"}; border:1px solid ${index===0?"rgba(250,204,21,0.4)":index===1?"rgba(148,163,184,0.4)":index===2?"rgba(234,88,12,0.4)":"rgba(148,163,184,0.2)"};`;
       const medal = index===0?"🥇":index===1?"🥈":index===2?"🥉":`${index+1}.`;
+      const mainValue = currentLbSubTab === "level"
+        ? `🏰 ${item.level || 1}`
+        : currentLbSubTab === "army"
+        ? `⚔️ ${(item.armyPower||0).toLocaleString()}`
+        : `⚡ ${(item.power||0).toLocaleString()}`;
       row.innerHTML = tab==="players" ? `
         <div style="display:flex; align-items:center; gap:10px;">
           <span style="font-size:18px; width:30px;">${medal}</span>
@@ -11498,11 +11503,7 @@ async function loadLeaderboard(tab) {
             <div style="font-size:11px; color:#9ca3af;">${item.clanName?'👥 '+item.clanName:''}</div>
           </div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:12px; color:#9ca3af;">🏰 Lv. ${item.level||1}</div>
-          <div style="font-size:12px; color:#facc15;">⚡ ${(item.power||0).toLocaleString()}</div>
-          <div style="font-size:12px; color:#0ea5e9;">⚔️ ${(item.armyPower||0).toLocaleString()}</div>
-        </div>
+        <div style="font-size:14px; font-weight:bold; color:#facc15;">${mainValue}</div>
       ` : `
         <div style="display:flex; align-items:center; gap:10px;">
           <span style="font-size:18px; width:30px;">${medal}</span>
@@ -11519,6 +11520,7 @@ async function loadLeaderboard(tab) {
     listEl.innerHTML = "<div style='color:#ef4444; text-align:center;'>حصل خطأ في التحميل</div>";
   }
 }
+
 
 </script>
 
