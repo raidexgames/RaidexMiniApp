@@ -9599,18 +9599,18 @@ async function renderClanPage() {
         if (data && data.members) {
           clanState.members = data.members;
           if (memberCountEl) memberCountEl.textContent = `الأعضاء: ${data.members.length}`;
-// نحسب القوة من الأعضاء مباشرة
+// نجيب القوة الحقيقية من بيانات كل لاعب
 let totalPowerFromMembers = 0;
 for (const m of data.members) {
-  const mPlayer = await fetch(API_BASE + "/load-game-state/" + m.telegramId).then(r => r.json()).catch(() => null);
-  if (mPlayer && mPlayer.gameState) {
-    // نحسب القوة من castleLevel و buildingLevels
-    const gs = mPlayer.gameState;
-    const cp = gs.castleLevel ? gs.castleLevel * 100 : 0;
-    const bp = gs.buildingLevels ? Object.values(gs.buildingLevels).reduce((a, b) => a + b, 0) * 20 : 0;
-    totalPowerFromMembers += cp + bp;
+  const playerRes = await fetch(API_BASE + "/players/" + m.telegramId).catch(() => null);
+  if (playerRes) {
+    const playerData = await playerRes.json().catch(() => null);
+    if (playerData && playerData.power) {
+      totalPowerFromMembers += playerData.power;
+    }
   }
 }
+
 
           if (overviewExtra) {
             overviewExtra.innerHTML = "";
