@@ -1587,32 +1587,70 @@
 
   <!-- باقي محتوى المدينة هنا -->
 
-  <!-- Chat Panel (الجديد) -->
-  <div id="chat-panel" class="chat-hidden">
-   <div class="chat-header">
-  <button class="chat-back-btn">←</button>
-  <div class="chat-tabs">
-    <button class="chat-tab active" data-chat="global">Global</button>
-    <button class="chat-tab" data-chat="clan">Clan</button>
-    <button class="chat-tab" data-chat="friends">Friends</button>
-    <button class="chat-tab" data-chat="system">System</button>
-  </div>
-</div>
-
-<div class="chat-body">
-  <div id="chat-global" class="chat-messages"></div>
-  <div id="chat-clan" class="chat-messages chat-hidden"></div>
-  <div id="chat-friends" class="chat-messages chat-hidden"></div>
-  <div id="chat-system" class="chat-messages chat-hidden"></div>
-</div>
-
-
-    <div class="chat-input-row">
-      <input id="chat-input" type="text" placeholder="Type a message..." />
-      <button id="chat-send-btn">Send</button>
+ <!-- Chat Panel -->
+<div id="chat-panel" class="chat-hidden">
+  <div class="chat-header">
+    <button class="chat-back-btn">←</button>
+    <div class="chat-tabs">
+      <button class="chat-tab active" data-chat="global">Global</button>
+      <button class="chat-tab" data-chat="clan">Clan</button>
+      <button class="chat-tab" data-chat="friends">Friends</button>
+      <button class="chat-tab" data-chat="system">System</button>
     </div>
   </div>
+
+  <div class="chat-body">
+    <div id="chat-global" class="chat-messages"></div>
+    <div id="chat-clan" class="chat-messages chat-hidden"></div>
+    <div id="chat-system" class="chat-messages chat-hidden"></div>
+
+    <!-- Friends Tab -->
+    <div id="chat-friends" class="chat-messages chat-hidden" style="display:none; flex-direction:column; height:100%; padding:0;">
+
+      <!-- بحث + طلبات -->
+      <div style="padding:8px; border-bottom:1px solid rgba(148,163,184,0.2);">
+        <div style="display:flex; gap:6px; margin-bottom:6px;">
+          <input id="friend-search-input" type="text" placeholder="🔍 ابحث عن لاعب..." style="flex:1; padding:6px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.4); background:rgba(15,23,42,0.9); color:#fff; font-size:12px; outline:none;" />
+          <button onclick="searchFriend()" style="padding:6px 10px; border:none; border-radius:999px; background:#0ea5e9; color:#0b1120; font-weight:bold; cursor:pointer; font-size:12px;">بحث</button>
+          <button onclick="openFriendRequests()" id="friend-requests-btn" style="padding:6px 10px; border:none; border-radius:999px; background:rgba(30,41,59,0.9); color:#e5e7eb; cursor:pointer; font-size:12px; position:relative;">
+            🔔
+            <span id="friend-requests-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:white; border-radius:50%; width:16px; height:16px; font-size:10px; display:flex; align-items:center; justify-content:center;">0</span>
+          </button>
+        </div>
+
+        <!-- نتيجة البحث -->
+        <div id="friend-search-result" style="display:none; padding:6px; background:rgba(15,23,42,0.9); border-radius:10px; font-size:12px;"></div>
+      </div>
+
+      <!-- قائمة الأصدقاء + الشات -->
+      <div style="display:flex; flex:1; overflow:hidden;">
+
+        <!-- قائمة الأصدقاء (1/3) -->
+        <div id="friends-list" style="width:35%; border-right:1px solid rgba(148,163,184,0.2); overflow-y:auto; padding:6px;">
+          <div style="color:#9ca3af; font-size:11px; text-align:center; padding:10px;">جاري التحميل...</div>
+        </div>
+
+        <!-- شات الصديق (2/3) -->
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div id="friend-chat-header" style="padding:8px; border-bottom:1px solid rgba(148,163,184,0.2); font-size:13px; font-weight:bold; color:#facc15;">
+            اختر صديق للمحادثة
+          </div>
+          <div id="friend-chat-messages" style="flex:1; overflow-y:auto; padding:8px; font-size:12px;"></div>
+          <div style="display:flex; gap:6px; padding:6px; border-top:1px solid rgba(148,163,184,0.2);">
+            <input id="friend-msg-input" type="text" placeholder="اكتب رسالة..." style="flex:1; padding:6px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.4); background:rgba(15,23,42,0.9); color:#fff; font-size:12px; outline:none;" />
+            <button onclick="sendFriendMessage()" style="padding:6px 10px; border:none; border-radius:999px; background:#0ea5e9; color:#0b1120; font-weight:bold; cursor:pointer; font-size:12px;">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input-row" id="global-chat-input-row">
+    <input id="chat-input" type="text" placeholder="Type a message..." />
+    <button id="chat-send-btn">Send</button>
+  </div>
 </div>
+
 
 
     <!-- ======================================================
@@ -10752,11 +10790,24 @@ function switchChatTab(tabKey) {
     if (!area) return;
     if (key === tabKey) {
       area.classList.remove("chat-hidden");
+      area.style.display = key === "friends" ? "flex" : "";
     } else {
       area.classList.add("chat-hidden");
+      area.style.display = "none";
     }
   });
+
+  // لو فتح Friends
+  const inputRow = document.getElementById("global-chat-input-row");
+  if (tabKey === "friends") {
+    if (inputRow) inputRow.style.display = "none";
+    openFriendsTab();
+  } else {
+    if (inputRow) inputRow.style.display = "flex";
+    if (friendChatInterval) { clearInterval(friendChatInterval); friendChatInterval = null; }
+  }
 }
+
 
 function addChatMessageToArea(tabKey, text, isMe = false, senderName = null, senderHero = null) {
   const areaId =
@@ -11521,6 +11572,226 @@ async function loadLeaderboard(tab) {
   }
 }
 
+// === Friends System ===
+let currentFriendId = null;
+let currentFriendName = null;
+let friendChatInterval = null;
+
+// لما يفتح تبويب Friends
+function openFriendsTab() {
+  const inputRow = document.getElementById("global-chat-input-row");
+  if (inputRow) inputRow.style.display = "none";
+  loadFriendsList();
+  checkFriendRequests();
+}
+
+// لما يقفل تبويب Friends
+function closeFriendsTab() {
+  const inputRow = document.getElementById("global-chat-input-row");
+  if (inputRow) inputRow.style.display = "flex";
+  if (friendChatInterval) { clearInterval(friendChatInterval); friendChatInterval = null; }
+}
+
+// جيب قائمة الأصدقاء
+async function loadFriendsList() {
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId) return;
+  const listEl = document.getElementById("friends-list");
+  if (!listEl) return;
+  listEl.innerHTML = "<div style='color:#9ca3af; font-size:11px; text-align:center; padding:10px;'>جاري التحميل...</div>";
+  try {
+    const res = await fetch(API_BASE + "/friends/" + telegramId);
+    const friends = await res.json();
+    listEl.innerHTML = "";
+    if (!friends.length) {
+      listEl.innerHTML = "<div style='color:#9ca3af; font-size:11px; text-align:center; padding:10px;'>مفيش أصدقاء لسه</div>";
+      return;
+    }
+    friends.forEach(f => {
+      const div = document.createElement("div");
+      div.style.cssText = "padding:8px 6px; border-radius:8px; cursor:pointer; font-size:12px; color:#e5e7eb; border-bottom:1px solid rgba(148,163,184,0.1);";
+      div.textContent = "👤 " + f.name;
+      div.onclick = () => openFriendChat(f.id, f.name);
+      listEl.appendChild(div);
+    });
+  } catch (err) {
+    listEl.innerHTML = "<div style='color:#ef4444; font-size:11px; text-align:center;'>حصل خطأ</div>";
+  }
+}
+
+// فتح شات مع صديق
+async function openFriendChat(friendId, friendName) {
+  currentFriendId = friendId;
+  currentFriendName = friendName;
+  const header = document.getElementById("friend-chat-header");
+  if (header) header.textContent = "💬 " + friendName;
+  if (friendChatInterval) clearInterval(friendChatInterval);
+  await loadFriendMessages();
+  friendChatInterval = setInterval(loadFriendMessages, 3000);
+}
+
+// جيب رسائل الشات
+async function loadFriendMessages() {
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId || !currentFriendId) return;
+  const messagesEl = document.getElementById("friend-chat-messages");
+  if (!messagesEl) return;
+  try {
+    const res = await fetch(API_BASE + `/friends/messages/${telegramId}/${currentFriendId}`);
+    const messages = await res.json();
+    messagesEl.innerHTML = "";
+    messages.forEach(msg => {
+      const div = document.createElement("div");
+      const isMe = String(msg.fromId) === String(telegramId);
+      div.style.cssText = `margin-bottom:6px; text-align:${isMe?"right":"left"};`;
+      div.innerHTML = `<span style="background:${isMe?"rgba(250,204,21,0.2)":"rgba(14,165,233,0.2)"}; padding:4px 8px; border-radius:10px; font-size:12px; color:#e5e7eb;">${msg.message}</span>`;
+      messagesEl.appendChild(div);
+    });
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  } catch (err) { console.error(err); }
+}
+
+// بعت رسالة لصديق
+async function sendFriendMessage() {
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId || !currentFriendId) { alert("اختر صديق الأول!"); return; }
+  const input = document.getElementById("friend-msg-input");
+  const message = input.value.trim();
+  if (!message) return;
+  input.value = "";
+  try {
+    await fetch(API_BASE + "/friends/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromId: telegramId, toId: currentFriendId, message })
+    });
+    await loadFriendMessages();
+  } catch (err) { console.error(err); }
+}
+
+// بحث عن لاعب
+async function searchFriend() {
+  const input = document.getElementById("friend-search-input");
+  const name = input.value.trim();
+  if (!name) return;
+  const resultEl = document.getElementById("friend-search-result");
+  resultEl.style.display = "block";
+  resultEl.innerHTML = "<span style='color:#9ca3af;'>جاري البحث...</span>";
+  try {
+    const res = await fetch(API_BASE + "/players");
+    const players = await res.json();
+    const myId = localStorage.getItem("telegramId");
+    const found = players.filter(p => p.telegramName && p.telegramName.toLowerCase().includes(name.toLowerCase()) && String(p.telegramId) !== String(myId));
+    if (!found.length) {
+      resultEl.innerHTML = "<span style='color:#9ca3af;'>مفيش نتائج</span>";
+      return;
+    }
+    resultEl.innerHTML = "";
+    found.slice(0, 5).forEach(p => {
+      const div = document.createElement("div");
+      div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:4px 0;";
+      div.innerHTML = `
+        <span style="color:#e5e7eb;">👤 ${p.telegramName}</span>
+        <button onclick="sendFriendRequest('${p.telegramId}', '${p.telegramName}')" style="padding:3px 8px; border:none; border-radius:999px; background:#10b981; color:#0b1120; font-size:11px; cursor:pointer;">+ إضافة</button>
+      `;
+      resultEl.appendChild(div);
+    });
+  } catch (err) {
+    resultEl.innerHTML = "<span style='color:#ef4444;'>حصل خطأ</span>";
+  }
+}
+
+// بعت طلب صداقة
+async function sendFriendRequest(toId, toName) {
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId) { alert("افتح اللعبة من تيليجرام!"); return; }
+  try {
+    const res = await fetch(API_BASE + "/friends/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromId: telegramId, toId })
+    });
+    const data = await res.json();
+    if (data.error) { alert("خطأ: " + data.error); return; }
+    alert(`تم إرسال طلب صداقة لـ ${toName}! 🎉`);
+  } catch (err) { alert("حصل خطأ"); }
+}
+
+// جيب طلبات الصداقة
+async function checkFriendRequests() {
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId) return;
+  try {
+    const res = await fetch(API_BASE + "/friends/requests/" + telegramId);
+    const requests = await res.json();
+    const badge = document.getElementById("friend-requests-badge");
+    if (badge) {
+      if (requests.length > 0) {
+        badge.style.display = "flex";
+        badge.textContent = requests.length;
+      } else {
+        badge.style.display = "none";
+      }
+    }
+  } catch (err) { console.error(err); }
+}
+
+// فتح طلبات الصداقة
+async function openFriendRequests() {
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId) return;
+  try {
+    const res = await fetch(API_BASE + "/friends/requests/" + telegramId);
+    const requests = await res.json();
+    if (!requests.length) { alert("مفيش طلبات صداقة"); return; }
+    const resultEl = document.getElementById("friend-search-result");
+    resultEl.style.display = "block";
+    resultEl.innerHTML = "<div style='font-size:12px; color:#facc15; margin-bottom:6px;'>طلبات الصداقة:</div>";
+    requests.forEach(r => {
+      const div = document.createElement("div");
+      div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:4px 0;";
+      div.innerHTML = `
+        <span style="color:#e5e7eb;">👤 ${r.fromName}</span>
+        <div style="display:flex; gap:4px;">
+          <button onclick="acceptFriendRequest('${r.fromId}')" style="padding:3px 8px; border:none; border-radius:999px; background:#10b981; color:#0b1120; font-size:11px; cursor:pointer;">قبول</button>
+          <button onclick="rejectFriendRequest('${r.fromId}')" style="padding:3px 8px; border:none; border-radius:999px; background:#ef4444; color:white; font-size:11px; cursor:pointer;">رفض</button>
+        </div>
+      `;
+      resultEl.appendChild(div);
+    });
+  } catch (err) { console.error(err); }
+}
+
+// قبول طلب صداقة
+async function acceptFriendRequest(fromId) {
+  const telegramId = localStorage.getItem("telegramId");
+  try {
+    await fetch(API_BASE + "/friends/accept", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromId, toId: telegramId })
+    });
+    alert("تم قبول طلب الصداقة! 🎉");
+    loadFriendsList();
+    checkFriendRequests();
+    document.getElementById("friend-search-result").style.display = "none";
+  } catch (err) { alert("حصل خطأ"); }
+}
+
+// رفض طلب صداقة
+async function rejectFriendRequest(fromId) {
+  const telegramId = localStorage.getItem("telegramId");
+  try {
+    const requestRef = `${fromId}_${telegramId}`;
+    await fetch(API_BASE + "/friends/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromId: telegramId, toId: fromId, status: "rejected" })
+    });
+    checkFriendRequests();
+    document.getElementById("friend-search-result").style.display = "none";
+  } catch (err) { console.error(err); }
+}
 
 </script>
 
