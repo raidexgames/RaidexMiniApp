@@ -9439,12 +9439,11 @@ function wireClanButtons() {
   }
 }
 
-function renderClanPage() {
+async function renderClanPage() {
   const listBox = document.getElementById("clan-list");
   const headerSub = document.getElementById("clan-header-sub");
   const guestView = document.getElementById("clan-guest-view");
   const memberView = document.getElementById("clan-member-view");
-
   const memberNameEl = document.getElementById("clan-member-name");
   const memberRoleEl = document.getElementById("clan-member-role");
   const memberCountEl = document.getElementById("clan-member-count");
@@ -9453,91 +9452,111 @@ function renderClanPage() {
 
   if (!listBox || !headerSub || !guestView || !memberView) return;
 
-  // لو مفيش كلان: نعرض واجهة Guest
   if (!clanState.name) {
+    // واجهة Guest
     guestView.style.display = "block";
     memberView.style.display = "none";
-    headerSub.textContent = "Join or create a clan to play with others";
+    headerSub.textContent = "انضم أو أنشئ كلان للعب مع الآخرين";
+
+    // جيب الكلانات من السيرفر
+    listBox.innerHTML = "<div style='color:#9ca3af; text-align:center;'>جاري التحميل...</div>";
+    try {
+      const res = await fetch(API_BASE + "/clans");
+      const clans = await res.json();
+
+      listBox.innerHTML = "";
+
+      if (!clans.length) {
+        listBox.innerHTML = "<div style='color:#9ca3af; text-align:center;'>مفيش كلانات لسه، كن الأول!</div>";
+      }
+
+      clans.forEach((c) => {
+        const row = document.createElement("div");
+        row.style.padding = "6px 8px";
+        row.style.marginBottom = "4px";
+        row.style.borderRadius = "10px";
+        row.style.background = "rgba(15,23,42,0.9)";
+        row.style.border = "1px solid rgba(148,163,184,0.4)";
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.alignItems = "center";
+        row.style.fontSize = "13px";
+
+        row.innerHTML = `
+          <div>
+            <div style="font-weight:bold;">${c.name}</div>
+            <div style="font-size:11px; color:#9ca3af;">
+              ${c.members ? c.members.length : 0} أعضاء
+            </div>
+          </div>
+          <button style="padding:4px 10px; border:none; border-radius:999px; background:#0ea5e9; color:#0b1120; font-size:11px; cursor:pointer; font-weight:bold;">
+            انضم
+          </button>
+        `;
+
+        const joinBtn = row.querySelector("button");
+        joinBtn.onclick = () => joinClan(c.name);
+        listBox.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error("Error loading clans:", err);
+      listBox.innerHTML = "<div style='color:#ef4444; text-align:center;'>حصل خطأ في تحميل الكلانات</div>";
+    }
+
   } else {
+    // واجهة Member
     guestView.style.display = "none";
     memberView.style.display = "block";
-    headerSub.textContent = `Clan: ${clanState.name}`;
+    headerSub.textContent = `الكلان: ${clanState.name}`;
 
-    if (memberNameEl) {
-      memberNameEl.textContent = clanState.name;
-    }
+    if (memberNameEl) memberNameEl.textContent = clanState.name;
 
     if (memberRoleEl) {
-      const roleLabel =
-        clanState.role === "leader" ? "Leader" : "Member";
-      memberRoleEl.textContent = `Your role: ${roleLabel}`;
+      memberRoleEl.textContent = clanState.role === "leader" ? "دورك: قائد 👑" : "دورك: عضو";
     }
 
-    if (memberCountEl) {
-      memberCountEl.textContent = `Members: ${clanState.members.length}`;
+    // جيب أعضاء الكلان من السيرفر
+    if (clanState.clanId) {
+      try {
+        const res = await fetch(API_BASE + "/clan/" + clanState.clanId);
+        const data = await res.json();
+
+        if (data && data.members) {
+          clanState.members = data.members;
+          if (memberCountEl) memberCountEl.textContent = `الأعضاء: ${data.members.length}`;
+
+          if (overviewExtra) {
+            overviewExtra.innerHTML = "";
+
+            // عرض الأعضاء
+            data.members.forEach(m => {
+              const memberRow = document.createElement("div");
+              memberRow.style.display = "flex";
+              memberRow.style.justifyContent = "space-between";
+              memberRow.style.padding = "6px 8px";
+              memberRow.style.marginBottom = "4px";
+              memberRow.style.borderRadius = "8px";
+              memberRow.style.background = "rgba(15,23,42,0.9)";
+              memberRow.style.border = "1px solid rgba(148,163,184,0.2)";
+              memberRow.innerHTML = `
+                <span style="font-size:13px;">${m.name}</span>
+                <span style="font-size:11px; color:${m.role === 'leader' ? '#facc15' : '#9ca3af'};">
+                  ${m.role === 'leader' ? '👑 قائد' : 'عضو'}
+                </span>
+              `;
+              overviewExtra.appendChild(memberRow);
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Error loading clan members:", err);
+      }
     }
 
-    if (leaveBtn) {
-      leaveBtn.onclick = leaveClan;
-    }
-
-    if (overviewExtra) {
-      overviewExtra.innerHTML = "";
-
-      const row1 = document.createElement("div");
-      row1.textContent = "Clan level: 1 (placeholder)";
-
-      const row2 = document.createElement("div");
-      row2.textContent = "Total power: 0 (placeholder)";
-
-      const row3 = document.createElement("div");
-      row3.textContent =
-        clanState.role === "leader"
-          ? "You can manage this clan in Settings tab."
-          : "Only the leader can change clan settings.";
-
-      overviewExtra.appendChild(row1);
-      overviewExtra.appendChild(row2);
-      overviewExtra.appendChild(row3);
-    }
-
-    // دايمًا لما نفتح member view نخلي تبويب overview هو اللي ظاهر
+    if (leaveBtn) leaveBtn.onclick = leaveClan;
     switchClanTab("overview");
   }
-
-  // قائمة الكلانات المتاحة (للـ Guest)
-  listBox.innerHTML = "";
-  SUGGESTED_CLANS.forEach((c) => {
-    const row = document.createElement("div");
-    row.style.padding = "6px 8px";
-    row.style.marginBottom = "4px";
-    row.style.borderRadius = "10px";
-    row.style.background = "rgba(15,23,42,0.9)";
-    row.style.border = "1px solid rgba(148,163,184,0.4)";
-    row.style.display = "flex";
-    row.style.justifyContent = "space-between";
-    row.style.alignItems = "center";
-    row.style.fontSize = "13px";
-
-    row.innerHTML = `
-      <div>
-        <div style="font-weight:bold;">${c.name}</div>
-        <div style="font-size:11px; color:#9ca3af;">
-          ${c.members} members • Min Castle Lv. ${c.minCastleLevel}
-        </div>
-      </div>
-      <button style="padding:4px 10px; border:none; border-radius:999px; background:#0ea5e9; color:#0b1120; font-size:11px; cursor:pointer;">
-        Join
-      </button>
-    `;
-
-    const joinBtn = row.querySelector("button");
-    joinBtn.onclick = () => {
-      joinClan(c.name);
-    };
-
-    listBox.appendChild(row);
-  });
 
   // ربط أزرار التبويبات
   const tabButtons = document.querySelectorAll(".clan-tab-btn");
@@ -9549,6 +9568,7 @@ function renderClanPage() {
     };
   });
 }
+
 
 async function createClan() {
   const name = prompt("Enter clan name:");
