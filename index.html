@@ -2088,13 +2088,66 @@
         </button>
       </div>
 
-      <!-- محتوى التبويبات -->
-      <div id="clan-tab-overview" class="clan-tab-panel" style="font-size:12px;">
-        <div style="margin-bottom:6px; color:#9ca3af;">
-          Basic clan stats and info will appear here.
-        </div>
-        <div id="clan-overview-extra"></div>
+    <!-- محتوى التبويبات -->
+<div id="clan-tab-overview" class="clan-tab-panel" style="font-size:12px;">
+  <div id="clan-overview-extra"></div>
+
+  <!-- شريط تقدم الترقية -->
+  <div id="clan-upgrade-section" style="margin-top:10px; display:none;">
+    <div style="color:#9ca3af; font-size:11px; margin-bottom:4px;">تقدم الترقية للمستوى التالي:</div>
+
+    <!-- ذهب -->
+    <div style="margin-bottom:6px;">
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:#e5e7eb; margin-bottom:2px;">
+        <span>🪙 الذهب</span>
+        <span id="clan-gold-progress-text">0 / 0</span>
       </div>
+      <div style="background:rgba(15,23,42,0.9); border-radius:999px; height:8px; overflow:hidden;">
+        <div id="clan-gold-progress-fill" style="height:100%; background:#facc15; width:0%; border-radius:999px; transition:width 0.3s;"></div>
+      </div>
+    </div>
+
+    <!-- جواهر -->
+    <div style="margin-bottom:10px;">
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:#e5e7eb; margin-bottom:2px;">
+        <span>💎 الجواهر</span>
+        <span id="clan-gems-progress-text">0 / 0</span>
+      </div>
+      <div style="background:rgba(15,23,42,0.9); border-radius:999px; height:8px; overflow:hidden;">
+        <div id="clan-gems-progress-fill" style="height:100%; background:#0ea5e9; width:0%; border-radius:999px; transition:width 0.3s;"></div>
+      </div>
+    </div>
+
+    <!-- زرار تبرع -->
+    <button id="clan-donate-btn" onclick="openDonateModal()" style="width:100%; padding:8px; border:none; border-radius:10px; background:#10b981; color:#0b1120; font-weight:bold; font-size:13px; cursor:pointer; margin-bottom:6px;">
+      💰 تبرع للكلان
+    </button>
+
+    <!-- زرار ترقية (للقائد بس) -->
+    <button id="clan-levelup-btn" onclick="clanLevelUp()" style="width:100%; padding:8px; border:none; border-radius:10px; background:#facc15; color:#0b1120; font-weight:bold; font-size:13px; cursor:pointer; display:none;">
+      ⬆️ رفع مستوى الكلان
+    </button>
+  </div>
+</div>
+
+<!-- Modal التبرع -->
+<div id="donate-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:#111827; padding:20px; border-radius:16px; width:300px; border:1px solid #374151;">
+    <h3 style="color:#facc15; margin-bottom:16px; text-align:center;">💰 تبرع للكلان</h3>
+
+    abel style="color:#9ca3af; font-size:12px;">🪙 الذهب (عندك: <span id="donate-my-gold">0</span>)</label>
+    <input id="donate-gold-input" type="number" min="0" placeholder="0" style="width:100%; padding:8px; margin:4px 0 12px; background:#1f2937; border:1px solid #374151; color:#e5e7eb; border-radius:8px; box-sizing:border-box;" />
+
+    abel style="color:#9ca3af; font-size:12px;">💎 الجواهر (عندك: <span id="donate-my-gems">0</span>)</label>
+    <input id="donate-gems-input" type="number" min="0" placeholder="0" style="width:100%; padding:8px; margin:4px 0 16px; background:#1f2937; border:1px solid #374151; color:#e5e7eb; border-radius:8px; box-sizing:border-box;" />
+
+    <div style="display:flex; gap:8px;">
+      <button onclick="closeDonateModal()" style="flex:1; padding:8px; border:none; border-radius:8px; background:#374151; color:#e5e7eb; cursor:pointer;">إلغاء</button>
+      <button onclick="confirmDonate()" style="flex:1; padding:8px; border:none; border-radius:8px; background:#10b981; color:#0b1120; font-weight:bold; cursor:pointer;">تبرع</button>
+    </div>
+  </div>
+</div>
+
 
       <div id="clan-tab-members" class="clan-tab-panel" style="display:none; font-size:12px;">
         Members list and roles will appear here.
@@ -9469,17 +9522,14 @@ async function renderClanPage() {
   if (!listBox || !headerSub || !guestView || !memberView) return;
 
   if (!clanState.name) {
-    // واجهة Guest
     guestView.style.display = "block";
     memberView.style.display = "none";
     headerSub.textContent = "انضم أو أنشئ كلان للعب مع الآخرين";
 
-    // جيب الكلانات من السيرفر
     listBox.innerHTML = "<div style='color:#9ca3af; text-align:center;'>جاري التحميل...</div>";
     try {
       const res = await fetch(API_BASE + "/clans");
       const clans = await res.json();
-
       listBox.innerHTML = "";
 
       if (!clans.length) {
@@ -9502,7 +9552,7 @@ async function renderClanPage() {
           <div>
             <div style="font-weight:bold;">${c.name}</div>
             <div style="font-size:11px; color:#9ca3af;">
-              ${c.members ? c.members.length : 0} أعضاء
+              ${c.members ? c.members.length : 0} أعضاء • مستوى ${c.level || 1}
             </div>
           </div>
           <button style="padding:4px 10px; border:none; border-radius:999px; background:#0ea5e9; color:#0b1120; font-size:11px; cursor:pointer; font-weight:bold;">
@@ -9521,18 +9571,15 @@ async function renderClanPage() {
     }
 
   } else {
-    // واجهة Member
     guestView.style.display = "none";
     memberView.style.display = "block";
     headerSub.textContent = `الكلان: ${clanState.name}`;
 
     if (memberNameEl) memberNameEl.textContent = clanState.name;
-
     if (memberRoleEl) {
       memberRoleEl.textContent = clanState.role === "leader" ? "دورك: قائد 👑" : "دورك: عضو";
     }
 
-    // جيب أعضاء الكلان من السيرفر
     if (clanState.clanId) {
       try {
         const res = await fetch(API_BASE + "/clan/" + clanState.clanId);
@@ -9545,54 +9592,118 @@ async function renderClanPage() {
           if (overviewExtra) {
             overviewExtra.innerHTML = "";
 
-            // عرض الأعضاء في overview
+            const currentLevel = data.level || 1;
+            const treasury = data.treasury || { gold: 0, gems: 0 };
+            const leader = data.members.find(m => m.role === "leader");
+            const createdDate = data.createdAt
+              ? new Date(data.createdAt).toLocaleDateString("ar-EG")
+              : "غير معروف";
+
+            // معلومات الكلان
+            overviewExtra.innerHTML = `
+              <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,0.9); border-radius:10px; border:1px solid rgba(148,163,184,0.2);">
+                  <span style="color:#9ca3af; font-size:12px;">🏆 مستوى الكلان</span>
+                  <span style="color:#facc15; font-size:12px; font-weight:bold;">
+                    ${currentLevel === 10 ? "MAX 🔥" : `${currentLevel} / 10`}
+                  </span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,0.9); border-radius:10px; border:1px solid rgba(148,163,184,0.2);">
+                  <span style="color:#9ca3af; font-size:12px;">👑 القائد</span>
+                  <span style="color:#facc15; font-size:12px; font-weight:bold;">${leader ? leader.name : "غير معروف"}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,0.9); border-radius:10px; border:1px solid rgba(148,163,184,0.2);">
+                  <span style="color:#9ca3af; font-size:12px;">👥 الأعضاء</span>
+                  <span style="color:#e5e7eb; font-size:12px; font-weight:bold;">${data.members.length}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,0.9); border-radius:10px; border:1px solid rgba(148,163,184,0.2);">
+                  <span style="color:#9ca3af; font-size:12px;">🪙 خزينة الذهب</span>
+                  <span style="color:#e5e7eb; font-size:12px;">${(treasury.gold || 0).toLocaleString()}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,0.9); border-radius:10px; border:1px solid rgba(148,163,184,0.2);">
+                  <span style="color:#9ca3af; font-size:12px;">💎 خزينة الجواهر</span>
+                  <span style="color:#e5e7eb; font-size:12px;">${(treasury.gems || 0).toLocaleString()}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,0.9); border-radius:10px; border:1px solid rgba(148,163,184,0.2);">
+                  <span style="color:#9ca3af; font-size:12px;">📅 تاريخ الإنشاء</span>
+                  <span style="color:#e5e7eb; font-size:12px;">${createdDate}</span>
+                </div>
+              </div>
+            `;
+
+            // شريط تقدم الترقية
+            if (currentLevel < 10) {
+              const req = CLAN_LEVEL_REQUIREMENTS[currentLevel];
+              const goldPercent = Math.min(100, (treasury.gold / req.gold) * 100);
+              const gemsPercent = Math.min(100, (treasury.gems / req.gems) * 100);
+              const isLeader = clanState.role === "leader";
+              const canLevelUp = treasury.gold >= req.gold && treasury.gems >= req.gems;
+
+              const progressDiv = document.createElement("div");
+              progressDiv.innerHTML = `
+                <div style="color:#9ca3af; font-size:11px; margin-bottom:6px;">📊 تقدم الترقية للمستوى ${currentLevel + 1}:</div>
+                
+                <div style="margin-bottom:6px;">
+                  <div style="display:flex; justify-content:space-between; font-size:11px; color:#e5e7eb; margin-bottom:2px;">
+                    <span>🪙 الذهب</span>
+                    <span>${(treasury.gold || 0).toLocaleString()} / ${req.gold.toLocaleString()}</span>
+                  </div>
+                  <div style="background:rgba(15,23,42,0.9); border-radius:999px; height:8px; overflow:hidden;">
+                    <div style="height:100%; background:#facc15; width:${goldPercent}%; border-radius:999px;"></div>
+                  </div>
+                </div>
+
+                <div style="margin-bottom:10px;">
+                  <div style="display:flex; justify-content:space-between; font-size:11px; color:#e5e7eb; margin-bottom:2px;">
+                    <span>💎 الجواهر</span>
+                    <span>${(treasury.gems || 0).toLocaleString()} / ${req.gems.toLocaleString()}</span>
+                  </div>
+                  <div style="background:rgba(15,23,42,0.9); border-radius:999px; height:8px; overflow:hidden;">
+                    <div style="height:100%; background:#0ea5e9; width:${gemsPercent}%; border-radius:999px;"></div>
+                  </div>
+                </div>
+
+                <button onclick="openDonateModal()" style="width:100%; padding:8px; border:none; border-radius:10px; background:#10b981; color:#0b1120; font-weight:bold; font-size:13px; cursor:pointer; margin-bottom:6px;">
+                  💰 تبرع للكلان
+                </button>
+
+                ${isLeader && canLevelUp ? `
+                <button onclick="clanLevelUp()" style="width:100%; padding:8px; border:none; border-radius:10px; background:#facc15; color:#0b1120; font-weight:bold; font-size:13px; cursor:pointer;">
+                  ⬆️ رفع مستوى الكلان
+                </button>` : ""}
+              `;
+              overviewExtra.appendChild(progressDiv);
+            }
+          }
+
+          // ملا تبويب Members
+          const membersTab = document.getElementById("clan-tab-members");
+          if (membersTab) {
+            membersTab.innerHTML = "";
             data.members.forEach(m => {
               const memberRow = document.createElement("div");
               memberRow.style.display = "flex";
               memberRow.style.justifyContent = "space-between";
-              memberRow.style.padding = "6px 8px";
-              memberRow.style.marginBottom = "4px";
-              memberRow.style.borderRadius = "8px";
+              memberRow.style.alignItems = "center";
+              memberRow.style.padding = "8px 10px";
+              memberRow.style.marginBottom = "6px";
+              memberRow.style.borderRadius = "10px";
               memberRow.style.background = "rgba(15,23,42,0.9)";
               memberRow.style.border = "1px solid rgba(148,163,184,0.2)";
               memberRow.innerHTML = `
-                <span style="font-size:13px;">${m.name}</span>
-                <span style="font-size:11px; color:${m.role === 'leader' ? '#facc15' : '#9ca3af'};">
-                  ${m.role === 'leader' ? '👑 قائد' : 'عضو'}
-                </span>
-              `;
-              overviewExtra.appendChild(memberRow);
-            });
-
-            // ملا تبويب Members
-            const membersTab = document.getElementById("clan-tab-members");
-            if (membersTab) {
-              membersTab.innerHTML = "";
-              data.members.forEach(m => {
-                const memberRow = document.createElement("div");
-                memberRow.style.display = "flex";
-                memberRow.style.justifyContent = "space-between";
-                memberRow.style.alignItems = "center";
-                memberRow.style.padding = "8px 10px";
-                memberRow.style.marginBottom = "6px";
-                memberRow.style.borderRadius = "10px";
-                memberRow.style.background = "rgba(15,23,42,0.9)";
-                memberRow.style.border = "1px solid rgba(148,163,184,0.2)";
-                memberRow.innerHTML = `
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:32px; height:32px; border-radius:50%; background:#1e3a5f; display:flex; align-items:center; justify-content:center; font-size:14px;">👤</div>
-                    <div>
-                      <div style="font-size:13px; font-weight:bold; color:#e5e7eb;">${m.name}</div>
-                      <div style="font-size:11px; color:${m.role === 'leader' ? '#facc15' : '#9ca3af'};">
-                        ${m.role === 'leader' ? '👑 قائد' : 'عضو'}
-                      </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="width:32px; height:32px; border-radius:50%; background:#1e3a5f; display:flex; align-items:center; justify-content:center; font-size:14px;">👤</div>
+                  <div>
+                    <div style="font-size:13px; font-weight:bold; color:#e5e7eb;">${m.name}</div>
+                    <div style="font-size:11px; color:${m.role === 'leader' ? '#facc15' : '#9ca3af'};">
+                      ${m.role === 'leader' ? '👑 قائد' : 'عضو'}
                     </div>
                   </div>
-                  <div style="font-size:11px; color:#9ca3af;">Lv. ${m.level || 1}</div>
-                `;
-                membersTab.appendChild(memberRow);
-              });
-            }
+                </div>
+                <div style="font-size:11px; color:#9ca3af;">Lv. ${m.level || 1}</div>
+              `;
+              membersTab.appendChild(memberRow);
+            });
           }
         }
       } catch (err) {
@@ -9604,7 +9715,6 @@ async function renderClanPage() {
     switchClanTab("overview");
   }
 
-  // ربط أزرار التبويبات
   const tabButtons = document.querySelectorAll(".clan-tab-btn");
   tabButtons.forEach((btn) => {
     btn.onclick = () => {
@@ -9614,6 +9724,7 @@ async function renderClanPage() {
     };
   });
 }
+
 
 async function createClan() {
   const name = prompt("Enter clan name:");
@@ -11076,9 +11187,86 @@ if (upgradeBtnBottom) {
     switchBuildingPanelTab('upgrade');       // تبويب الترقية
   };
 }
+// متطلبات مستويات الكلان
+const CLAN_LEVEL_REQUIREMENTS = {
+  1: { gems: 5000, gold: 100000 },
+  2: { gems: 10000, gold: 250000 },
+  3: { gems: 25000, gold: 1000000 },
+  4: { gems: 50000, gold: 5000000 },
+  5: { gems: 100000, gold: 10000000 },
+  6: { gems: 125000, gold: 20000000 },
+  7: { gems: 150000, gold: 50000000 },
+  8: { gems: 175000, gold: 100000000 },
+  9: { gems: 200000, gold: 200000000 },
+  10: { gems: 250000, gold: 500000000 }
+};
 
+function openDonateModal() {
+  document.getElementById("donate-my-gold").textContent = (resources.gold || 0).toLocaleString();
+  document.getElementById("donate-my-gems").textContent = (resources.gem || 0).toLocaleString();
+  document.getElementById("donate-gold-input").value = "";
+  document.getElementById("donate-gems-input").value = "";
+  document.getElementById("donate-modal").style.display = "flex";
+}
 
+function closeDonateModal() {
+  document.getElementById("donate-modal").style.display = "none";
+}
 
+async function confirmDonate() {
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId) { alert("افتح اللعبة من تيليجرام!"); return; }
+
+  const gold = parseInt(document.getElementById("donate-gold-input").value) || 0;
+  const gems = parseInt(document.getElementById("donate-gems-input").value) || 0;
+
+  if (gold <= 0 && gems <= 0) { alert("ادخل قيمة للتبرع!"); return; }
+  if (gold > resources.gold) { alert("مفيش ذهب كافي!"); return; }
+  if (gems > resources.gem) { alert("مفيش جواهر كافية!"); return; }
+
+  try {
+    const res = await fetch(API_BASE + "/clan/donate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ telegramId, gold, gems })
+    });
+    const data = await res.json();
+    if (data.error) { alert("خطأ: " + data.error); return; }
+
+    // خصم من موارد اللاعب
+    resources.gold -= gold;
+    resources.gem -= gems;
+    saveGameState();
+
+    closeDonateModal();
+    alert("تم التبرع بنجاح! 🎉");
+    renderClanPage();
+  } catch (err) {
+    console.error("Error donating:", err);
+    alert("حصل خطأ في التبرع");
+  }
+}
+
+async function clanLevelUp() {
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId) { alert("افتح اللعبة من تيليجرام!"); return; }
+
+  try {
+    const res = await fetch(API_BASE + "/clan/levelup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ telegramId })
+    });
+    const data = await res.json();
+    if (data.error) { alert("خطأ: " + data.error); return; }
+
+    alert(`🎉 تم رفع مستوى الكلان للمستوى ${data.newLevel}!`);
+    renderClanPage();
+  } catch (err) {
+    console.error("Error leveling up:", err);
+    alert("حصل خطأ في رفع المستوى");
+  }
+}
 
 
     </script>
