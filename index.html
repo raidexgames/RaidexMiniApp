@@ -11489,6 +11489,21 @@ async function clanLevelUp() {
   tg && tg.ready();
 
   const user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+// تحقق لو اللعبة اتفتحت من رابط بروفايل
+const startParam = tg && tg.initDataUnsafe ? tg.initDataUnsafe.start_param : null;
+if (startParam && startParam.startsWith("profile_")) {
+  const targetId = startParam.replace("profile_", "");
+  // ننتظر اللعبة تفتح وبعدين نعرض البروفايل
+  window.addEventListener("load", () => {
+    setTimeout(async () => {
+      const res = await fetch(API_BASE + "/players/" + targetId);
+      const player = await res.json();
+      if (player && player.telegramName) {
+        showPlayerProfile(targetId, player.telegramName);
+      }
+    }, 2000);
+  });
+}
 
   console.log("Telegram user from WebApp:", user);
 
