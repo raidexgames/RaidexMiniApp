@@ -9438,6 +9438,22 @@ function wireClanButtons() {
     };
   }
 }
+function switchClanTab(key) {
+  const panels = document.querySelectorAll(".clan-tab-panel");
+  const buttons = document.querySelectorAll(".clan-tab-btn");
+
+  panels.forEach((p) => {
+    p.style.display = p.id === `clan-tab-${key}` ? "block" : "none";
+  });
+
+  buttons.forEach((b) => {
+    if (b.dataset.tab === key) {
+      b.style.color = "#facc15";
+    } else {
+      b.style.color = "#9ca3af";
+    }
+  });
+}
 
 async function renderClanPage() {
   const listBox = document.getElementById("clan-list");
