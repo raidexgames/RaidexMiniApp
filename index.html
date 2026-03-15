@@ -3697,10 +3697,11 @@ function updateDailyLoginIcon() {
 
 function saveGameState() {
   try {
-    const state = {
-      castleLevel,
-      resources,
-      upgradeInProgress,
+   const state = {
+  hero: currentHero,
+  castleLevel,
+  resources,
+  upgradeInProgress,
       upgradeFinishAt,
       attackTrainingInProgress,
       attackTrainingFinishAt,
