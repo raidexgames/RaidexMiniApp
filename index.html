@@ -11894,7 +11894,7 @@ async function showPlayerProfile(telegramId, playerName) {
     const gs = player.gameState || {};
     const castleLevel = gs.castleLevel || 1;
     const hero = localStorage.getItem("hero") || "elephant";
-    const playerHero = hero;
+    const playerHero = player.gameState?.hero || "elephant";
     const joinDays = player.createdAt ? Math.floor((Date.now() - player.createdAt) / (1000 * 60 * 60 * 24)) : 0;
     const myId = localStorage.getItem("telegramId");
     const isMe = String(telegramId) === String(myId);
@@ -11985,7 +11985,7 @@ function attackPlayer(telegramId) {
   </div>
 </div>
 <!-- Player Profile Modal -->
-<div id="player-profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+<div id="player-profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center;">
   <div style="background:#111827; padding:20px; border-radius:16px; width:300px; border:1px solid #374151; max-height:90vh; overflow-y:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <span style="font-weight:bold; font-size:16px; color:#facc15;">👤 بروفايل اللاعب</span>
