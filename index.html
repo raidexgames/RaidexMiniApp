@@ -7881,7 +7881,18 @@ img.style.borderRadius = "8px";
 imgWrapper.appendChild(img);
 
 const nameEl = document.createElement("div");
-nameEl.textContent = unit.name;
+nameEl.textContent = name;
+nameEl.style.cursor = "pointer";
+nameEl.onclick = () => {
+  // نبحث عن اللاعب بالاسم
+  fetch(API_BASE + "/players")
+    .then(r => r.json())
+    .then(players => {
+      const found = players.find(p => p.telegramName === name);
+      if (found) showPlayerProfile(found.telegramId, name);
+    });
+};
+
 
 card.appendChild(imgWrapper);
 card.appendChild(nameEl);
@@ -10840,6 +10851,15 @@ function addChatMessageToArea(tabKey, text, isMe = false, senderName = null, sen
   avatar.style.border = isMe ? "2px solid #facc15" : "2px solid #0ea5e9";
   avatar.style.objectFit = "cover";
   avatar.style.flexShrink = "0";
+avatar.style.cursor = "pointer";
+avatar.onclick = () => {
+  fetch(API_BASE + "/players")
+    .then(r => r.json())
+    .then(players => {
+      const found = players.find(p => p.telegramName === name);
+      if (found) showPlayerProfile(found.telegramId, name);
+    });
+};
 
   // الجزء الأيمن: الاسم + الرسالة
   const bubble = document.createElement("div");
@@ -11828,6 +11848,82 @@ async function rejectFriendRequest(fromId) {
     document.getElementById("friend-search-result").style.display = "none";
   } catch (err) { console.error(err); }
 }
+async function showPlayerProfile(telegramId, playerName) {
+  const modal = document.getElementById("player-profile-modal");
+  const content = document.getElementById("player-profile-content");
+  if (!modal || !content) return;
+
+  modal.style.display = "flex";
+  content.innerHTML = "<div style='text-align:center; color:#9ca3af;'>جاري التحميل...</div>";
+
+  try {
+    const res = await fetch(API_BASE + "/players/" + telegramId);
+    const player = await res.json();
+
+    const gs = player.gameState || {};
+    const castleLevel = gs.castleLevel || 1;
+    const hero = localStorage.getItem("hero") || "elephant";
+    const playerHero = hero;
+    const joinDays = player.createdAt ? Math.floor((Date.now() - player.createdAt) / (1000 * 60 * 60 * 24)) : 0;
+    const myId = localStorage.getItem("telegramId");
+    const isMe = String(telegramId) === String(myId);
+    const shareLink = `https://t.me/RaidexGameBot?start=profile_${telegramId}`;
+
+    content.innerHTML = `
+      <!-- صورة الشخصية -->
+      <div style="text-align:center; margin-bottom:12px;">
+        <img src="${playerHero}.png" style="width:80px; height:80px; border-radius:50%; border:3px solid #facc15; object-fit:cover;" onerror="this.src='elephant.png'"/>
+        <div style="font-size:16px; font-weight:bold; color:#e5e7eb; margin-top:8px;">${player.telegramName || playerName}</div>
+        <div style="font-size:12px; color:#9ca3af;">🐾 ${playerHero.charAt(0).toUpperCase() + playerHero.slice(1)}</div>
+      </div>
+
+      <!-- البيانات -->
+      <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; padding:6px 10px; background:rgba(15,23,42,0.9); border-radius:8px;">
+          <span style="color:#9ca3af; font-size:12px;">🏰 المستوى</span>
+          <span style="color:#e5e7eb; font-size:12px; font-weight:bold;">Castle Lv. ${castleLevel}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:6px 10px; background:rgba(15,23,42,0.9); border-radius:8px;">
+          <span style="color:#9ca3af; font-size:12px;">⚡ القوة</span>
+          <span style="color:#facc15; font-size:12px; font-weight:bold;">${(player.power || 0).toLocaleString()}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:6px 10px; background:rgba(15,23,42,0.9); border-radius:8px;">
+          <span style="color:#9ca3af; font-size:12px;">📅 في اللعبة منذ</span>
+          <span style="color:#e5e7eb; font-size:12px;">${joinDays} يوم</span>
+        </div>
+        ${player.clanName ? `
+        <div style="display:flex; justify-content:space-between; padding:6px 10px; background:rgba(15,23,42,0.9); border-radius:8px;">
+          <span style="color:#9ca3af; font-size:12px;">👥 الكلان</span>
+          <span style="color:#0ea5e9; font-size:12px; font-weight:bold;">${player.clanName}</span>
+        </div>` : ""}
+      </div>
+
+      <!-- الأزرار -->
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        ${!isMe ? `
+        <div style="display:flex; gap:8px;">
+          <button onclick="sendFriendRequest('${telegramId}', '${player.telegramName}')" style="flex:1; padding:8px; border:none; border-radius:10px; background:#10b981; color:#0b1120; font-weight:bold; cursor:pointer; font-size:13px;">👫 إضافة صديق</button>
+          <button onclick="attackPlayer('${telegramId}')" style="flex:1; padding:8px; border:none; border-radius:10px; background:#ef4444; color:white; font-weight:bold; cursor:pointer; font-size:13px;">⚔️ هجوم</button>
+        </div>` : ""}
+        <button onclick="copyProfileLink('${shareLink}')" style="width:100%; padding:8px; border:none; border-radius:10px; background:rgba(30,41,59,0.9); color:#e5e7eb; cursor:pointer; font-size:13px; border:1px solid #374151;">🔗 مشاركة الرابط</button>
+      </div>
+    `;
+  } catch (err) {
+    content.innerHTML = "<div style='text-align:center; color:#ef4444;'>حصل خطأ في تحميل البيانات</div>";
+  }
+}
+
+function copyProfileLink(link) {
+  navigator.clipboard.writeText(link).then(() => {
+    alert("تم نسخ الرابط! 🔗");
+  }).catch(() => {
+    alert("الرابط: " + link);
+  });
+}
+
+function attackPlayer(telegramId) {
+  alert("⚔️ نظام الهجوم قريباً!");
+}
 
 </script>
 
@@ -11855,6 +11951,16 @@ async function rejectFriendRequest(fromId) {
 <div id="lb-players-list"></div>
 <div id="lb-clans-list" style="display:none;"></div>
 
+  </div>
+</div>
+<!-- Player Profile Modal -->
+<div id="player-profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:#111827; padding:20px; border-radius:16px; width:300px; border:1px solid #374151; max-height:90vh; overflow-y:auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <span style="font-weight:bold; font-size:16px; color:#facc15;">👤 بروفايل اللاعب</span>
+      <button onclick="document.getElementById('player-profile-modal').style.display='none'" style="background:none; border:none; color:#e5e7eb; font-size:18px; cursor:pointer;">✕</button>
+    </div>
+    <div id="player-profile-content"></div>
   </div>
 </div>
 
