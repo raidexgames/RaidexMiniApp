@@ -1641,6 +1641,9 @@
     <button class="icon-circle" id="pass-icon">
       <span>🎫</span>
     </button>
+    <button class="icon-circle" id="leaderboard-icon" onclick="openLeaderboardPage()">
+  <span>🏆</span>
+</button>
   </div>
 </div>
 
@@ -11419,8 +11422,132 @@ async function clanLevelUp() {
 window.addEventListener("load", () => {
   registerTelegramPlayer();
 });
+function openLeaderboardPage() {
+  const modal = document.getElementById("leaderboard-modal");
+  if (modal) { modal.style.display = "flex"; switchLbTab("players"); }
+}
+
+function closeLeaderboardPage() {
+  const modal = document.getElementById("leaderboard-modal");
+  if (modal) modal.style.display = "none";
+}
+
+let currentLbSubTab = "power";
+
+function switchLbTab(tab) {
+  const playersBtn = document.getElementById("lb-tab-players");
+  const clansBtn = document.getElementById("lb-tab-clans");
+  const playersList = document.getElementById("lb-players-list");
+  const clansList = document.getElementById("lb-clans-list");
+  const subTabs = document.getElementById("lb-players-subtabs");
+  if (tab === "players") {
+    playersBtn.style.background = "#0ea5e9"; playersBtn.style.color = "#0b1120";
+    clansBtn.style.background = "rgba(30,41,59,0.9)"; clansBtn.style.color = "#e5e7eb";
+    playersList.style.display = "block"; clansList.style.display = "none";
+    if (subTabs) subTabs.style.display = "flex";
+    loadLeaderboard("players");
+  } else {
+    clansBtn.style.background = "#0ea5e9"; clansBtn.style.color = "#0b1120";
+    playersBtn.style.background = "rgba(30,41,59,0.9)"; playersBtn.style.color = "#e5e7eb";
+    playersList.style.display = "none"; clansList.style.display = "block";
+    if (subTabs) subTabs.style.display = "none";
+    loadLeaderboard("clans");
+  }
+}
+
+function switchLbSubTab(subTab) {
+  currentLbSubTab = subTab;
+  const powerBtn = document.getElementById("lb-sub-power");
+  const levelBtn = document.getElementById("lb-sub-level");
+  const armyBtn = document.getElementById("lb-sub-army");
+  powerBtn.style.background = subTab==="power" ? "#facc15" : "rgba(30,41,59,0.9)";
+  powerBtn.style.color = subTab==="power" ? "#0b1120" : "#e5e7eb";
+  levelBtn.style.background = subTab==="level" ? "#facc15" : "rgba(30,41,59,0.9)";
+  levelBtn.style.color = subTab==="level" ? "#0b1120" : "#e5e7eb";
+  armyBtn.style.background = subTab==="army" ? "#facc15" : "rgba(30,41,59,0.9)";
+  armyBtn.style.color = subTab==="army" ? "#0b1120" : "#e5e7eb";
+  loadLeaderboard("players");
+}
+
+async function loadLeaderboard(tab) {
+  const listEl = document.getElementById(`lb-${tab}-list`);
+  if (!listEl) return;
+  listEl.innerHTML = "<div style='color:#9ca3af; text-align:center; padding:20px;'>جاري التحميل...</div>";
+  try {
+    const res = await fetch(API_BASE + `/leaderboard/${tab}`);
+    let data = await res.json();
+    listEl.innerHTML = "";
+    if (!data.length) {
+      listEl.innerHTML = "<div style='color:#9ca3af; text-align:center; padding:20px;'>مفيش بيانات لسه</div>";
+      return;
+    }
+    if (tab === "players") {
+      if (currentLbSubTab === "level") data.sort((a, b) => (b.level||0) - (a.level||0));
+      else if (currentLbSubTab === "army") data.sort((a, b) => (b.armyPower||0) - (a.armyPower||0));
+      else data.sort((a, b) => (b.power||0) - (a.power||0));
+    }
+    data.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.style.cssText = `display:flex; justify-content:space-between; align-items:center; padding:10px 12px; margin-bottom:6px; border-radius:10px; background:${index===0?"rgba(250,204,21,0.15)":index===1?"rgba(148,163,184,0.15)":index===2?"rgba(234,88,12,0.15)":"rgba(15,23,42,0.9)"}; border:1px solid ${index===0?"rgba(250,204,21,0.4)":index===1?"rgba(148,163,184,0.4)":index===2?"rgba(234,88,12,0.4)":"rgba(148,163,184,0.2)"};`;
+      const medal = index===0?"🥇":index===1?"🥈":index===2?"🥉":`${index+1}.`;
+      row.innerHTML = tab==="players" ? `
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:18px; width:30px;">${medal}</span>
+          <div>
+            <div style="font-size:13px; font-weight:bold; color:#e5e7eb;">${item.name}</div>
+            <div style="font-size:11px; color:#9ca3af;">${item.clanName?'👥 '+item.clanName:''}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px; color:#9ca3af;">🏰 Lv. ${item.level||1}</div>
+          <div style="font-size:12px; color:#facc15;">⚡ ${(item.power||0).toLocaleString()}</div>
+          <div style="font-size:12px; color:#0ea5e9;">⚔️ ${(item.armyPower||0).toLocaleString()}</div>
+        </div>
+      ` : `
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:18px; width:30px;">${medal}</span>
+          <div>
+            <div style="font-size:13px; font-weight:bold; color:#e5e7eb;">${item.name}</div>
+            <div style="font-size:11px; color:#9ca3af;">Lv. ${item.level} • ${item.membersCount} أعضاء</div>
+          </div>
+        </div>
+        <div style="font-size:13px; font-weight:bold; color:#facc15;">⚡ ${(item.totalPower||0).toLocaleString()}</div>
+      `;
+      listEl.appendChild(row);
+    });
+  } catch(err) {
+    listEl.innerHTML = "<div style='color:#ef4444; text-align:center;'>حصل خطأ في التحميل</div>";
+  }
+}
 
 </script>
+
+<!-- Leaderboard Modal -->
+<div id="leaderboard-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.97); z-index:5000; flex-direction:column;">
+  <div style="height:55px; background:#8e0000; display:flex; justify-content:space-between; align-items:center; padding:0 15px;">
+    <button onclick="closeLeaderboardPage()" style="background:none; border:none; color:white; font-size:22px; cursor:pointer;">←</button>
+    <span style="font-weight:bold; font-size:18px; color:white;">🏆 المتصدرون</span>
+    <div style="width:30px;"></div>
+  </div>
+  <div style="padding:12px; overflow-y:auto; flex:1;">
+   <!-- Main Tabs -->
+<div style="display:flex; gap:6px; margin-bottom:8px;">
+  <button id="lb-tab-players" onclick="switchLbTab('players')" style="flex:1; padding:6px; border:none; border-radius:999px; background:#0ea5e9; color:#0b1120; font-weight:bold; cursor:pointer;">👤 اللاعبين</button>
+  <button id="lb-tab-clans" onclick="switchLbTab('clans')" style="flex:1; padding:6px; border:none; border-radius:999px; background:rgba(30,41,59,0.9); color:#e5e7eb; font-weight:bold; cursor:pointer;">👥 الكلانات</button>
+</div>
+
+<!-- Players Sub-Tabs -->
+<div id="lb-players-subtabs" style="display:flex; gap:4px; margin-bottom:10px;">
+  <button id="lb-sub-power" onclick="switchLbSubTab('power')" style="flex:1; padding:4px; border:none; border-radius:999px; background:#facc15; color:#0b1120; font-size:11px; font-weight:bold; cursor:pointer;">⚡ القوة</button>
+  <button id="lb-sub-level" onclick="switchLbSubTab('level')" style="flex:1; padding:4px; border:none; border-radius:999px; background:rgba(30,41,59,0.9); color:#e5e7eb; font-size:11px; font-weight:bold; cursor:pointer;">🏰 المستوى</button>
+  <button id="lb-sub-army" onclick="switchLbSubTab('army')" style="flex:1; padding:4px; border:none; border-radius:999px; background:rgba(30,41,59,0.9); color:#e5e7eb; font-size:11px; font-weight:bold; cursor:pointer;">⚔️ الجيش</button>
+</div>
+
+<div id="lb-players-list"></div>
+<div id="lb-clans-list" style="display:none;"></div>
+
+  </div>
+</div>
 
   </body>
 </html>
