@@ -9550,62 +9550,135 @@ function renderClanPage() {
   });
 }
 
-function createClan() {
+async function createClan() {
   const name = prompt("Enter clan name:");
   if (!name) return;
 
+  const telegramId = localStorage.getItem("telegramId");
   const playerName = localStorage.getItem("playerName") || "Player";
 
-  clanState.name = name;
-  clanState.role = "leader";
-  clanState.members = [{ name: playerName, role: "leader" }];
+  if (!telegramId) {
+    alert("يجب فتح اللعبة من تيليجرام أولاً!");
+    return;
+  }
 
-  saveClanState();
-  renderClanPage();
+  try {
+    const res = await fetch(API_BASE + "/clan/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clanName: name,
+        leaderTelegramId: telegramId,
+        leaderName: playerName
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      alert("خطأ: " + data.error);
+      return;
+    }
+
+    // احفظ محلياً
+    clanState.name = name;
+    clanState.role = "leader";
+    clanState.clanId = data.clanId;
+    clanState.members = [{ name: playerName, role: "leader" }];
+
+    saveClanState();
+    renderClanPage();
+    alert("تم إنشاء الكلان بنجاح! 🎉");
+
+  } catch (err) {
+    console.error("Error creating clan:", err);
+    alert("حصل خطأ في إنشاء الكلان");
+  }
 }
-
-function joinClan(name) {
+async function joinClan(name) {
+  const telegramId = localStorage.getItem("telegramId");
   const playerName = localStorage.getItem("playerName") || "Player";
 
-  clanState.name = name;
-  clanState.role = "member";
-  clanState.members = [{ name: playerName, role: "member" }];
+  if (!telegramId) {
+    alert("يجب فتح اللعبة من تيليجرام أولاً!");
+    return;
+  }
 
-  saveClanState();
-  renderClanPage();
+  try {
+    const res = await fetch(API_BASE + "/clan/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clanName: name,
+        telegramId: telegramId,
+        playerName: playerName
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      alert("خطأ: " + data.error);
+      return;
+    }
+
+    // احفظ محلياً
+    clanState.name = name;
+    clanState.role = "member";
+    clanState.clanId = data.clanId;
+    clanState.members = data.members || [];
+
+    saveClanState();
+    renderClanPage();
+    alert("تم الانضمام للكلان بنجاح! 🎉");
+
+  } catch (err) {
+    console.error("Error joining clan:", err);
+    alert("حصل خطأ في الانضمام للكلان");
+  }
 }
 
-function leaveClan() {
+
+async function leaveClan() {
   if (!clanState.name) return;
 
-  const confirmLeave = confirm(
-    `Are you sure you want to leave clan "${clanState.name}"?`
-  );
+  const confirmLeave = confirm(`هل أنت متأكد من مغادرة كلان "${clanState.name}"?`);
   if (!confirmLeave) return;
 
-  clanState.name = null;
-  clanState.role = null;
-  clanState.members = [];
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId) {
+    alert("يجب فتح اللعبة من تيليجرام أولاً!");
+    return;
+  }
 
-  saveClanState();
-  renderClanPage();
-}
+  try {
+    const res = await fetch(API_BASE + "/clan/leave", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ telegramId })
+    });
 
-function switchClanTab(key) {
-  const panels = document.querySelectorAll(".clan-tab-panel");
-  const buttons = document.querySelectorAll(".clan-tab-btn");
+    const data = await res.json();
 
-  panels.forEach((p) => {
-    p.style.display = p.id === `clan-tab-${key}` ? "block" : "none";
-  });
-
-  buttons.forEach((b) => {
-    if (b.dataset.tab === key) {
-      b.style.color = "#facc15";
-    } else {
-      b.style.color = "#9ca3af";
+    if (data.error) {
+      alert("خطأ: " + data.error);
+      return;
     }
-  });
+
+    // امسح محلياً
+    clanState.name = null;
+    clanState.role = null;
+    clanState.clanId = null;
+    clanState.members = [];
+
+    saveClanState();
+    renderClanPage();
+    alert("تم مغادرة الكلان بنجاح!");
+
+  } catch (err) {
+    console.error("Error leaving clan:", err);
+    alert("حصل خطأ في مغادرة الكلان");
+  }
 }
 
 /* ============================
