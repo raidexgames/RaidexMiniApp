@@ -9605,11 +9605,38 @@ for (const m of data.members) {
   const playerRes = await fetch(API_BASE + "/players/" + m.telegramId).catch(() => null);
   if (playerRes) {
     const playerData = await playerRes.json().catch(() => null);
-    if (playerData && playerData.power) {
-      totalPowerFromMembers += playerData.power;
+    if (playerData) {
+      // لو في power محفوظ استخدمه
+      if (playerData.power) {
+        totalPowerFromMembers += playerData.power;
+      } else if (playerData.gameState) {
+        // احسب القوة من gameState
+        const gs = playerData.gameState;
+        const cl = gs.castleLevel || 1;
+        const bl = gs.buildingLevels || {};
+        const base = 100;
+        const growth = 1.15;
+        let cp = Math.floor(base * Math.pow(growth, cl - 1));
+        let bonus = 0;
+        if (cl >= 5) bonus += Math.floor(Math.min(cl, 25) / 5) * 10000;
+        if (cl >= 30) bonus += 20000;
+        if (cl >= 35) bonus += 25000;
+        if (cl >= 40) bonus += 30000;
+        if (cl >= 45) bonus += 35000;
+        if (cl >= 50) bonus += 50000;
+        cp += bonus;
+        const bp =
+          (bl.goldMine || 1) * 20 +
+          (bl.woodMine || 1) * 15 +
+          (bl.meatFarm || 1) * 10 +
+          (bl.school || 1) * 25 +
+          (bl.hospital || 1) * 30;
+        totalPowerFromMembers += cp + bp;
+      }
     }
   }
 }
+
 
 
           if (overviewExtra) {
