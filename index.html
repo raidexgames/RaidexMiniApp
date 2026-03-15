@@ -1665,9 +1665,10 @@
       <div class="menu-item">🌐 Language</div>
     </div>
 <div class="right-arrow-menu">
-  <button id="right-arrow-btn" class="right-arrow-btn">
-    ❯
-  </button>
+ <button id="right-arrow-btn" class="right-arrow-btn">
+  ❯
+  <span id="right-arrow-badge" style="display:none; position:absolute; top:-2px; right:-2px; width:10px; height:10px; background:#ef4444; border-radius:50%; box-shadow:0 0 6px rgba(239,68,68,0.9);"></span>
+</button>
 
   <div id="right-options" class="right-options">
     <button class="icon-circle" id="pvp-icon">
@@ -11472,7 +11473,12 @@ async function clanLevelUp() {
 
 window.addEventListener("load", () => {
   registerTelegramPlayer();
+  setTimeout(() => {
+    checkFriendRequests();
+    setInterval(checkFriendRequests, 3000);
+  }, 3000);
 });
+
 function openLeaderboardPage() {
   const modal = document.getElementById("leaderboard-modal");
   if (modal) { modal.style.display = "flex"; switchLbTab("players"); }
@@ -11717,24 +11723,41 @@ async function sendFriendRequest(toId, toName) {
   } catch (err) { alert("حصل خطأ"); }
 }
 
-// جيب طلبات الصداقة
 async function checkFriendRequests() {
   const telegramId = localStorage.getItem("telegramId");
   if (!telegramId) return;
   try {
     const res = await fetch(API_BASE + "/friends/requests/" + telegramId);
     const requests = await res.json();
+    const count = requests.length;
+
+    // badge في تبويب Friends
     const badge = document.getElementById("friend-requests-badge");
     if (badge) {
-      if (requests.length > 0) {
-        badge.style.display = "flex";
-        badge.textContent = requests.length;
-      } else {
-        badge.style.display = "none";
+      if (count > 0) { badge.style.display = "flex"; badge.textContent = count; }
+      else { badge.style.display = "none"; }
+    }
+
+    // نقطة على السهم الأيمن
+    const arrowBadge = document.getElementById("right-arrow-badge");
+    if (arrowBadge) arrowBadge.style.display = count > 0 ? "block" : "none";
+
+    // نقطة على تبويب Friends في الشات
+    const friendsTab = document.querySelector(".chat-tab[data-chat='friends']");
+    if (friendsTab) {
+      const oldDot = friendsTab.querySelector(".friends-tab-dot");
+      if (oldDot) oldDot.remove();
+      if (count > 0) {
+        const dot = document.createElement("div");
+        dot.className = "friends-tab-dot";
+        dot.style.cssText = "position:absolute; top:-2px; right:-2px; width:8px; height:8px; border-radius:50%; background:#ef4444; box-shadow:0 0 6px rgba(239,68,68,0.9);";
+        friendsTab.style.position = "relative";
+        friendsTab.appendChild(dot);
       }
     }
   } catch (err) { console.error(err); }
 }
+
 
 // فتح طلبات الصداقة
 async function openFriendRequests() {
