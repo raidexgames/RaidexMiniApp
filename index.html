@@ -2603,6 +2603,13 @@ function tickMiningResources() {
     state.miningStored = miningStored;
     state.lastMiningUpdate = lastMiningUpdate;
     localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
+    // احفظ miningStored في key منفصل
+localStorage.setItem("raidex_mining_state", JSON.stringify({
+  miningStored,
+  lastMiningUpdate,
+  lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now()
+}));
+
   } catch (e) {
     console.error("Error auto-saving mining state", e);
   }
@@ -4468,39 +4475,30 @@ function loadGameState() {
         if (data && data.gameState) {
           const firestoreState = data.gameState;
 
-          // جيب localStorage عشان نحمي miningStored
-          const localRaw2 = localStorage.getItem("raidex_gamestate_v3");
-          const localState2 = localRaw2 ? JSON.parse(localRaw2) : {};
-
-          const localLastUpdate = localState2.lastMiningUpdate || 0;
-          const firestoreLastUpdate = firestoreState.lastMiningUpdate || 0;
-
-          // دايماً نستخدم miningStored من localStorage لو أحدث
-          if (localState2.miningStored && localLastUpdate >= firestoreLastUpdate) {
-            firestoreState.miningStored = localState2.miningStored;
-            firestoreState.lastMiningUpdate = localState2.lastMiningUpdate;
-          }
-
           if (firestoreState.castleLevel != null) castleLevel = firestoreState.castleLevel;
           if (firestoreState.resources) resources = { ...resources, ...firestoreState.resources };
           if (firestoreState.buildingLevels) buildingLevels = { ...buildingLevels, ...firestoreState.buildingLevels };
           if (firestoreState.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...firestoreState.buildingUpgrades };
-// miningStored بييجي من localStorage بس مش من Firestore
-const miningRaw = localStorage.getItem("raidex_gamestate_v3");
-const miningLocal = miningRaw ? JSON.parse(miningRaw) : {};
-if (miningLocal.miningStored) miningStored = { ...miningStored, ...miningLocal.miningStored };
-if (miningLocal.lastMiningUpdate) lastMiningUpdate = miningLocal.lastMiningUpdate;
-if (miningLocal.lastGoldMineCollectAt) window.lastGoldMineCollectAt = miningLocal.lastGoldMineCollectAt;
 
+          // miningStored دايماً من key المنفصل مش من Firestore
+          const miningRaw = localStorage.getItem("raidex_mining_state");
+          if (miningRaw) {
+            try {
+              const miningData = JSON.parse(miningRaw);
+              if (miningData.miningStored) miningStored = { ...miningStored, ...miningData.miningStored };
+              if (miningData.lastMiningUpdate) lastMiningUpdate = miningData.lastMiningUpdate;
+              if (miningData.lastGoldMineCollectAt) window.lastGoldMineCollectAt = miningData.lastGoldMineCollectAt;
+            } catch(e) {}
+          }
 
-       // مش هنحسب أوفلاين هنا لأن localStorage قسم تحت هيعمله
-const nowTs2 = Date.now();
-lastMiningUpdate = nowTs2;
-window.__lastMiningTick = nowTs2;
+          const nowTs2 = Date.now();
+          lastMiningUpdate = nowTs2;
+          window.__lastMiningTick = nowTs2;
 
-          // احفظ في localStorage مع الـ miningStored الصح
+          // احفظ في localStorage مع miningStored الصح
           firestoreState.miningStored = miningStored;
           firestoreState.lastMiningUpdate = lastMiningUpdate;
+          firestoreState.lastGoldMineCollectAt = window.lastGoldMineCollectAt || Date.now();
           localStorage.setItem("raidex_gamestate_v3", JSON.stringify(firestoreState));
 
           console.log("Game state loaded from Firestore ✅");
@@ -4524,12 +4522,19 @@ window.__lastMiningTick = nowTs2;
       buildingLevels.goldMine = goldMineLevel;
     }
     if (state.buildingLevels) buildingLevels = { ...buildingLevels, ...state.buildingLevels };
-    if (state.miningStored) miningStored = { ...miningStored, ...state.miningStored };
+
+    // جيب miningStored من key المنفصل
+    const miningRaw = localStorage.getItem("raidex_mining_state");
+    if (miningRaw) {
+      try {
+        const miningData = JSON.parse(miningRaw);
+        if (miningData.miningStored) miningStored = { ...miningStored, ...miningData.miningStored };
+        if (miningData.lastMiningUpdate) lastMiningUpdate = miningData.lastMiningUpdate;
+        if (miningData.lastGoldMineCollectAt) window.lastGoldMineCollectAt = miningData.lastGoldMineCollectAt;
+      } catch(e) {}
+    }
 
     const nowTs = Date.now();
-    lastMiningUpdate = state.lastMiningUpdate || nowTs;
-    window.lastGoldMineCollectAt = state.lastGoldMineCollectAt || nowTs;
-
     const offlineSec = Math.max(0, Math.floor((nowTs - lastMiningUpdate) / 1000));
     if (offlineSec > 0) {
       ["goldMine", "woodMine", "meatFarm"].forEach(mineKey => {
@@ -4542,6 +4547,13 @@ window.__lastMiningTick = nowTs2;
 
     lastMiningUpdate = nowTs;
     window.__lastMiningTick = nowTs;
+
+    // احفظ miningStored المحدث في key المنفصل
+    localStorage.setItem("raidex_mining_state", JSON.stringify({
+      miningStored,
+      lastMiningUpdate,
+      lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now()
+    }));
 
     goldMineUpgradeInProgress = !!state.goldMineUpgradeInProgress;
     goldMineUpgradeFinishAt = state.goldMineUpgradeFinishAt || null;
