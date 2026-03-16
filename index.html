@@ -3583,10 +3583,6 @@ function updateGoldMineUI() {
 }
 
 
-
-
-
-
 // === Daily Tasks Track ===
 let dailyPoints = 0;
 const DAILY_CHESTS = [
@@ -4471,41 +4467,60 @@ function loadGameState() {
   updateDailyLoginBanner();
   updateDailyLoginIcon();
 
-  // مؤقتًا: ما نجيبش حاجة من Firestore، نشتغل بس على localStorage
-  // const telegramId = localStorage.getItem("telegramId");
-  // if (telegramId) {
-  //   fetch(API_BASE + "/load-game-state/" + telegramId)
-  //     .then(res => res.json())
-  //     .then(data => {
-  //       if (data && data.gameState) {
-  //         const state = data.gameState;
-  //
-  //         if (state.castleLevel != null) castleLevel = state.castleLevel;
-  //         if (state.resources) resources = { ...resources, ...state.resources };
-  //         if (state.buildingLevels) buildingLevels = { ...buildingLevels, ...state.buildingLevels };
-  //         if (state.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...state.buildingUpgrades };
-  //         if (state.miningStored) miningStored = { ...miningStored, ...state.miningStored };
-  //         if (state.goldMineLevel != null) {
-  //           goldMineLevel = state.goldMineLevel;
-  //           buildingLevels.goldMine = goldMineLevel;
-  //         }
-  //
-  //         if (state.lastMiningUpdate) {
-  //           lastMiningUpdate = state.lastMiningUpdate;
-  //         }
-  //         if (state.lastGoldMineCollectAt) {
-  //           window.lastGoldMineCollectAt = state.lastGoldMineCollectAt;
-  //         }
-  //
-  //         localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
-  //         console.log("Game state loaded from Firestore ✅");
-  //
-  //         recalculatePower();
-  //         updateGoldMineUI();
-  //       }
-  //     })
-  //     .catch(err => console.error("Error loading game state from Firestore:", err));
-  // }
+  const telegramId = localStorage.getItem("telegramId");
+  if (telegramId) {
+    fetch(API_BASE + "/load-game-state/" + telegramId)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.gameState) {
+          const firestoreState = data.gameState;
+
+          // جيب localStorage عشان نحمي miningStored
+          const localRaw2 = localStorage.getItem("raidex_gamestate_v3");
+          const localState2 = localRaw2 ? JSON.parse(localRaw2) : {};
+
+          const localLastUpdate = localState2.lastMiningUpdate || 0;
+          const firestoreLastUpdate = firestoreState.lastMiningUpdate || 0;
+
+          // دايماً نستخدم miningStored من localStorage لو أحدث
+          if (localState2.miningStored && localLastUpdate >= firestoreLastUpdate) {
+            firestoreState.miningStored = localState2.miningStored;
+            firestoreState.lastMiningUpdate = localState2.lastMiningUpdate;
+          }
+
+          if (firestoreState.castleLevel != null) castleLevel = firestoreState.castleLevel;
+          if (firestoreState.resources) resources = { ...resources, ...firestoreState.resources };
+          if (firestoreState.buildingLevels) buildingLevels = { ...buildingLevels, ...firestoreState.buildingLevels };
+          if (firestoreState.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...firestoreState.buildingUpgrades };
+          if (firestoreState.miningStored) miningStored = { ...miningStored, ...firestoreState.miningStored };
+          if (firestoreState.lastMiningUpdate) lastMiningUpdate = firestoreState.lastMiningUpdate;
+          if (firestoreState.lastGoldMineCollectAt) window.lastGoldMineCollectAt = firestoreState.lastGoldMineCollectAt;
+
+          const nowTs2 = Date.now();
+          const offlineSec2 = Math.max(0, Math.floor((nowTs2 - lastMiningUpdate) / 1000));
+          if (offlineSec2 > 0) {
+            ["goldMine", "woodMine", "meatFarm"].forEach(mineKey => {
+              const mineLevel = buildingLevels[mineKey] || 1;
+              const perSec = calcMiningProductionPerHour(mineKey, mineLevel) / 3600;
+              const cap = getCastleStorageCapacity(mineLevel) * GOLD_MINE_CAPACITY_FACTOR;
+              miningStored[mineKey] = Math.min(cap, (miningStored[mineKey] || 0) + perSec * offlineSec2);
+            });
+          }
+          lastMiningUpdate = nowTs2;
+          window.__lastMiningTick = nowTs2;
+
+          // احفظ في localStorage مع الـ miningStored الصح
+          firestoreState.miningStored = miningStored;
+          firestoreState.lastMiningUpdate = lastMiningUpdate;
+          localStorage.setItem("raidex_gamestate_v3", JSON.stringify(firestoreState));
+
+          console.log("Game state loaded from Firestore ✅");
+          recalculatePower();
+          updateGoldMineUI();
+        }
+      })
+      .catch(err => console.error("Error loading game state from Firestore:", err));
+  }
 
   try {
     const raw = localStorage.getItem("raidex_gamestate_v3");
@@ -4513,75 +4528,36 @@ function loadGameState() {
 
     const state = JSON.parse(raw);
 
-    // مستوى القلعة
-    if (state.castleLevel != null) {
-      castleLevel = state.castleLevel;
-    }
-
-    // الموارد
-    if (state.resources) {
-      resources = {
-        ...resources,
-        ...state.resources,
-      };
-    }
-
-    // دعم الحقل القديم لو لسه متخزن
+    if (state.castleLevel != null) castleLevel = state.castleLevel;
+    if (state.resources) resources = { ...resources, ...state.resources };
     if (state.goldMineLevel != null) {
       goldMineLevel = state.goldMineLevel;
       buildingLevels.goldMine = goldMineLevel;
     }
+    if (state.buildingLevels) buildingLevels = { ...buildingLevels, ...state.buildingLevels };
+    if (state.miningStored) miningStored = { ...miningStored, ...state.miningStored };
 
-    // مستويات المباني
-    if (state.buildingLevels) {
-      buildingLevels = {
-        ...buildingLevels,
-        ...state.buildingLevels,
-      };
-    }
-
-    // مخزون المناجم
-    if (state.miningStored) {
-      miningStored = {
-        ...miningStored,
-        ...state.miningStored,
-      };
-    }
-
-    // === استرجاع أوقات التعدين والجمع (لو موجودة في الـ state) ===
     const nowTs = Date.now();
     lastMiningUpdate = state.lastMiningUpdate || nowTs;
     window.lastGoldMineCollectAt = state.lastGoldMineCollectAt || nowTs;
 
-    // === حساب التعدين الأوفلاين لمنجم الذهب ===
     const offlineSec = Math.max(0, Math.floor((nowTs - lastMiningUpdate) / 1000));
     if (offlineSec > 0) {
-      const goldLevel = buildingLevels.goldMine || 1;
-      const perHour = calcMiningProductionPerHour("goldMine", goldLevel);
-      const perSec = perHour / 3600;
-
-      const gained = perSec * offlineSec;
-
-      const cap = getCastleStorageCapacity(goldLevel) * GOLD_MINE_CAPACITY_FACTOR;
-      const currentStored = miningStored.goldMine || 0;
-      const newStored = Math.min(cap, currentStored + gained);
-
-      miningStored.goldMine = newStored;
+      ["goldMine", "woodMine", "meatFarm"].forEach(mineKey => {
+        const mineLevel = buildingLevels[mineKey] || 1;
+        const perSec = calcMiningProductionPerHour(mineKey, mineLevel) / 3600;
+        const cap = getCastleStorageCapacity(mineLevel) * GOLD_MINE_CAPACITY_FACTOR;
+        miningStored[mineKey] = Math.min(cap, (miningStored[mineKey] || 0) + perSec * offlineSec);
+      });
     }
 
-    // نخلي التايمر الداخلي يكمل من اللحظة الحالية
     lastMiningUpdate = nowTs;
     window.__lastMiningTick = nowTs;
 
-    // حالة ترقية منجم الذهب (لو لسه مستخدمة)
     goldMineUpgradeInProgress = !!state.goldMineUpgradeInProgress;
     goldMineUpgradeFinishAt = state.goldMineUpgradeFinishAt || null;
-
-    // استرجاع حالة الترقية للقلعة
     upgradeInProgress = !!state.upgradeInProgress;
     upgradeFinishAt = state.upgradeFinishAt || null;
-
-    // حالة تدريب الجيش الهجومي
     attackTrainingInProgress = !!state.attackTrainingInProgress;
     attackTrainingFinishAt = state.attackTrainingFinishAt || null;
     attackTrainingRemainingTime = state.attackTrainingRemainingTime || 0;
@@ -4589,8 +4565,6 @@ function loadGameState() {
     currentTrainingHeroKey = state.currentTrainingHeroKey || null;
     currentTrainingUnitKey = state.currentTrainingUnitKey || null;
     currentTrainingAmount = state.currentTrainingAmount || 0;
-
-    // حالة تدريب جيش الصحة
     healthTrainingInProgress = !!state.healthTrainingInProgress;
     healthTrainingFinishAt = state.healthTrainingFinishAt || null;
     healthTrainingRemainingTime = state.healthTrainingRemainingTime || 0;
@@ -4599,65 +4573,41 @@ function loadGameState() {
     currentHealthTrainingUnitKey = state.currentHealthTrainingUnitKey || null;
     currentHealthTrainingAmount = state.currentHealthTrainingAmount || 0;
 
-    // === إعادة التايمرات القديمة (ترقيات + تدريب) ===
     if (healthTrainingInProgress && healthTrainingFinishAt) {
       const now = Date.now();
       const diffMs = healthTrainingFinishAt - now;
-      if (diffMs <= 0) {
-        healthTrainingRemainingTime = 0;
-        finishHealthTraining();
-      } else {
-        healthTrainingRemainingTime = Math.floor(diffMs / 1000);
-        startHealthTrainingTimer();
-      }
+      if (diffMs <= 0) { healthTrainingRemainingTime = 0; finishHealthTraining(); }
+      else { healthTrainingRemainingTime = Math.floor(diffMs / 1000); startHealthTrainingTimer(); }
     }
 
     if (attackTrainingInProgress && attackTrainingFinishAt) {
       const now = Date.now();
       const diffMs = attackTrainingFinishAt - now;
-      if (diffMs <= 0) {
-        attackTrainingRemainingTime = 0;
-      } else {
-        attackTrainingRemainingTime = Math.floor(diffMs / 1000);
-        startAttackTrainingTimer();
-      }
+      if (diffMs <= 0) { attackTrainingRemainingTime = 0; }
+      else { attackTrainingRemainingTime = Math.floor(diffMs / 1000); startAttackTrainingTimer(); }
     }
 
     if (upgradeInProgress && upgradeFinishAt) {
       const now = Date.now();
       const diffMs = upgradeFinishAt - now;
-
       if (diffMs <= 0) {
         finishCastlePanelUpgrade();
       } else {
         const remainingSec = Math.floor(diffMs / 1000);
         const totalTime = remainingSec;
-
         upgradeRemainingTime = remainingSec;
-
         const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
         const progressFill = document.getElementById("castle-upgrade-progress-fill");
         const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
-
         if (progressWrapper) progressWrapper.style.display = "block";
         if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
-
         if (upgradeInterval) clearInterval(upgradeInterval);
-
         upgradeInterval = setInterval(() => {
           upgradeRemainingTime -= 1;
           if (upgradeRemainingTime < 0) upgradeRemainingTime = 0;
-
-          if (remainingTimeEl) {
-            remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
-          }
-
+          if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
           const ratio = totalTime > 0 ? upgradeRemainingTime / totalTime : 0;
-          if (progressFill) {
-            const percent = Math.max(0, Math.min(100, ratio * 100));
-            progressFill.style.width = percent + "%";
-          }
-
+          if (progressFill) progressFill.style.width = Math.max(0, Math.min(100, ratio * 100)) + "%";
           if (upgradeRemainingTime <= 0) {
             clearInterval(upgradeInterval);
             upgradeInterval = null;
