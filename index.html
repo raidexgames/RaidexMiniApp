@@ -3975,12 +3975,8 @@ function saveGameState() {
       hero: currentHero,
       castleLevel,
       resources,
-
-      // حالة ترقيات القلعة
       upgradeInProgress,
       upgradeFinishAt,
-
-      // حالة تدريب الجيش الهجومي
       attackTrainingInProgress,
       attackTrainingFinishAt,
       attackTrainingRemainingTime,
@@ -3988,8 +3984,6 @@ function saveGameState() {
       currentTrainingHeroKey,
       currentTrainingUnitKey,
       currentTrainingAmount,
-
-      // حالة تدريب جيش الصحة
       healthTrainingInProgress,
       healthTrainingFinishAt,
       healthTrainingRemainingTime,
@@ -3997,35 +3991,33 @@ function saveGameState() {
       currentHealthTrainingHeroKey,
       currentHealthTrainingUnitKey,
       currentHealthTrainingAmount,
-
-      // مستويات وترقيات المباني
       buildingLevels,
       buildingUpgrades,
-
-         // مناجم
       miningStored,
       goldMineUpgradeInProgress,
       goldMineUpgradeFinishAt,
-
-      // وقت آخر تحديث تعدين
       lastMiningUpdate,
       lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now(),
     };
 
-
-    // 1) احفظ محلياً
+    // 1) احفظ محلياً كامل مع miningStored
     localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
 
-    // 2) احفظ في Firestore لو اللاعب مسجّل
+    // 2) احفظ في Firestore بدون miningStored عشان ما يرجعش قديم
     const telegramId = localStorage.getItem("telegramId");
     if (telegramId) {
+      const stateForFirestore = { ...state };
+      delete stateForFirestore.miningStored;
+      delete stateForFirestore.lastMiningUpdate;
+      delete stateForFirestore.lastGoldMineCollectAt;
+
       fetch(API_BASE + "/save-game-state", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           telegramId: telegramId,
-          gameState: state,
-          power: totalPower || 0, // نبعت القوة مع الـ save
+          gameState: stateForFirestore,
+          power: totalPower || 0,
         }),
       }).catch(err => console.error("Error syncing game state:", err));
     }
@@ -4033,6 +4025,7 @@ function saveGameState() {
     console.error("Error saving game state", e);
   }
 }
+
 
 
 
@@ -4492,9 +4485,13 @@ function loadGameState() {
           if (firestoreState.resources) resources = { ...resources, ...firestoreState.resources };
           if (firestoreState.buildingLevels) buildingLevels = { ...buildingLevels, ...firestoreState.buildingLevels };
           if (firestoreState.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...firestoreState.buildingUpgrades };
-          if (firestoreState.miningStored) miningStored = { ...miningStored, ...firestoreState.miningStored };
-          if (firestoreState.lastMiningUpdate) lastMiningUpdate = firestoreState.lastMiningUpdate;
-          if (firestoreState.lastGoldMineCollectAt) window.lastGoldMineCollectAt = firestoreState.lastGoldMineCollectAt;
+// miningStored بييجي من localStorage بس مش من Firestore
+const miningRaw = localStorage.getItem("raidex_gamestate_v3");
+const miningLocal = miningRaw ? JSON.parse(miningRaw) : {};
+if (miningLocal.miningStored) miningStored = { ...miningStored, ...miningLocal.miningStored };
+if (miningLocal.lastMiningUpdate) lastMiningUpdate = miningLocal.lastMiningUpdate;
+if (miningLocal.lastGoldMineCollectAt) window.lastGoldMineCollectAt = miningLocal.lastGoldMineCollectAt;
+
 
           const nowTs2 = Date.now();
           const offlineSec2 = Math.max(0, Math.floor((nowTs2 - lastMiningUpdate) / 1000));
