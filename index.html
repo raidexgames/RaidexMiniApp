@@ -4493,18 +4493,10 @@ if (miningLocal.lastMiningUpdate) lastMiningUpdate = miningLocal.lastMiningUpdat
 if (miningLocal.lastGoldMineCollectAt) window.lastGoldMineCollectAt = miningLocal.lastGoldMineCollectAt;
 
 
-          const nowTs2 = Date.now();
-          const offlineSec2 = Math.max(0, Math.floor((nowTs2 - lastMiningUpdate) / 1000));
-          if (offlineSec2 > 0) {
-            ["goldMine", "woodMine", "meatFarm"].forEach(mineKey => {
-              const mineLevel = buildingLevels[mineKey] || 1;
-              const perSec = calcMiningProductionPerHour(mineKey, mineLevel) / 3600;
-              const cap = getCastleStorageCapacity(mineLevel) * GOLD_MINE_CAPACITY_FACTOR;
-              miningStored[mineKey] = Math.min(cap, (miningStored[mineKey] || 0) + perSec * offlineSec2);
-            });
-          }
-          lastMiningUpdate = nowTs2;
-          window.__lastMiningTick = nowTs2;
+       // مش هنحسب أوفلاين هنا لأن localStorage قسم تحت هيعمله
+const nowTs2 = Date.now();
+lastMiningUpdate = nowTs2;
+window.__lastMiningTick = nowTs2;
 
           // احفظ في localStorage مع الـ miningStored الصح
           firestoreState.miningStored = miningStored;
