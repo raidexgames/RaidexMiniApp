@@ -2353,6 +2353,13 @@
       <div id="building-panel-extra-info"
            style="font-size:13px; text-align:center;"></div>
     </div>
+<button id="gold-mine-collect-btn"
+        style="margin-top:10px;width:100%;padding:8px 0;border:none;
+               border-radius:999px;background:#22c55e;color:#0b1120;
+               font-weight:bold;font-size:13px;cursor:pointer;display:none;">
+  جمع ذهب المنجم
+</button>
+
 
     <!-- تاب الترقية -->
     <div id="building-tab-upgrade" style="display:none; font-size:13px;">
@@ -2540,8 +2547,69 @@ let buildingLevels = {
   booster: 1,
   hospital: 1
 };
-// مفتاح التخزين
-const SAVE_KEY = "castle-save-v1";
+
+// تخزين داخلي لمنجم الذهب + عامل السعة
+let miningStored = {
+  goldMine: 0,
+  woodMine: 0,
+  meatFarm: 0,
+};
+
+let lastMiningUpdate = Date.now();
+const GOLD_MINE_CAPACITY_FACTOR = 1; // حاليًا السعة = سعة القلعة
+window.__lastMiningTick = null;
+window.lastGoldMineCollectAt = Date.now();
+const GOLD_MINE_EMOJI_DELAY_MS = 5 * 60 * 1000; // 5 دقائق
+
+function tickMiningResources() {
+  const now = Date.now();
+  if (!window.__lastMiningTick) {
+    window.__lastMiningTick = now;
+    lastMiningUpdate = now;
+    return;
+  }
+
+  const diffSec = (now - window.__lastMiningTick) / 1000;
+  if (diffSec <= 0) return;
+
+  window.__lastMiningTick = now;
+  lastMiningUpdate = now;
+
+  // المناجم الثلاثة
+  const mines = ["goldMine", "woodMine", "meatFarm"];
+
+  mines.forEach(mineKey => {
+    const level = buildingLevels[mineKey] || 1;
+    const perHour = calcMiningProductionPerHour(mineKey, level);
+    const perSec = perHour / 3600;
+
+    if (!miningStored[mineKey]) miningStored[mineKey] = 0;
+    miningStored[mineKey] += perSec * diffSec;
+
+    // السعة القصوى
+    const cap = getCastleStorageCapacity(level) * GOLD_MINE_CAPACITY_FACTOR;
+    if (miningStored[mineKey] > cap) {
+      miningStored[mineKey] = cap;
+    }
+  });
+
+  // حدّث الـ UI
+  updateGoldMineUI();
+
+  // احفظ في localStorage
+  try {
+    const raw = localStorage.getItem("raidex_gamestate_v3");
+    const state = raw ? JSON.parse(raw) : {};
+    state.miningStored = miningStored;
+    state.lastMiningUpdate = lastMiningUpdate;
+    localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
+  } catch (e) {
+    console.error("Error auto-saving mining state", e);
+  }
+}
+
+setInterval(tickMiningResources, 1000);
+
 
 // حفظ اللعبة
 function saveGame() {
@@ -3424,6 +3492,97 @@ function finishMiningBuildingUpgrade(buildingKey) {
 
   saveGameState();
 }
+function updateGoldMineUI() {
+  // منجم الذهب
+  const goldStored = Math.floor(miningStored.goldMine || 0);
+  const goldLevel = buildingLevels.goldMine || 1;
+  const goldPerHour = calcMiningProductionPerHour("goldMine", goldLevel);
+  const goldCap = getCastleStorageCapacity(goldLevel) * GOLD_MINE_CAPACITY_FACTOR;
+
+  // منجم الخشب
+  const woodStored = Math.floor(miningStored.woodMine || 0);
+  const woodLevel = buildingLevels.woodMine || 1;
+  const woodPerHour = calcMiningProductionPerHour("woodMine", woodLevel);
+  const woodCap = getCastleStorageCapacity(woodLevel) * GOLD_MINE_CAPACITY_FACTOR;
+
+  // مزرعة اللحم
+  const meatStored = Math.floor(miningStored.meatFarm || 0);
+  const meatLevel = buildingLevels.meatFarm || 1;
+  const meatPerHour = calcMiningProductionPerHour("meatFarm", meatLevel);
+  const meatCap = getCastleStorageCapacity(meatLevel) * GOLD_MINE_CAPACITY_FACTOR;
+
+  // الإيموجي فوق منجم الذهب
+  const hint = document.getElementById("gold-mine-collect-hint");
+  if (hint) {
+    const now = Date.now();
+    const sinceLastCollect = now - (window.lastGoldMineCollectAt || 0);
+    if (goldStored > 0 && sinceLastCollect >= GOLD_MINE_EMOJI_DELAY_MS) {
+      hint.style.display = "block";
+    } else {
+      hint.style.display = "none";
+    }
+  }
+
+  if (!buildingPanelExtra) return;
+
+  // شوف إيه المنجم المفتوح دلوقتي
+  const currentMine = window.currentMiningBuildingKey || "goldMine";
+
+  let stored, level, perHour, cap, color, resourceName;
+
+  if (currentMine === "woodMine") {
+    stored = woodStored;
+    level = woodLevel;
+    perHour = woodPerHour;
+    cap = woodCap;
+    color = "#4ade80";
+    resourceName = "خشب";
+  } else if (currentMine === "meatFarm") {
+    stored = meatStored;
+    level = meatLevel;
+    perHour = meatPerHour;
+    cap = meatCap;
+    color = "#f97316";
+    resourceName = "لحم";
+  } else {
+    stored = goldStored;
+    level = goldLevel;
+    perHour = goldPerHour;
+    cap = goldCap;
+    color = "#facc15";
+    resourceName = "ذهب";
+  }
+
+  const percent = cap > 0 ? Math.max(0, Math.min(100, (stored / cap) * 100)) : 0;
+
+  buildingPanelExtra.innerHTML = `
+    <div style="margin-bottom:6px;">
+      المستوى الحالي: <b>${level}</b>
+    </div>
+    <div style="margin-bottom:6px;">
+      الإنتاج في الساعة:
+      <span style="color:${color};">${perHour.toLocaleString()}</span> ${resourceName}
+    </div>
+    <div style="margin-bottom:6px;">
+      السعة القصوى:
+      <span style="color:#38bdf8;">${cap.toLocaleString()}</span> ${resourceName}
+    </div>
+    <div style="margin-bottom:4px;">
+      المخزون الحالي:
+      <span style="color:#22c55e;">${stored.toLocaleString()}</span> ${resourceName}
+    </div>
+    <div style="margin-top:4px;">
+      <div style="height:10px; border-radius:999px; background:rgba(15,23,42,0.8); overflow:hidden;">
+        <div style="height:100%; width:${percent}%; background:${color}; transition:width 0.3s;"></div>
+      </div>
+      <div style="font-size:11px; color:#9ca3af; margin-top:3px;">
+        ${percent.toFixed(0)}% ممتلئ
+      </div>
+    </div>
+  `;
+}
+
+
 
 
 
@@ -3488,22 +3647,102 @@ const WEEKLY_CHESTS = [
 // === Tasks Config ===
 const MAIN_TASKS = [
   {
-    id: "reach-castle-5",
-    title: "Reach Castle Lv. 5",
-    desc: "طوّر قلعتك للمستوى 5.",
+    id: "castle_lv2",
+    title: "Upgrade Castle to Lv.2",
+    desc: "Upgrade your Castle building to level 2.",
     type: "castle_level",
-    target: 5,
-    reward: { gem: 20 }
+    target: 2,
+    reward: {
+      gem: 20,
+      gold: 10000,
+      wood: 8000,
+      food: 8000
+    }
   },
   {
-    id: "buildings-10",
-    title: "Upgrade 10 building levels",
-    desc: "اجمع إجمالي 10 مستويات مباني.",
-    type: "building_levels_sum",
+    id: "gold_mine_lv2",
+    title: "Upgrade Gold Mine to Lv.2",
+    desc: "Upgrade your Gold Mine to level 2.",
+    type: "building_level",
+    buildingKey: "goldMine",
+    target: 2,
+    reward: {
+      gem: 0,
+      gold: 15000,
+      wood: 0,
+      food: 0
+    }
+  },
+  {
+    id: "wood_mine_lv2",
+    title: "Upgrade Wood Mine to Lv.2",
+    desc: "Upgrade your Wood Mine to level 2.",
+    type: "building_level",
+    buildingKey: "woodMine",
+    target: 2,
+    reward: {
+      gem: 0,
+      gold: 0,
+      wood: 15000,
+      food: 0
+    }
+  },
+  {
+    id: "meat_farm_lv2",
+    title: "Upgrade Meat Farm to Lv.2",
+    desc: "Upgrade your Meat Farm to level 2.",
+    type: "building_level",
+    buildingKey: "meatFarm",
+    target: 2,
+    reward: {
+      gem: 0,
+      gold: 0,
+      wood: 0,
+      food: 15000
+    }
+  },
+  {
+    id: "castle_lv3",
+    title: "Upgrade Castle to Lv.3",
+    desc: "Upgrade your Castle building to level 3.",
+    type: "castle_level",
+    target: 3,
+    reward: {
+      gem: 40,
+      gold: 25000,
+      wood: 20000,
+      food: 20000
+    }
+  },
+  {
+    id: "unlock_attack_building",
+    title: "Unlock Attack Barracks",
+    desc: "Reach Castle Lv.3 to unlock the Attack Barracks.",
+    type: "castle_level",
+    target: 3,
+    reward: {
+      gem: 30,
+      gold: 0,
+      wood: 0,
+      food: 0
+    }
+  },
+  {
+    id: "train_10_troops",
+    title: "Train 10 Troops",
+    desc: "Train a total of 10 troops in your Attack Barracks.",
+    type: "train_units",
     target: 10,
-    reward: { gold: 20000, wood: 20000 }
+    reward: {
+      gem: 20,
+      gold: 0,
+      wood: 0,
+      food: 20000
+    }
   }
 ];
+
+
 
 const DAILY_TASKS = [
   {
@@ -3513,7 +3752,7 @@ const DAILY_TASKS = [
     type: "collect_gold",
     target: 10000,
     points: 10,
-    reward: { gem: 0 }
+    reward: { gem: 0, gold: 0, wood: 0, food: 0 }
   },
   {
     id: "upgrade-building",
@@ -3522,7 +3761,7 @@ const DAILY_TASKS = [
     type: "upgrade_building",
     target: 1,
     points: 15,
-    reward: { gold: 0, wood: 0 }
+    reward: { gold: 0, wood: 0, food: 0, gem: 0 }
   },
   {
     id: "train-army",
@@ -3531,7 +3770,7 @@ const DAILY_TASKS = [
     type: "train_units",
     target: 50,
     points: 15,
-    reward: { food: 0 }
+    reward: { food: 0, gold: 0, wood: 0, gem: 0 }
   },
   {
     id: "buy-pack",
@@ -3540,7 +3779,7 @@ const DAILY_TASKS = [
     type: "buy_resource_pack",
     target: 1,
     points: 10,
-    reward: { gem: 0 }
+    reward: { gem: 0, gold: 0, wood: 0, food: 0 }
   },
   {
     id: "invite-friend-daily",
@@ -3549,30 +3788,49 @@ const DAILY_TASKS = [
     type: "invite_friend_daily",
     target: 1,
     points: 30,
-    reward: { gem: 50 }
+    reward: { gem: 50, gold: 0, wood: 0, food: 0 }
+  },
+  {
+    id: "pvp_hero_once",
+    title: "قاتل بالبطل في PVP",
+    desc: "شارك في معركة PVP واحدة باستخدام بطلك.",
+    type: "pvp_hero_battle",
+    target: 1,
+    points: 10,
+    reward: { gem: 10, gold: 0, wood: 0, food: 0 }
+  },
+  {
+    id: "attack_player_once",
+    title: "نفّذ هجوم واحد",
+    desc: "قم بالهجوم على أي لاعب مرة واحدة اليوم.",
+    type: "attack_player",
+    target: 1,
+    points: 10,
+    reward: { gem: 10, gold: 10000, wood: 0, food: 0 }
   }
 ];
 
 
 
+
 const WEEKLY_TASKS = [
   {
-    id: "castle-10",
-    title: "Reach Castle Lv. 10",
-    desc: "اصعد بقلعتك للمستوى 10 هذا الأسبوع.",
-    type: "castle_level",
+    id: "upgrade-10-buildings-weekly",
+    title: "Upgrade 10 buildings",
+    desc: "قم بترقية أي مبانٍ 10 مرات خلال هذا الأسبوع.",
+    type: "upgrade_building",
     target: 10,
     points: 250,
-    reward: { gem: 50 }
+    reward: { gem: 80, gold: 120000, wood: 100000, food: 100000 }
   },
   {
-    id: "train-500",
-    title: "Train 500 units",
-    desc: "درّب 500 وحدة جيش خلال الأسبوع.",
+    id: "train-2500",
+    title: "Train 2500 units",
+    desc: "درّب 2500 وحدة جيش خلال الأسبوع.",
     type: "train_units",
-    target: 500,
+    target: 2500,
     points: 200,
-    reward: { food: 100000 }
+    reward: { gem: 100, gold: 0, wood: 0, food: 150000 }
   },
   {
     id: "invite-10-weekly",
@@ -3580,10 +3838,30 @@ const WEEKLY_TASKS = [
     desc: "قم بدعوة 10 أصدقاء خلال هذا الأسبوع.",
     type: "invite_friends_weekly",
     target: 10,
-    points: 200,          // ← زي ما طلبت
-    reward: { gem: 500 }  // ← 500 جواهر
+    points: 200,
+    reward: { gem: 500, gold: 0, wood: 0, food: 0 }
+  },
+  {
+    id: "win-10-pvp",
+    title: "Win 10 PVP battles",
+    desc: "افز في 10 معارك PVP هذا الأسبوع.",
+    type: "pvp_win",
+    target: 10,
+    points: 200,
+    reward: { gem: 150, gold: 200000, wood: 0, food: 0 }
+  },
+  {
+    id: "attack-30",
+    title: "Attack 30 times",
+    desc: "نفّذ 30 هجوم على لاعبين خلال الأسبوع.",
+    type: "attack_player",
+    target: 30,
+    points: 150,
+    reward: { gem: 100, gold: 0, wood: 150000, food: 150000 }
   }
 ];
+
+
 
 
 
@@ -3697,12 +3975,16 @@ function updateDailyLoginIcon() {
 
 function saveGameState() {
   try {
-   const state = {
-  hero: currentHero,
-  castleLevel,
-  resources,
-  upgradeInProgress,
+    const state = {
+      hero: currentHero,
+      castleLevel,
+      resources,
+
+      // حالة ترقيات القلعة
+      upgradeInProgress,
       upgradeFinishAt,
+
+      // حالة تدريب الجيش الهجومي
       attackTrainingInProgress,
       attackTrainingFinishAt,
       attackTrainingRemainingTime,
@@ -3710,6 +3992,8 @@ function saveGameState() {
       currentTrainingHeroKey,
       currentTrainingUnitKey,
       currentTrainingAmount,
+
+      // حالة تدريب جيش الصحة
       healthTrainingInProgress,
       healthTrainingFinishAt,
       healthTrainingRemainingTime,
@@ -3717,11 +4001,23 @@ function saveGameState() {
       currentHealthTrainingHeroKey,
       currentHealthTrainingUnitKey,
       currentHealthTrainingAmount,
+
+      // مستويات وترقيات المباني
       buildingLevels,
       buildingUpgrades,
+
+         // مناجم
+      miningStored,
+      goldMineUpgradeInProgress,
+      goldMineUpgradeFinishAt,
+
+      // وقت آخر تحديث تعدين
+      lastMiningUpdate,
+      lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now(),
     };
 
-    // 1) احفظ محلياً زي ما كان
+
+    // 1) احفظ محلياً
     localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
 
     // 2) احفظ في Firestore لو اللاعب مسجّل
@@ -3730,19 +4026,18 @@ function saveGameState() {
       fetch(API_BASE + "/save-game-state", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-       body: JSON.stringify({
-  telegramId: telegramId,
-  gameState: state,
-  power: totalPower || 0  // نبعت القوة مع الـ save
-})
-
+        body: JSON.stringify({
+          telegramId: telegramId,
+          gameState: state,
+          power: totalPower || 0, // نبعت القوة مع الـ save
+        }),
       }).catch(err => console.error("Error syncing game state:", err));
     }
-
   } catch (e) {
     console.error("Error saving game state", e);
   }
 }
+
 
 
 
@@ -4176,35 +4471,44 @@ function loadGameState() {
   updateDailyLoginBanner();
   updateDailyLoginIcon();
 
-  // جيب البيانات من Firestore لو اللاعب مسجّل
-  const telegramId = localStorage.getItem("telegramId");
-  if (telegramId) {
-    fetch(API_BASE + "/load-game-state/" + telegramId)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.gameState) {
-          const state = data.gameState;
-
-          // طبّق البيانات من Firestore
-          if (state.castleLevel != null) castleLevel = state.castleLevel;
-          if (state.resources) resources = { ...resources, ...state.resources };
-          if (state.buildingLevels) buildingLevels = { ...buildingLevels, ...state.buildingLevels };
-          if (state.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...state.buildingUpgrades };
-
-          // حدّث الـ localStorage بالبيانات الجديدة
-          localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
-
-          console.log("Game state loaded from Firestore ✅");
-
-          // حدّث الواجهة
-          recalculatePower();
-        }
-      })
-      .catch(err => console.error("Error loading game state from Firestore:", err));
-  }
+  // مؤقتًا: ما نجيبش حاجة من Firestore، نشتغل بس على localStorage
+  // const telegramId = localStorage.getItem("telegramId");
+  // if (telegramId) {
+  //   fetch(API_BASE + "/load-game-state/" + telegramId)
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       if (data && data.gameState) {
+  //         const state = data.gameState;
+  //
+  //         if (state.castleLevel != null) castleLevel = state.castleLevel;
+  //         if (state.resources) resources = { ...resources, ...state.resources };
+  //         if (state.buildingLevels) buildingLevels = { ...buildingLevels, ...state.buildingLevels };
+  //         if (state.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...state.buildingUpgrades };
+  //         if (state.miningStored) miningStored = { ...miningStored, ...state.miningStored };
+  //         if (state.goldMineLevel != null) {
+  //           goldMineLevel = state.goldMineLevel;
+  //           buildingLevels.goldMine = goldMineLevel;
+  //         }
+  //
+  //         if (state.lastMiningUpdate) {
+  //           lastMiningUpdate = state.lastMiningUpdate;
+  //         }
+  //         if (state.lastGoldMineCollectAt) {
+  //           window.lastGoldMineCollectAt = state.lastGoldMineCollectAt;
+  //         }
+  //
+  //         localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
+  //         console.log("Game state loaded from Firestore ✅");
+  //
+  //         recalculatePower();
+  //         updateGoldMineUI();
+  //       }
+  //     })
+  //     .catch(err => console.error("Error loading game state from Firestore:", err));
+  // }
 
   try {
-   const raw = localStorage.getItem("raidex_gamestate_v3");
+    const raw = localStorage.getItem("raidex_gamestate_v3");
     if (!raw) return;
 
     const state = JSON.parse(raw);
@@ -4228,42 +4532,46 @@ function loadGameState() {
       buildingLevels.goldMine = goldMineLevel;
     }
 
-    // تحميل مستويات المباني الجديدة (الذهب/الخشب/المزرعة... إلخ)
+    // مستويات المباني
     if (state.buildingLevels) {
       buildingLevels = {
-        ...buildingLevels,        // الديفولت (لو في مفاتيح جديدة)
-        ...state.buildingLevels,  // اللي متخزن في الـ localStorage
+        ...buildingLevels,
+        ...state.buildingLevels,
       };
     }
 
-    // تحميل ترقيات المباني الجارية
-    if (state.buildingUpgrades) {
-      buildingUpgrades = {
-        ...buildingUpgrades,
-        ...state.buildingUpgrades,
+    // مخزون المناجم
+    if (state.miningStored) {
+      miningStored = {
+        ...miningStored,
+        ...state.miningStored,
       };
-
-      const now = Date.now();
-      let hasAnyInProgress = false;
-
-      for (const key in buildingUpgrades) {
-        const up = buildingUpgrades[key];
-        if (!up || !up.inProgress || !up.finishAt) continue;
-
-        const diffMs = up.finishAt - now;
-        if (diffMs <= 0) {
-          // الوقت خلص واللعبة كانت مقفولة → نخليها تخلص في أول دورة للتايمر
-          up.remainingTime = 0;
-        } else {
-          up.remainingTime = Math.floor(diffMs / 1000);
-          hasAnyInProgress = true;
-        }
-      }
-
-      if (hasAnyInProgress) {
-        startBuildingUpgradeTimer();
-      }
     }
+
+    // === استرجاع أوقات التعدين والجمع (لو موجودة في الـ state) ===
+    const nowTs = Date.now();
+    lastMiningUpdate = state.lastMiningUpdate || nowTs;
+    window.lastGoldMineCollectAt = state.lastGoldMineCollectAt || nowTs;
+
+    // === حساب التعدين الأوفلاين لمنجم الذهب ===
+    const offlineSec = Math.max(0, Math.floor((nowTs - lastMiningUpdate) / 1000));
+    if (offlineSec > 0) {
+      const goldLevel = buildingLevels.goldMine || 1;
+      const perHour = calcMiningProductionPerHour("goldMine", goldLevel);
+      const perSec = perHour / 3600;
+
+      const gained = perSec * offlineSec;
+
+      const cap = getCastleStorageCapacity(goldLevel) * GOLD_MINE_CAPACITY_FACTOR;
+      const currentStored = miningStored.goldMine || 0;
+      const newStored = Math.min(cap, currentStored + gained);
+
+      miningStored.goldMine = newStored;
+    }
+
+    // نخلي التايمر الداخلي يكمل من اللحظة الحالية
+    lastMiningUpdate = nowTs;
+    window.__lastMiningTick = nowTs;
 
     // حالة ترقية منجم الذهب (لو لسه مستخدمة)
     goldMineUpgradeInProgress = !!state.goldMineUpgradeInProgress;
@@ -4291,6 +4599,7 @@ function loadGameState() {
     currentHealthTrainingUnitKey = state.currentHealthTrainingUnitKey || null;
     currentHealthTrainingAmount = state.currentHealthTrainingAmount || 0;
 
+    // === إعادة التايمرات القديمة (ترقيات + تدريب) ===
     if (healthTrainingInProgress && healthTrainingFinishAt) {
       const now = Date.now();
       const diffMs = healthTrainingFinishAt - now;
@@ -4303,29 +4612,24 @@ function loadGameState() {
       }
     }
 
-    // لو في تدريب هجومي جاري، نرجّع التايمر
     if (attackTrainingInProgress && attackTrainingFinishAt) {
       const now = Date.now();
       const diffMs = attackTrainingFinishAt - now;
       if (diffMs <= 0) {
         attackTrainingRemainingTime = 0;
-        // finishAttackTraining هتكمل بعدين
       } else {
         attackTrainingRemainingTime = Math.floor(diffMs / 1000);
         startAttackTrainingTimer();
       }
     }
 
-    // استرجاع عداد ترقية القلعة
     if (upgradeInProgress && upgradeFinishAt) {
       const now = Date.now();
       const diffMs = upgradeFinishAt - now;
 
       if (diffMs <= 0) {
-        // الوقت خلص واللعبة كانت مقفولة → نكمّل الترقية فورًا
         finishCastlePanelUpgrade();
       } else {
-        // لسه باقي وقت → نرجّع العدّاد وشريط التقدم
         const remainingSec = Math.floor(diffMs / 1000);
         const totalTime = remainingSec;
 
@@ -4364,10 +4668,13 @@ function loadGameState() {
     }
 
     recalculatePower();
+    updateGoldMineUI();
   } catch (e) {
     console.error("Error loading game state", e);
   }
 }
+
+
 
 
 
@@ -4571,7 +4878,9 @@ let goldFromMinePerClick = 10;
 
 function collectGoldFromMine() {
   resources.gold += goldFromMinePerClick;
+  addProgressToTasksByType("collect_gold", goldFromMinePerClick);
 }
+
 
 // ---- Tutorial flags ----
 const TUTORIAL_DONE_KEY = "tutorial_done";
@@ -4877,7 +5186,7 @@ buildingPositions.forEach((pos, index) => {
 const goldMine = document.getElementById("building-1");
 if (goldMine) {
   goldMine.style.border = "none";
-goldMine.style.background = "transparent";
+  goldMine.style.background = "transparent";
   goldMine.style.width = "120px";
   goldMine.style.height = "140px";
   goldMine.style.position = "absolute";
@@ -4936,22 +5245,22 @@ goldMine.style.background = "transparent";
     goldBar.appendChild(goldFill);
     goldMine.appendChild(goldBar);
 
- // نص الوقت المتبقي تحت الشريط
-let goldTime = document.getElementById("gold-mine-upgrade-remaining-time");
-if (!goldTime) {
-  goldTime = document.createElement("div");
-  goldTime.id = "gold-mine-upgrade-remaining-time";
-  goldTime.className = "building-upgrade-time";
-  goldTime.style.position = "absolute";
-  goldTime.style.bottom = "-44px";
-  goldTime.style.left = "50%";
-  goldTime.style.transform = "translateX(-50%)";
-  goldTime.textContent = "";
-  goldMine.appendChild(goldTime);
-}
+    // نص الوقت المتبقي تحت الشريط
+    let goldTime = document.getElementById("gold-mine-upgrade-remaining-time");
+    if (!goldTime) {
+      goldTime = document.createElement("div");
+      goldTime.id = "gold-mine-upgrade-remaining-time";
+      goldTime.className = "building-upgrade-time";
+      goldTime.style.position = "absolute";
+      goldTime.style.bottom = "-44px";
+      goldTime.style.left = "50%";
+      goldTime.style.transform = "translateX(-50%)";
+      goldTime.textContent = "";
+      goldMine.appendChild(goldTime);
+    }
   }
 
-  // هنا هنستخدم رقم ثابت: لحد ما نوصل ليفيل 2 المنجم مقفول
+  // قفل المنجم قبل لفل 2
   if (castleLevel < 2) {
     goldMine.style.filter = "grayscale(1)";
     goldMine.style.opacity = "0.5";
@@ -4974,11 +5283,42 @@ if (!goldTime) {
   } else {
     goldMine.style.filter = "none";
     goldMine.style.opacity = "1";
+
+    // كليك زي باقي المباني: يفتح البوب أب اللي فيه INFO / UPGRADE
     goldMine.onclick = function () {
       showBuildingPopup("goldMine");
     };
+
+    // إيموجي الذهب فوق المبنى
+    let goldMineCollectHint = document.getElementById("gold-mine-collect-hint");
+    if (!goldMineCollectHint) {
+      goldMineCollectHint = document.createElement("div");
+      goldMineCollectHint.id = "gold-mine-collect-hint";
+      goldMineCollectHint.style.position = "absolute";
+      goldMineCollectHint.style.top = "-10px";
+      goldMineCollectHint.style.left = "50%";
+      goldMineCollectHint.style.transform = "translateX(-50%)";
+      goldMineCollectHint.style.fontSize = "20px";
+      goldMineCollectHint.textContent = "🪙";
+      goldMineCollectHint.style.display = "none";
+      goldMine.appendChild(goldMineCollectHint);
+    }
+
+    goldMineCollectHint.onclick = function () {
+      const stored = Math.floor(miningStored.goldMine || 0);
+      if (stored <= 0) return;
+
+      resources.gold += stored;
+      miningStored.goldMine = 0;
+      window.lastGoldMineCollectAt = Date.now();
+
+      if (typeof updateTopBar === "function") updateTopBar();
+      updateGoldMineUI();
+    };
   }
 }
+
+
 
 
 // 2: منجم الخشب (building-2)
@@ -6138,6 +6478,20 @@ function highlightBuildingInCity(buildingKey) {
 
 function openGoldMinePage() {
   openMiningBuildingPanel("goldMine");
+  updateGoldMineInfoPanel();
+}
+function updateGoldMineInfoPanel() {
+  if (!buildingPanelExtra) return;
+
+  const level = buildingLevels.goldMine || 1;
+  const perHour = calcMiningProductionPerHour("goldMine", level);
+  const capacity = getCastleStorageCapacity(castleLevel);
+
+  buildingPanelExtra.innerHTML = `
+    المستوى الحالي: ${level}<br>
+    الإنتاج في الساعة: ${perHour.toLocaleString()} ذهب<br>
+    السعة القصوى: ${capacity.toLocaleString()} ذهب
+  `;
 }
 
 
@@ -8518,36 +8872,40 @@ function addBottomBar() {
 }
 
       /* --- Tasks --- */
-      function generateDailyTasks() {
-        tasks = [
-          { desc: "Collect 100 gold", completed: false, reward: { gold: 100 } },
-          { desc: "Collect 50 wood", completed: false, reward: { wood: 50 } },
-          {
-            desc: "Check Castle Upgrade",
-            completed: false,
-            reward: { gem: 10 },
-          },
-        ];
-      }
-      generateDailyTasks();
+      function addProgressToTasksByType(type, amount) {
+  // Daily
+  DAILY_TASKS.forEach(task => {
+    if (task.type !== type) return;
+    const st = dailyTasksState[task.id] || { progress: 0, done: false, claimed: false };
+    if (st.done) return;
 
-      function renderTasksPage() {
-        tasksPageContent.innerHTML = "";
-        tasks.forEach((t, i) => {
-          const div = document.createElement("div");
-          div.className = "task-item";
-          if (t.completed) div.classList.add("completed");
-          div.textContent = t.desc + (t.completed ? " ✅" : "");
-          div.addEventListener("click", () => {
-            if (!t.completed) {
-              t.completed = true;
-              for (const r in t.reward) resources[r] += t.reward[r];
-              renderTasksPage();
-            }
-          });
-          tasksPageContent.appendChild(div);
-        });
-      }
+    st.progress = (st.progress || 0) + amount;
+    if (st.progress >= task.target) {
+      st.progress = task.target;
+      st.done = true;
+    }
+    dailyTasksState[task.id] = st;
+  });
+
+  // Weekly
+  WEEKLY_TASKS.forEach(task => {
+    if (task.type !== type) return;
+    const st = weeklyTasksState[task.id] || { progress: 0, done: false, claimed: false };
+    if (st.done) return;
+
+    st.progress = (st.progress || 0) + amount;
+    if (st.progress >= task.target) {
+      st.progress = task.target;
+      st.done = true;
+    }
+    weeklyTasksState[task.id] = st;
+  });
+
+  saveTasksState();
+  recalcTasksNotification();
+  renderTasksPage();
+}
+
 function recalcTasksNotification() {
   // إشعارات لكل تاب
   let hasMainReady = false;
@@ -10347,6 +10705,7 @@ function renderTasksPage() {
 
     container.appendChild(trackWrapper);
   }
+
   // --- Weekly Track bar + chests ---
   if (currentTasksTab === "weekly") {
     const trackWrapper = document.createElement("div");
@@ -10453,7 +10812,113 @@ function renderTasksPage() {
     container.appendChild(trackWrapper);
   }
 
-  // --- باقي الكود اللي بيرسم المهام (نفسه زي ما كان) ---
+  // === وضع خاص لتاب MAIN: Main Quest فوق، والباقي تحت ===
+  if (currentTasksTab === "main") {
+    const stateMap = tasksState || {};
+    const mainTasks = tasksList || [];
+
+    let mainQuest = null;
+    const sideQuests = [];
+
+    mainTasks.forEach(task => {
+      const st = stateMap[task.id] || { progress: 0, done: false, claimed: false };
+      if (!st.done && !mainQuest) {
+        mainQuest = task;
+      } else {
+        sideQuests.push(task);
+      }
+    });
+
+    if (mainQuest) {
+      const st = stateMap[mainQuest.id] || { progress: 0, done: false, claimed: false };
+      const progress = Math.min(st.progress || 0, mainQuest.target);
+      const isDone = progress >= mainQuest.target;
+      const isClaimed = st.claimed;
+
+      const mainDiv = document.createElement("div");
+      mainDiv.style.marginBottom = "10px";
+      mainDiv.innerHTML = `
+        <div style="
+          border-radius: 14px;
+          padding: 10px;
+          background: linear-gradient(135deg, #0ea5e9, #22c55e);
+          color: #0b1120;
+          box-shadow: 0 0 12px rgba(34, 197, 94, 0.7);
+        ">
+          <div style="font-size:11px; opacity:0.9; margin-bottom:4px;">Main Quest</div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:bold; font-size:14px;">${mainQuest.title}</div>
+              <div style="font-size:12px; opacity:0.9;">${mainQuest.desc}</div>
+              <div style="font-size:12px; margin-top:4px;">
+                Progress: ${progress} / ${mainQuest.target}
+              </div>
+                   <div style="font-size:12px; margin-top:2px; color:#facc15;">
+            <span style="margin-right:6px;">🎁 Rewards:</span>
+            ${(mainQuest.reward?.wood || 0) ? `🌲 ${formatShortNumber(mainQuest.reward.wood)}  ` : ""}
+            ${(mainQuest.reward?.food || 0) ? `🍖 ${formatShortNumber(mainQuest.reward.food)}  ` : ""}
+            ${(mainQuest.reward?.gold || 0) ? `🪙 ${formatShortNumber(mainQuest.reward.gold)}  ` : ""}
+            ${(mainQuest.reward?.gem || 0)  ? `💎 ${mainQuest.reward.gem}` : ""}
+          </div>
+
+
+            </div>
+            <button
+              style="margin-left:8px; padding:6px 10px; border:none; border-radius:10px;
+                     background:${isClaimed ? '#4b5563' : isDone ? '#22c55e' : '#6b7280'};
+                     color:white; font-size:12px; cursor:${isDone && !isClaimed ? 'pointer' : 'default'};"
+              onclick="claimTaskReward('main','${mainQuest.id}')"
+              ${isDone && !isClaimed ? "" : "disabled"}
+            >
+              ${isClaimed ? "Claimed" : isDone ? "Claim" : "In progress"}
+            </button>
+          </div>
+        </div>
+      `;
+      container.appendChild(mainDiv);
+    }
+
+    const separator = document.createElement("div");
+    separator.style.height = "1px";
+    separator.style.background = "rgba(148, 163, 184, 0.3)";
+    separator.style.margin = "6px 0 8px 0";
+    container.appendChild(separator);
+
+    sideQuests.forEach(task => {
+      const st = stateMap[task.id] || { progress: 0, done: false, claimed: false };
+      const progress = Math.min(st.progress || 0, task.target);
+      const isDone = progress >= task.target;
+      const isClaimed = st.claimed;
+
+      const div = document.createElement("div");
+      div.className = "task-item" + (isDone ? " completed" : "");
+      div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:bold;">${task.title}</div>
+            <div style="font-size:12px; opacity:0.8;">${task.desc}</div>
+            <div style="font-size:12px; margin-top:4px;">
+              Progress: ${progress} / ${task.target}
+            </div>
+          </div>
+          <button
+            style="margin-left:8px; padding:6px 10px; border:none; border-radius:10px;
+                   background:${isClaimed ? '#4b5563' : isDone ? '#22c55e' : '#6b7280'};
+                   color:white; font-size:12px; cursor:${isDone && !isClaimed ? 'pointer' : 'default'};"
+            onclick="claimTaskReward('main','${task.id}')"
+            ${isDone && !isClaimed ? "" : "disabled"}
+          >
+            ${isClaimed ? "Claimed" : isDone ? "Claim" : "In progress"}
+          </button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    return;
+  }
+
+  // --- باقي التابات (daily / weekly / social) ---
   tasksList.forEach(task => {
     const state = tasksState[task.id] || { progress: 0, done: false, claimed: false };
     const progress = Math.min(state.progress, task.target);
@@ -10467,12 +10932,21 @@ function renderTasksPage() {
         <div>
           <div style="font-weight:bold;">${task.title}</div>
           <div style="font-size:12px; opacity:0.8;">${task.desc}</div>
-          <div style="font-size:12px; margin-top:4px;">
+                   <div style="font-size:12px; margin-top:4px;">
             Progress: ${progress} / ${task.target}
           </div>
-          <div style="font-size:12px; margin-top:2px; color:#facc15;">
-            Reward: Resources/Gems
+          <div style="font-size:11px; margin-top:2px; color:#9ca3af;">
+            Points: ${task.points || 0}
           </div>
+
+          <div style="font-size:12px; margin-top:2px; color:#facc15;">
+            <span style="margin-right:6px;">🎁 Rewards:</span>
+            ${(task.reward?.wood || 0) ? `🌲 ${formatShortNumber(task.reward.wood)}  ` : ""}
+            ${(task.reward?.food || 0) ? `🍖 ${formatShortNumber(task.reward.food)}  ` : ""}
+            ${(task.reward?.gold || 0) ? `🪙 ${formatShortNumber(task.reward.gold)}  ` : ""}
+            ${(task.reward?.gem || 0)  ? `💎 ${task.reward.gem}` : ""}
+          </div>
+
         </div>
         <button
           style="margin-left:8px; padding:6px 10px; border:none; border-radius:10px;
@@ -10488,7 +10962,6 @@ function renderTasksPage() {
     container.appendChild(div);
   });
 }
-
 
 function formatTaskReward(reward) {
   const parts = [];
@@ -10521,11 +10994,19 @@ function claimTaskReward(tab, taskId) {
   if (task.reward.wood) resources.wood += task.reward.wood;
   if (task.reward.food) resources.food += task.reward.food;
 
-  // إضافة نقاط الـDaily Track
+  // إضافة نقاط الـ Daily Track
   if (tab === "daily" && typeof task.points === "number") {
     dailyPoints += task.points;
     if (dailyPoints > 100) dailyPoints = 100;
   }
+
+  // إضافة نقاط الـ Weekly Track
+  if (tab === "weekly" && typeof task.points === "number") {
+    weeklyPoints += task.points;
+    // هنا الماكس 1000 (حسب البار اللي فوق)
+    if (weeklyPoints > 1000) weeklyPoints = 1000;
+  }
+
 
 state.claimed = true;
 saveTasksState();
@@ -10700,70 +11181,111 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ===== أزرار المربع السفلي (INFO / TRAIN + UPGRADE) =====
-  const buildingBottomActions = document.getElementById("building-bottom-actions");
-  const bottomInfoBtn = document.getElementById("bottom-info-btn");
-  const bottomUpgradeBtn = document.getElementById("bottom-upgrade-btn");
+// ===== أزرار المربع السفلي (INFO / TRAIN + UPGRADE) =====
+const buildingBottomActions = document.getElementById("building-bottom-actions");
+const bottomInfoBtn = document.getElementById("bottom-info-btn");
+const bottomUpgradeBtn = document.getElementById("bottom-upgrade-btn");
 
-  // دالة عامة تستخدمها showBuildingPopup لكل المباني
-  window.showBuildingActions = function (buildingKey) {
-    currentBuildingKey = buildingKey;
-    if (!buildingBottomActions || !bottomInfoBtn || !bottomUpgradeBtn) return;
+// دالة عامة تستخدمها showBuildingPopup لكل المباني
+window.showBuildingActions = function (buildingKey) {
+  currentBuildingKey = buildingKey;
+  if (!buildingBottomActions || !bottomInfoBtn || !bottomUpgradeBtn) return;
 
-    buildingBottomActions.style.display = "flex";
+  buildingBottomActions.style.display = "flex";
 
-    const infoLabel = bottomInfoBtn.querySelector(".ba-label");
-    const upgradeLabel = bottomUpgradeBtn.querySelector(".ba-label");
+  const infoLabel = bottomInfoBtn.querySelector(".ba-label");
+  const upgradeLabel = bottomUpgradeBtn.querySelector(".ba-label");
 
-    // الافتراضي لكل المباني: INFO + UPGRADE
-    if (infoLabel) infoLabel.textContent = "INFO";
-    if (upgradeLabel) upgradeLabel.textContent = "UPGRADE";
+  // الافتراضي لكل المباني: INFO + UPGRADE
+  if (infoLabel) infoLabel.textContent = "INFO";
+  if (upgradeLabel) upgradeLabel.textContent = "UPGRADE";
 
-    // زر INFO يفتح تاب المعلومات في building-panel
-    bottomInfoBtn.onclick = () => {
-      console.log("INFO for", buildingKey);
-      openBuildingPanel(buildingKey);
-      const tabInfo = document.getElementById("building-tab-info-btn");
-      const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
-      if (tabInfo && tabUpgrade) {
-        tabInfo.classList.add("active");
-        tabUpgrade.classList.remove("active");
-        document.getElementById("building-tab-info").style.display = "block";
-        document.getElementById("building-tab-upgrade").style.display = "none";
+  // زر INFO
+  bottomInfoBtn.onclick = () => {
+    console.log("INFO for", buildingKey);
+
+    if (buildingKey === "goldMine") {
+      // منجم الذهب: استخدم بانل التعدين + مخزون
+      window.currentMiningBuildingKey = "goldMine";
+      openMiningBuildingPanel("goldMine");
+      updateGoldMineUI();
+
+      const collectBtn = document.getElementById("gold-mine-collect-btn");
+      if (collectBtn) {
+        collectBtn.style.display = "block";
+     collectBtn.onclick = function () {
+  const stored = Math.floor(miningStored.goldMine || 0);
+  if (stored <= 0) return;
+
+  resources.gold += stored;
+  miningStored.goldMine = 0;
+  window.lastGoldMineCollectAt = Date.now();
+
+  if (typeof updateTopBar === "function") updateTopBar();
+  updateGoldMineUI();
+};
+
       }
-    };
-
-    // زر UPGRADE يفتح تاب الترقية في نفس البانل
-    bottomUpgradeBtn.onclick = () => {
-      console.log("UPGRADE for", buildingKey);
+    } else {
+      // باقي المباني زي ما هي
       openBuildingPanel(buildingKey);
-      const tabInfo = document.getElementById("building-tab-info-btn");
-      const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
-      if (tabUpgrade && tabInfo) {
-        tabInfo.classList.remove("active");
-        tabUpgrade.classList.add("active");
-        document.getElementById("building-tab-info").style.display = "none";
-        document.getElementById("building-tab-upgrade").style.display = "block";
+
+      const collectBtn = document.getElementById("gold-mine-collect-btn");
+      if (collectBtn) {
+        collectBtn.style.display = "none";
+        collectBtn.onclick = null;
       }
-    };
+    }
 
-    // لمبنى الهجوم/الدفاع: TRAIN + UPGRADE
-    if (buildingKey === "attackTower" || buildingKey === "defenseTower") {
-      if (infoLabel) infoLabel.textContent = "TRAIN";
-
-      bottomInfoBtn.onclick = () => {
-        if (buildingKey === "attackTower") {
-          initAttackArmyPanel();
-          const panel = document.getElementById("attack-army-panel");
-          if (panel) panel.style.display = "block";
-        } else if (buildingKey === "defenseTower") {
-          initDefenseArmyPanel(); // لازم تكون معرّفها
-          const panel = document.getElementById("defense-army-panel");
-          if (panel) panel.style.display = "block";
-        }
-      };
+    const tabInfo = document.getElementById("building-tab-info-btn");
+    const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
+    if (tabInfo && tabUpgrade) {
+      tabInfo.classList.add("active");
+      tabUpgrade.classList.remove("active");
+      document.getElementById("building-tab-info").style.display = "block";
+      document.getElementById("building-tab-upgrade").style.display = "none";
     }
   };
+
+  // زر UPGRADE يفتح تاب الترقية في نفس البانل
+  bottomUpgradeBtn.onclick = () => {
+    console.log("UPGRADE for", buildingKey);
+    openBuildingPanel(buildingKey);
+    const tabInfo = document.getElementById("building-tab-info-btn");
+    const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
+    if (tabUpgrade && tabInfo) {
+      tabInfo.classList.remove("active");
+      tabUpgrade.classList.add("active");
+      document.getElementById("building-tab-info").style.display = "none";
+      document.getElementById("building-tab-upgrade").style.display = "block";
+    }
+
+    // إخفاء زر جمع الذهب في وضع UPGRADE
+    const collectBtn = document.getElementById("gold-mine-collect-btn");
+    if (collectBtn) {
+      collectBtn.style.display = "none";
+      collectBtn.onclick = null;
+    }
+  };
+
+  // لمبنى الهجوم/الدفاع: TRAIN + UPGRADE
+  if (buildingKey === "attackTower" || buildingKey === "defenseTower") {
+    if (infoLabel) infoLabel.textContent = "TRAIN";
+
+    bottomInfoBtn.onclick = () => {
+      if (buildingKey === "attackTower") {
+        initAttackArmyPanel();
+        const panel = document.getElementById("attack-army-panel");
+        if (panel) panel.style.display = "block";
+      } else if (buildingKey === "defenseTower") {
+        initDefenseArmyPanel(); // لازم تكون معرّفها
+        const panel = document.getElementById("defense-army-panel");
+        if (panel) panel.style.display = "block";
+      }
+    };
+  }
+};
+
 }); // هنا بتنتهي كل ربطات الـ DOMContentLoaded
 
 
@@ -11961,12 +12483,14 @@ async function showPlayerProfile(telegramId, playerName) {
 }
 
 function copyProfileLink(link) {
-  navigator.clipboard.writeText(link).then(() => {
-    alert("تم نسخ الرابط! 🔗");
-  }).catch(() => {
-    alert("الرابط: " + link);
-  });
+  if (tg) {
+    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=شاهد بروفايل هذا اللاعب في Raidex!`);
+  } else {
+    navigator.clipboard.writeText(link);
+    alert("تم نسخ الرابط!");
+  }
 }
+
 
 function attackPlayer(telegramId) {
   alert("⚔️ نظام الهجوم قريباً!");
