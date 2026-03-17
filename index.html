@@ -1499,6 +1499,10 @@
 #resource-shop-panel.hidden {
   display: none;
 }
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-8px); }
+}
 
     </style>
   </head>
@@ -2548,14 +2552,19 @@ let buildingLevels = {
   hospital: 1
 };
 
-// تخزين داخلي لمنجم الذهب + عامل السعة
-let miningStored = {
-  goldMine: 0,
-  woodMine: 0,
-  meatFarm: 0,
-};
-
+let miningStored = { goldMine: 0, woodMine: 0, meatFarm: 0 };
 let lastMiningUpdate = Date.now();
+
+try {
+  const _mRaw = localStorage.getItem("raidex_mining_state");
+  if (_mRaw) {
+    const _mData = JSON.parse(_mRaw);
+    if (_mData.miningStored) miningStored = { ...miningStored, ..._mData.miningStored };
+    if (_mData.lastMiningUpdate) lastMiningUpdate = _mData.lastMiningUpdate;
+    if (_mData.lastGoldMineCollectAt) window.lastGoldMineCollectAt = _mData.lastGoldMineCollectAt;
+  }
+} catch(e) {}
+
 const GOLD_MINE_CAPACITY_FACTOR = 1; // حاليًا السعة = سعة القلعة
 window.__lastMiningTick = null;
 window.lastGoldMineCollectAt = Date.now();
@@ -2563,11 +2572,20 @@ const GOLD_MINE_EMOJI_DELAY_MS = 5 * 60 * 1000; // 5 دقائق
 
 function tickMiningResources() {
   const now = Date.now();
-  if (!window.__lastMiningTick) {
-    window.__lastMiningTick = now;
-    lastMiningUpdate = now;
-    return;
-  }
+
+if (!window.__lastMiningTick) {
+  window.__lastMiningTick = now;
+  // احفظ القيمة الحالية عشان ما تتمسحش
+  try {
+    localStorage.setItem("raidex_mining_state", JSON.stringify({
+      miningStored,
+      lastMiningUpdate,
+      lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now()
+    }));
+  } catch(e) {}
+  return;
+}
+
 
   const diffSec = (now - window.__lastMiningTick) / 1000;
   if (diffSec <= 0) return;
@@ -2575,41 +2593,26 @@ function tickMiningResources() {
   window.__lastMiningTick = now;
   lastMiningUpdate = now;
 
-  // المناجم الثلاثة
   const mines = ["goldMine", "woodMine", "meatFarm"];
-
   mines.forEach(mineKey => {
     const level = buildingLevels[mineKey] || 1;
     const perHour = calcMiningProductionPerHour(mineKey, level);
     const perSec = perHour / 3600;
-
     if (!miningStored[mineKey]) miningStored[mineKey] = 0;
     miningStored[mineKey] += perSec * diffSec;
-
-    // السعة القصوى
     const cap = getCastleStorageCapacity(level) * GOLD_MINE_CAPACITY_FACTOR;
-    if (miningStored[mineKey] > cap) {
-      miningStored[mineKey] = cap;
-    }
+    if (miningStored[mineKey] > cap) miningStored[mineKey] = cap;
   });
 
-  // حدّث الـ UI
   updateGoldMineUI();
 
-  // احفظ في localStorage
+  // احفظ في raidex_mining_state بس
   try {
-    const raw = localStorage.getItem("raidex_gamestate_v3");
-    const state = raw ? JSON.parse(raw) : {};
-    state.miningStored = miningStored;
-    state.lastMiningUpdate = lastMiningUpdate;
-    localStorage.setItem("raidex_gamestate_v3", JSON.stringify(state));
-    // احفظ miningStored في key منفصل
-localStorage.setItem("raidex_mining_state", JSON.stringify({
-  miningStored,
-  lastMiningUpdate,
-  lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now()
-}));
-
+    localStorage.setItem("raidex_mining_state", JSON.stringify({
+      miningStored,
+      lastMiningUpdate,
+      lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now()
+    }));
   } catch (e) {
     console.error("Error auto-saving mining state", e);
   }
@@ -3377,8 +3380,9 @@ function openMiningBuildingPanel(buildingKey) {
   buildingPanelImage.src = info.image;
   buildingPanelImage.alt = info.name;
   buildingPanelDesc.textContent = info.desc;
-  buildingPanelExtra.textContent =
-    "المستوى " + currentLevel + " - إنتاج " + currentProd.toLocaleString() + " في الساعة";
+ window.currentMiningBuildingKey = buildingKey;
+updateGoldMineUI();
+
 
   fillGenericUpgradeTab(buildingKey);
   switchBuildingPanelTab("info");
@@ -3500,94 +3504,73 @@ function finishMiningBuildingUpgrade(buildingKey) {
   saveGameState();
 }
 function updateGoldMineUI() {
-  // منجم الذهب
   const goldStored = Math.floor(miningStored.goldMine || 0);
   const goldLevel = buildingLevels.goldMine || 1;
   const goldPerHour = calcMiningProductionPerHour("goldMine", goldLevel);
   const goldCap = getCastleStorageCapacity(goldLevel) * GOLD_MINE_CAPACITY_FACTOR;
 
-  // منجم الخشب
   const woodStored = Math.floor(miningStored.woodMine || 0);
   const woodLevel = buildingLevels.woodMine || 1;
   const woodPerHour = calcMiningProductionPerHour("woodMine", woodLevel);
   const woodCap = getCastleStorageCapacity(woodLevel) * GOLD_MINE_CAPACITY_FACTOR;
 
-  // مزرعة اللحم
   const meatStored = Math.floor(miningStored.meatFarm || 0);
   const meatLevel = buildingLevels.meatFarm || 1;
   const meatPerHour = calcMiningProductionPerHour("meatFarm", meatLevel);
   const meatCap = getCastleStorageCapacity(meatLevel) * GOLD_MINE_CAPACITY_FACTOR;
 
-  // الإيموجي فوق منجم الذهب
-  const hint = document.getElementById("gold-mine-collect-hint");
-  if (hint) {
+  // إيموجي منجم الذهب
+  const goldHint = document.getElementById("gold-mine-collect-hint");
+  if (goldHint) {
     const now = Date.now();
     const sinceLastCollect = now - (window.lastGoldMineCollectAt || 0);
-    if (goldStored > 0 && sinceLastCollect >= GOLD_MINE_EMOJI_DELAY_MS) {
-      hint.style.display = "block";
-    } else {
-      hint.style.display = "none";
-    }
+    goldHint.style.display = (goldStored > 0 && sinceLastCollect >= GOLD_MINE_EMOJI_DELAY_MS) ? "block" : "none";
+  }
+
+  // إيموجي منجم الخشب
+  const woodHint = document.getElementById("wood-mine-collect-hint");
+  if (woodHint) {
+    woodHint.style.display = woodStored > 0 ? "block" : "none";
+  }
+
+  // إيموجي مزرعة اللحم
+  const meatHint = document.getElementById("meat-farm-collect-hint");
+  if (meatHint) {
+    meatHint.style.display = meatStored > 0 ? "block" : "none";
   }
 
   if (!buildingPanelExtra) return;
 
-  // شوف إيه المنجم المفتوح دلوقتي
   const currentMine = window.currentMiningBuildingKey || "goldMine";
-
   let stored, level, perHour, cap, color, resourceName;
 
   if (currentMine === "woodMine") {
-    stored = woodStored;
-    level = woodLevel;
-    perHour = woodPerHour;
-    cap = woodCap;
-    color = "#4ade80";
-    resourceName = "خشب";
+    stored = woodStored; level = woodLevel; perHour = woodPerHour;
+    cap = woodCap; color = "#4ade80"; resourceName = "خشب";
   } else if (currentMine === "meatFarm") {
-    stored = meatStored;
-    level = meatLevel;
-    perHour = meatPerHour;
-    cap = meatCap;
-    color = "#f97316";
-    resourceName = "لحم";
+    stored = meatStored; level = meatLevel; perHour = meatPerHour;
+    cap = meatCap; color = "#f97316"; resourceName = "لحم";
   } else {
-    stored = goldStored;
-    level = goldLevel;
-    perHour = goldPerHour;
-    cap = goldCap;
-    color = "#facc15";
-    resourceName = "ذهب";
+    stored = goldStored; level = goldLevel; perHour = goldPerHour;
+    cap = goldCap; color = "#facc15"; resourceName = "ذهب";
   }
 
   const percent = cap > 0 ? Math.max(0, Math.min(100, (stored / cap) * 100)) : 0;
 
   buildingPanelExtra.innerHTML = `
-    <div style="margin-bottom:6px;">
-      المستوى الحالي: <b>${level}</b>
-    </div>
-    <div style="margin-bottom:6px;">
-      الإنتاج في الساعة:
-      <span style="color:${color};">${perHour.toLocaleString()}</span> ${resourceName}
-    </div>
-    <div style="margin-bottom:6px;">
-      السعة القصوى:
-      <span style="color:#38bdf8;">${cap.toLocaleString()}</span> ${resourceName}
-    </div>
-    <div style="margin-bottom:4px;">
-      المخزون الحالي:
-      <span style="color:#22c55e;">${stored.toLocaleString()}</span> ${resourceName}
-    </div>
+    <div style="margin-bottom:6px;">المستوى الحالي: <b>${level}</b></div>
+    <div style="margin-bottom:6px;">الإنتاج في الساعة: <span style="color:${color};">${perHour.toLocaleString()}</span> ${resourceName}</div>
+    <div style="margin-bottom:6px;">السعة القصوى: <span style="color:#38bdf8;">${cap.toLocaleString()}</span> ${resourceName}</div>
+    <div style="margin-bottom:4px;">المخزون الحالي: <span style="color:#22c55e;">${stored.toLocaleString()}</span> ${resourceName}</div>
     <div style="margin-top:4px;">
       <div style="height:10px; border-radius:999px; background:rgba(15,23,42,0.8); overflow:hidden;">
         <div style="height:100%; width:${percent}%; background:${color}; transition:width 0.3s;"></div>
       </div>
-      <div style="font-size:11px; color:#9ca3af; margin-top:3px;">
-        ${percent.toFixed(0)}% ممتلئ
-      </div>
+      <div style="font-size:11px; color:#9ca3af; margin-top:3px;">${percent.toFixed(0)}% ممتلئ</div>
     </div>
   `;
 }
+
 
 
 // === Daily Tasks Track ===
@@ -4467,47 +4450,43 @@ function loadGameState() {
   updateDailyLoginBanner();
   updateDailyLoginIcon();
 
-  const telegramId = localStorage.getItem("telegramId");
-  if (telegramId) {
-    fetch(API_BASE + "/load-game-state/" + telegramId)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.gameState) {
-          const firestoreState = data.gameState;
-
-          if (firestoreState.castleLevel != null) castleLevel = firestoreState.castleLevel;
-          if (firestoreState.resources) resources = { ...resources, ...firestoreState.resources };
-          if (firestoreState.buildingLevels) buildingLevels = { ...buildingLevels, ...firestoreState.buildingLevels };
-          if (firestoreState.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...firestoreState.buildingUpgrades };
-
-          // miningStored دايماً من key المنفصل مش من Firestore
-          const miningRaw = localStorage.getItem("raidex_mining_state");
-          if (miningRaw) {
-            try {
-              const miningData = JSON.parse(miningRaw);
-              if (miningData.miningStored) miningStored = { ...miningStored, ...miningData.miningStored };
-              if (miningData.lastMiningUpdate) lastMiningUpdate = miningData.lastMiningUpdate;
-              if (miningData.lastGoldMineCollectAt) window.lastGoldMineCollectAt = miningData.lastGoldMineCollectAt;
-            } catch(e) {}
-          }
-
-          const nowTs2 = Date.now();
-          lastMiningUpdate = nowTs2;
-          window.__lastMiningTick = nowTs2;
-
-          // احفظ في localStorage مع miningStored الصح
-          firestoreState.miningStored = miningStored;
-          firestoreState.lastMiningUpdate = lastMiningUpdate;
-          firestoreState.lastGoldMineCollectAt = window.lastGoldMineCollectAt || Date.now();
-          localStorage.setItem("raidex_gamestate_v3", JSON.stringify(firestoreState));
-
-          console.log("Game state loaded from Firestore ✅");
-          recalculatePower();
-          updateGoldMineUI();
+ /* مؤقتاً معلّق
+const telegramId = localStorage.getItem("telegramId");
+if (telegramId) {
+  fetch(API_BASE + "/load-game-state/" + telegramId)
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.gameState) {
+        const firestoreState = data.gameState;
+        if (firestoreState.castleLevel != null) castleLevel = firestoreState.castleLevel;
+        if (firestoreState.resources) resources = { ...resources, ...firestoreState.resources };
+        if (firestoreState.buildingLevels) buildingLevels = { ...buildingLevels, ...firestoreState.buildingLevels };
+        if (firestoreState.buildingUpgrades) buildingUpgrades = { ...buildingUpgrades, ...firestoreState.buildingUpgrades };
+        const miningRaw = localStorage.getItem("raidex_mining_state");
+        if (miningRaw) {
+          try {
+            const miningData = JSON.parse(miningRaw);
+            if (miningData.miningStored) miningStored = { ...miningStored, ...miningData.miningStored };
+            if (miningData.lastMiningUpdate) lastMiningUpdate = miningData.lastMiningUpdate;
+            if (miningData.lastGoldMineCollectAt) window.lastGoldMineCollectAt = miningData.lastGoldMineCollectAt;
+          } catch(e) {}
         }
-      })
-      .catch(err => console.error("Error loading game state from Firestore:", err));
-  }
+        const nowTs2 = Date.now();
+        lastMiningUpdate = nowTs2;
+        window.__lastMiningTick = nowTs2;
+        firestoreState.miningStored = miningStored;
+        firestoreState.lastMiningUpdate = lastMiningUpdate;
+        firestoreState.lastGoldMineCollectAt = window.lastGoldMineCollectAt || Date.now();
+        localStorage.setItem("raidex_gamestate_v3", JSON.stringify(firestoreState));
+        console.log("Game state loaded from Firestore ✅");
+        recalculatePower();
+        updateGoldMineUI();
+      }
+    })
+    .catch(err => console.error("Error loading game state from Firestore:", err));
+}
+*/
+
 
   try {
     const raw = localStorage.getItem("raidex_gamestate_v3");
@@ -4545,15 +4524,9 @@ function loadGameState() {
       });
     }
 
-    lastMiningUpdate = nowTs;
-    window.__lastMiningTick = nowTs;
+   lastMiningUpdate = nowTs;
+window.__lastMiningTick = null; // ← هنخلي tickMiningResources يبدأ من الصفر بس مش يكتب
 
-    // احفظ miningStored المحدث في key المنفصل
-    localStorage.setItem("raidex_mining_state", JSON.stringify({
-      miningStored,
-      lastMiningUpdate,
-      lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now()
-    }));
 
     goldMineUpgradeInProgress = !!state.goldMineUpgradeInProgress;
     goldMineUpgradeFinishAt = state.goldMineUpgradeFinishAt || null;
@@ -5250,8 +5223,11 @@ if (goldMine) {
       goldMineCollectHint.style.left = "50%";
       goldMineCollectHint.style.transform = "translateX(-50%)";
       goldMineCollectHint.style.fontSize = "20px";
-      goldMineCollectHint.textContent = "🪙";
-      goldMineCollectHint.style.display = "none";
+     goldMineCollectHint.innerHTML = "🪙";
+goldMineCollectHint.style.fontSize = "28px";
+goldMineCollectHint.style.animation = "bounce 1s infinite";
+goldMineCollectHint.style.cursor = "pointer";
+goldMineCollectHint.style.display = "none";
       goldMine.appendChild(goldMineCollectHint);
     }
 
@@ -5262,6 +5238,7 @@ if (goldMine) {
       resources.gold += stored;
       miningStored.goldMine = 0;
       window.lastGoldMineCollectAt = Date.now();
+saveGameState();
 
       if (typeof updateTopBar === "function") updateTopBar();
       updateGoldMineUI();
@@ -5381,6 +5358,31 @@ if (!woodTime) {
     woodMine.onclick = function () {
       showBuildingPopup("woodMine");
     };
+// إيموجي الخشب فوق المبنى
+let woodMineCollectHint = document.getElementById("wood-mine-collect-hint");
+if (!woodMineCollectHint) {
+  woodMineCollectHint = document.createElement("div");
+  woodMineCollectHint.id = "wood-mine-collect-hint";
+  woodMineCollectHint.style.position = "absolute";
+  woodMineCollectHint.style.top = "-10px";
+  woodMineCollectHint.style.left = "50%";
+  woodMineCollectHint.style.transform = "translateX(-50%)";
+woodMineCollectHint.innerHTML = "🌲";
+woodMineCollectHint.style.fontSize = "28px";
+woodMineCollectHint.style.animation = "bounce 1s infinite";
+woodMineCollectHint.style.cursor = "pointer";
+  woodMineCollectHint.style.display = "none";
+  woodMine.appendChild(woodMineCollectHint);
+}
+
+woodMineCollectHint.onclick = function () {
+  const stored = Math.floor(miningStored.woodMine || 0);
+  if (stored <= 0) return;
+  resources.wood += stored;
+  miningStored.woodMine = 0;
+  if (typeof updateTopBar === "function") updateTopBar();
+  updateGoldMineUI();
+};
 
     woodStatusBox.textContent = "Lv." + (buildingLevels.woodMine || 1);
     woodMine.appendChild(woodStatusBox);
@@ -5850,6 +5852,31 @@ if (!meatTime) {
    // مزرعة اللحم
 meatFarm.onclick = function () {
   showBuildingPopup("meatFarm");
+};
+// إيموجي اللحم فوق المبنى
+let meatFarmCollectHint = document.getElementById("meat-farm-collect-hint");
+if (!meatFarmCollectHint) {
+  meatFarmCollectHint = document.createElement("div");
+  meatFarmCollectHint.id = "meat-farm-collect-hint";
+  meatFarmCollectHint.style.position = "absolute";
+  meatFarmCollectHint.style.top = "-10px";
+  meatFarmCollectHint.style.left = "50%";
+  meatFarmCollectHint.style.transform = "translateX(-50%)";
+ meatFarmCollectHint.innerHTML = "🍖";
+meatFarmCollectHint.style.fontSize = "28px";
+meatFarmCollectHint.style.animation = "bounce 1s infinite";
+meatFarmCollectHint.style.cursor = "pointer";
+  meatFarmCollectHint.style.display = "none";
+  meatFarm.appendChild(meatFarmCollectHint);
+}
+
+meatFarmCollectHint.onclick = function () {
+  const stored = Math.floor(miningStored.meatFarm || 0);
+  if (stored <= 0) return;
+  resources.food += stored;
+  miningStored.meatFarm = 0;
+  if (typeof updateTopBar === "function") updateTopBar();
+  updateGoldMineUI();
 };
 
     // عرض المستوى تحت المبنى (المباني المفتوحة فقط)
@@ -11072,7 +11099,7 @@ function closeResourceShop() {
   });
 })();
 document.addEventListener("DOMContentLoaded", function () {
-  // ===== Building Panel (open/close + زر الترقية) =====
+ // ===== Building Panel (open/close + زر الترقية) =====
   function openBuildingUpgradePanel() {
     const panel = document.getElementById("building-panel");
     if (panel) panel.classList.remove("hidden");
@@ -11084,37 +11111,25 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   const closeBtn = document.getElementById("building-panel-close-btn");
-  if (closeBtn) {
-    closeBtn.addEventListener("click", closeBuildingUpgradePanel);
-  }
+  if (closeBtn) closeBtn.addEventListener("click", closeBuildingUpgradePanel);
 
   const castleStartUpgradeBtn = document.getElementById("castle-start-upgrade-btn");
   if (castleStartUpgradeBtn) {
-    castleStartUpgradeBtn.addEventListener("click", function () {
-      startCastlePanelUpgrade();
-    });
+    castleStartUpgradeBtn.addEventListener("click", function () { startCastlePanelUpgrade(); });
   }
 
   const castleCancelUpgradeBtn = document.getElementById("castle-cancel-upgrade-btn");
   if (castleCancelUpgradeBtn) {
-    castleCancelUpgradeBtn.addEventListener("click", function () {
-      cancelCastlePanelUpgrade();
-    });
+    castleCancelUpgradeBtn.addEventListener("click", function () { cancelCastlePanelUpgrade(); });
   }
 
   const buildingPanelUpgradeBtn = document.getElementById("building-panel-upgrade-btn");
   if (buildingPanelUpgradeBtn) {
     buildingPanelUpgradeBtn.addEventListener("click", function () {
       console.log("CLICK building-panel-upgrade-btn");
-
-      if (!currentBuildingKey) {
-        console.log("No currentBuildingKey, cannot upgrade");
-        return;
-      }
-
+      if (!currentBuildingKey) return;
       console.log("CALL startGenericBuildingUpgrade with", currentBuildingKey);
       startGenericBuildingUpgrade(currentBuildingKey);
-
       const cancelBtn = document.getElementById("building-panel-cancel-upgrade-btn");
       if (cancelBtn) {
         const up = buildingUpgrades[currentBuildingKey];
@@ -11127,7 +11142,6 @@ document.addEventListener("DOMContentLoaded", function () {
           };
         }
       }
-
       updateBuildingUpgradePanelForTimer(currentBuildingKey);
     });
   }
@@ -11137,7 +11151,6 @@ const buildingBottomActions = document.getElementById("building-bottom-actions")
 const bottomInfoBtn = document.getElementById("bottom-info-btn");
 const bottomUpgradeBtn = document.getElementById("bottom-upgrade-btn");
 
-// دالة عامة تستخدمها showBuildingPopup لكل المباني
 window.showBuildingActions = function (buildingKey) {
   currentBuildingKey = buildingKey;
   if (!buildingBottomActions || !bottomInfoBtn || !bottomUpgradeBtn) return;
@@ -11147,7 +11160,6 @@ window.showBuildingActions = function (buildingKey) {
   const infoLabel = bottomInfoBtn.querySelector(".ba-label");
   const upgradeLabel = bottomUpgradeBtn.querySelector(".ba-label");
 
-  // الافتراضي لكل المباني: INFO + UPGRADE
   if (infoLabel) infoLabel.textContent = "INFO";
   if (upgradeLabel) upgradeLabel.textContent = "UPGRADE";
 
@@ -11155,32 +11167,41 @@ window.showBuildingActions = function (buildingKey) {
   bottomInfoBtn.onclick = () => {
     console.log("INFO for", buildingKey);
 
-    if (buildingKey === "goldMine") {
-      // منجم الذهب: استخدم بانل التعدين + مخزون
-      window.currentMiningBuildingKey = "goldMine";
-      openMiningBuildingPanel("goldMine");
+    const miningKeys = ["goldMine", "woodMine", "meatFarm"];
+
+    if (miningKeys.includes(buildingKey)) {
+      window.currentMiningBuildingKey = buildingKey;
+      openMiningBuildingPanel(buildingKey);
       updateGoldMineUI();
 
       const collectBtn = document.getElementById("gold-mine-collect-btn");
       if (collectBtn) {
         collectBtn.style.display = "block";
-     collectBtn.onclick = function () {
-  const stored = Math.floor(miningStored.goldMine || 0);
-  if (stored <= 0) return;
-
-  resources.gold += stored;
-  miningStored.goldMine = 0;
-  window.lastGoldMineCollectAt = Date.now();
-
-  if (typeof updateTopBar === "function") updateTopBar();
-  updateGoldMineUI();
-};
-
+        collectBtn.onclick = function () {
+          if (buildingKey === "goldMine") {
+            const stored = Math.floor(miningStored.goldMine || 0);
+            if (stored <= 0) return;
+            resources.gold += stored;
+            miningStored.goldMine = 0;
+            window.lastGoldMineCollectAt = Date.now();
+          } else if (buildingKey === "woodMine") {
+            const stored = Math.floor(miningStored.woodMine || 0);
+            if (stored <= 0) return;
+            resources.wood += stored;
+            miningStored.woodMine = 0;
+          } else if (buildingKey === "meatFarm") {
+            const stored = Math.floor(miningStored.meatFarm || 0);
+            if (stored <= 0) return;
+            resources.food += stored;
+            miningStored.meatFarm = 0;
+          }
+          if (typeof updateTopBar === "function") updateTopBar();
+          updateGoldMineUI();
+          saveGameState();
+        };
       }
     } else {
-      // باقي المباني زي ما هي
       openBuildingPanel(buildingKey);
-
       const collectBtn = document.getElementById("gold-mine-collect-btn");
       if (collectBtn) {
         collectBtn.style.display = "none";
@@ -11198,7 +11219,7 @@ window.showBuildingActions = function (buildingKey) {
     }
   };
 
-  // زر UPGRADE يفتح تاب الترقية في نفس البانل
+  // زر UPGRADE
   bottomUpgradeBtn.onclick = () => {
     console.log("UPGRADE for", buildingKey);
     openBuildingPanel(buildingKey);
@@ -11210,8 +11231,6 @@ window.showBuildingActions = function (buildingKey) {
       document.getElementById("building-tab-info").style.display = "none";
       document.getElementById("building-tab-upgrade").style.display = "block";
     }
-
-    // إخفاء زر جمع الذهب في وضع UPGRADE
     const collectBtn = document.getElementById("gold-mine-collect-btn");
     if (collectBtn) {
       collectBtn.style.display = "none";
@@ -11219,17 +11238,16 @@ window.showBuildingActions = function (buildingKey) {
     }
   };
 
-  // لمبنى الهجوم/الدفاع: TRAIN + UPGRADE
+  // لمبنى الهجوم/الدفاع: TRAIN
   if (buildingKey === "attackTower" || buildingKey === "defenseTower") {
     if (infoLabel) infoLabel.textContent = "TRAIN";
-
     bottomInfoBtn.onclick = () => {
       if (buildingKey === "attackTower") {
         initAttackArmyPanel();
         const panel = document.getElementById("attack-army-panel");
         if (panel) panel.style.display = "block";
       } else if (buildingKey === "defenseTower") {
-        initDefenseArmyPanel(); // لازم تكون معرّفها
+        initDefenseArmyPanel();
         const panel = document.getElementById("defense-army-panel");
         if (panel) panel.style.display = "block";
       }
@@ -11238,6 +11256,7 @@ window.showBuildingActions = function (buildingKey) {
 };
 
 }); // هنا بتنتهي كل ربطات الـ DOMContentLoaded
+
 
 
 
