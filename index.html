@@ -667,6 +667,400 @@
         color: white;
         cursor: pointer;
       }
+      @keyframes floatDamage {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  50%  { opacity: 1; transform: translateY(-20px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
+}
+
+.damage-float {
+  position: absolute;
+  font-size: 16px;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 9999;
+  animation: floatDamage 1s ease-out forwards;
+}
+@keyframes flashRed {
+  0%   { filter: brightness(1); }
+  30%  { filter: brightness(3) sepia(1) saturate(5) hue-rotate(-20deg); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes flashGreen {
+  0%   { filter: brightness(1); }
+  30%  { filter: brightness(3) sepia(1) saturate(5) hue-rotate(80deg); }
+  100% { filter: brightness(1); }
+}
+
+.flash-red {
+  animation: flashRed 0.4s ease-out;
+}
+
+.flash-green {
+  animation: flashGreen 0.4s ease-out;
+}
+/* === Arena Battle Design v2 === */
+#arena-battle-page {
+  background-image: url('arena-bg.jpg') !important;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+}
+#arena-battle-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(5,8,20,0.5) 0%,
+    rgba(5,8,20,0.3) 30%,
+    rgba(5,8,20,0.6) 70%,
+    rgba(5,8,20,0.9) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+#arena-battle-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* Top Bar */
+.arena-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.6);
+  border-bottom: 2px solid rgba(250,204,21,0.3);
+  min-height: 36px;
+}
+
+.arena-top-league {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: bold;
+  background: rgba(56,189,248,0.1);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(56,189,248,0.4);
+}
+
+.arena-top-points {
+  font-size: 13px;
+  font-weight: bold;
+  color: #facc15;
+  text-shadow: 0 0 8px rgba(250,204,21,0.6);
+}
+
+.arena-top-enemy {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: bold;
+  background: rgba(239,68,68,0.1);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(239,68,68,0.4);
+}
+
+/* VS Area */
+.arena-vs-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 10px 12px 10px;
+  gap: 8px;
+  flex-shrink: 0;
+  flex: 1;
+}
+
+
+.arena-fighter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Avatar كبير واحترافي */
+.arena-fighter-avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 70px;
+  position: relative;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.arena-fighter-avatar.player-avatar {
+  background: linear-gradient(135deg, rgba(14,165,233,0.3), rgba(56,189,248,0.1));
+  border: 3px solid #38bdf8;
+  box-shadow: 0 0 30px rgba(56,189,248,0.5), inset 0 0 20px rgba(56,189,248,0.1);
+}
+
+.arena-fighter-avatar.enemy-avatar {
+  background: linear-gradient(135deg, rgba(239,68,68,0.3), rgba(248,113,113,0.1));
+  border: 3px solid #ef4444;
+  box-shadow: 0 0 30px rgba(239,68,68,0.5), inset 0 0 20px rgba(239,68,68,0.1);
+}
+
+.arena-fighter-name {
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* HP Bar أوسع وأوضح */
+.arena-hp-bar-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.arena-hp-label {
+  font-size: 10px;
+  color: #9ca3af;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.arena-hp-track {
+  width: 100%;
+  height: 12px;
+  background: rgba(30,64,175,0.3);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(56,189,248,0.2);
+}
+
+.arena-hp-track.enemy-track {
+  background: rgba(127,29,29,0.3);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+
+.arena-hp-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.arena-hp-text {
+  font-size: 11px;
+  color: #e5e7eb;
+  font-weight: bold;
+}
+
+/* VS في المنتصف */
+.arena-vs-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 50px;
+}
+
+.arena-vs-text {
+  font-size: 36px;
+  font-weight: bold;
+  color: #facc15;
+  text-shadow: 0 0 20px rgba(250,204,21,0.9), 0 0 40px rgba(250,204,21,0.5);
+  letter-spacing: 3px;
+}
+
+
+.arena-round-text {
+  font-size: 10px;
+  color: #9ca3af;
+  background: rgba(255,255,255,0.05);
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+/* Battle Log */
+.arena-log-wrapper {
+  background: rgba(0,0,0,0.5);
+  border-top: 1px solid rgba(250,204,21,0.2);
+  border-bottom: 1px solid rgba(250,204,21,0.2);
+  padding: 6px 12px;
+  max-height: 130px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.7;
+  flex-shrink: 0;
+}
+
+.arena-log-title {
+  font-size: 11px;
+  color: #facc15;
+  font-weight: bold;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+
+.log-player { color: #38bdf8; }
+.log-enemy  { color: #ef4444; }
+.log-heal   { color: #22c55e; }
+.log-round  { color: rgba(148,163,184,0.6); font-size: 10px; }
+.log-win    { color: #22c55e; font-weight: bold; font-size: 14px; }
+.log-lose   { color: #ef4444; font-weight: bold; font-size: 14px; }
+
+/* AUTO BATTLE Button */
+.arena-auto-btn {
+  margin: 8px 12px 4px 12px;
+  width: calc(100% - 24px);
+  padding: 14px 0;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #92400e, #facc15, #f97316, #facc15, #92400e);
+  background-size: 300% 100%;
+  color: #0b1120;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 2px;
+  box-shadow: 0 4px 25px rgba(250,204,21,0.5), 0 2px 10px rgba(0,0,0,0.5);
+  animation: btnShimmer 2.5s infinite linear;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+@keyframes btnShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Result Box */
+.arena-result-box {
+  margin: 6px 12px;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  display: none;
+  flex-shrink: 0;
+}
+
+.arena-result-box.win {
+  background: linear-gradient(135deg, rgba(21,128,61,0.4), rgba(34,197,94,0.1));
+  border: 2px solid #22c55e;
+  box-shadow: 0 0 30px rgba(34,197,94,0.4);
+}
+
+.arena-result-box.lose {
+  background: linear-gradient(135deg, rgba(153,27,27,0.4), rgba(239,68,68,0.1));
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 30px rgba(239,68,68,0.4);
+}
+
+.arena-result-text {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 6px;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.arena-result-points {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+.arena-play-again-btn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #facc15, #f97316);
+  color: #0b1120;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(250,204,21,0.4);
+}
+
+/* Animations */
+@keyframes attackRight {
+  0%   { transform: translateX(0) scale(1); }
+  40%  { transform: translateX(25px) scale(1.15); }
+  60%  { transform: translateX(20px) scale(1.05); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+@keyframes attackLeft {
+  0%   { transform: translateX(0) scale(1); }
+  40%  { transform: translateX(-25px) scale(1.15); }
+  60%  { transform: translateX(-20px) scale(1.05); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+@keyframes hitShake {
+  0%, 100% { transform: translateX(0); }
+  20%  { transform: translateX(-10px); }
+  40%  { transform: translateX(10px); }
+  60%  { transform: translateX(-6px); }
+  80%  { transform: translateX(6px); }
+}
+
+@keyframes skillGlow {
+  0%   { box-shadow: 0 0 30px rgba(250,204,21,0.4), 0 0 60px rgba(250,204,21,0.2); }
+  50%  { box-shadow: 0 0 50px rgba(250,204,21,1), 0 0 100px rgba(250,204,21,0.6); }
+  100% { box-shadow: 0 0 30px rgba(250,204,21,0.4), 0 0 60px rgba(250,204,21,0.2); }
+}
+
+@keyframes floatDamage {
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  50%  { opacity: 1; transform: translateX(-50%) translateY(-25px) scale(1.3); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-50px) scale(0.8); }
+}
+
+.attack-right { animation: attackRight 0.4s ease-out; }
+.attack-left  { animation: attackLeft 0.4s ease-out; }
+.hit-shake    { animation: hitShake 0.35s ease-out; }
+.skill-glow   { animation: skillGlow 0.6s ease-out; }
+
+.damage-float {
+  position: fixed;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 99999;
+  animation: floatDamage 1s ease-out forwards;
+  text-shadow: 0 0 10px currentColor, 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+/* Flash Effects */
+@keyframes flashRed {
+  0%   { filter: brightness(1); }
+  30%  { filter: brightness(3) sepia(1) saturate(5) hue-rotate(-20deg); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes flashGreen {
+  0%   { filter: brightness(1); }
+  30%  { filter: brightness(3) sepia(1) saturate(5) hue-rotate(80deg); }
+  100% { filter: brightness(1); }
+}
+
+.flash-red  { animation: flashRed 0.4s ease-out; }
+.flash-green { animation: flashGreen 0.4s ease-out; }
+
+
       /* Task Page */
       .task-item {
         background: rgba(255, 255, 255, 0.1);
@@ -1424,6 +1818,19 @@
   border-radius: 8px;
   background: rgba(31, 41, 55, 0.9);
   border: 1px dashed rgba(148, 163, 184, 0.8);
+}
+#battle-hero-hp-bar {
+  transition: width 0.4s ease;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  box-shadow: 0 0 8px rgba(34,197,94,0.7);
+  border-radius: 999px;
+}
+
+#battle-bot-hp-bar {
+  transition: width 0.4s ease;
+  background: linear-gradient(90deg, #991b1b, #ef4444);
+  box-shadow: 0 0 8px rgba(239,68,68,0.7);
+  border-radius: 999px;
 }
 
 /* === Resource Shop Buttons Styling by type === */
@@ -2523,6 +2930,7 @@ function buyResourcePack(resourceType, amount, gemCost) {
 
   // إضافة المورد المطلوب
   resources[resourceType] += amount;
+addProgressToTasksByType("buy_resource_pack", 1);
 
   // حفظ
   saveGameState();
@@ -3181,6 +3589,11 @@ function startBuildingUpgradeTimer() {
         const nextLevel = currentLevel + 1;
         buildingLevels[key] = nextLevel;
 
+        // مهمة طوّر أي مبنى (تحسب كل المباني بما فيها المناجم)
+        if (typeof addProgressToTasksByType === "function") {
+          addProgressToTasksByType("upgrade_building", 1);
+        }
+
         // تحديث النص في البانل لو مفتوح
         if (typeof buildingPanelExtra !== "undefined" && currentBuildingKey === key) {
           if (key === "goldMine" || key === "woodMine" || key === "meatFarm") {
@@ -3208,6 +3621,10 @@ function startBuildingUpgradeTimer() {
         if (typeof busyBuilders !== "undefined") {
           busyBuilders = Math.max(0, busyBuilders - 1);
         }
+
+        // تحديث صفحة المهام بعد ما الترقية تخلص
+        if (typeof recalcTasksNotification === "function") recalcTasksNotification();
+        if (typeof renderTasksPage === "function") renderTasksPage();
       }
     }
 
@@ -3222,6 +3639,7 @@ function startBuildingUpgradeTimer() {
     }
   }, 1000);
 }
+
 
 function updateBuildingUpgradePanelForTimer(buildingKey) {
   const upgrade = buildingUpgrades[buildingKey];
@@ -3733,10 +4151,10 @@ const MAIN_TASKS = [
 const DAILY_TASKS = [
   {
     id: "collect-gold",
-    title: "اجمع 10k ذهب",
-    desc: "اجمع 10,000 Gold من المناجم أو الجوائز.",
+    title: "اجمع 100k ذهب",
+    desc: "اجمع 100,000 Gold من المناجم أو الجوائز.",
     type: "collect_gold",
-    target: 10000,
+    target: 100000,
     points: 10,
     reward: { gem: 0, gold: 0, wood: 0, food: 0 }
   },
@@ -3795,6 +4213,7 @@ const DAILY_TASKS = [
     reward: { gem: 10, gold: 10000, wood: 0, food: 0 }
   }
 ];
+
 
 
 
@@ -4017,6 +4436,24 @@ function saveGameState() {
 }
 
 
+function collectGoldFromMine(amount) {
+  const stored = Math.floor(amount || 0);
+  if (stored <= 0) return;
+
+  resources.gold += stored;
+  miningStored.goldMine = 0;
+  window.lastGoldMineCollectAt = Date.now();
+
+  // تقدّم مهمة جمع الذهب
+  if (typeof addProgressToTasksByType === "function") {
+    addProgressToTasksByType("collect_gold", stored);
+  }
+
+  saveGameState();
+
+  if (typeof updateTopBar === "function") updateTopBar();
+  if (typeof updateGoldMineUI === "function") updateGoldMineUI();
+}
 
 
 
@@ -5222,26 +5659,16 @@ if (goldMine) {
       goldMineCollectHint.style.top = "-10px";
       goldMineCollectHint.style.left = "50%";
       goldMineCollectHint.style.transform = "translateX(-50%)";
-      goldMineCollectHint.style.fontSize = "20px";
-     goldMineCollectHint.innerHTML = "🪙";
-goldMineCollectHint.style.fontSize = "28px";
-goldMineCollectHint.style.animation = "bounce 1s infinite";
-goldMineCollectHint.style.cursor = "pointer";
-goldMineCollectHint.style.display = "none";
+      goldMineCollectHint.style.fontSize = "28px";
+      goldMineCollectHint.innerHTML = "🪙";
+      goldMineCollectHint.style.animation = "bounce 1s infinite";
+      goldMineCollectHint.style.cursor = "pointer";
+      goldMineCollectHint.style.display = "none";
       goldMine.appendChild(goldMineCollectHint);
     }
 
     goldMineCollectHint.onclick = function () {
-      const stored = Math.floor(miningStored.goldMine || 0);
-      if (stored <= 0) return;
-
-      resources.gold += stored;
-      miningStored.goldMine = 0;
-      window.lastGoldMineCollectAt = Date.now();
-saveGameState();
-
-      if (typeof updateTopBar === "function") updateTopBar();
-      updateGoldMineUI();
+      collectGoldFromMine(miningStored.goldMine || 0);
     };
   }
 }
@@ -6645,7 +7072,13 @@ function finishHealthTraining() {
   }
   const prev = trainedHealthArmy[heroKey][unitKey] || 0;
   trainedHealthArmy[heroKey][unitKey] = prev + amount;
-    // هنا خطوة 3: حفظ المخزون في localStorage
+
+  // ربط مهمة تدريب الجيش اليومية (الدفاع)
+  if (typeof addProgressToTasksByType === "function") {
+    addProgressToTasksByType("train_units", amount);
+  }
+
+  // حفظ المخزون في localStorage
   localStorage.setItem("raidex_trainedHealthArmy_v1", JSON.stringify(trainedHealthArmy));
 
   healthTrainingInProgress = false;
@@ -6661,6 +7094,7 @@ function finishHealthTraining() {
   saveGameState();
 }
 
+
 function finishAttackTraining() {
   if (!currentTrainingHeroKey || !currentTrainingUnitKey || !currentTrainingAmount) {
     attackTrainingInProgress = false;
@@ -6675,6 +7109,11 @@ function finishAttackTraining() {
   }
 
   trainedArmy[currentTrainingHeroKey][currentTrainingUnitKey] += currentTrainingAmount;
+
+  // ربط مهمة "درّب 50 جندي" بتدريب الهجوم
+  if (typeof addProgressToTasksByType === "function") {
+    addProgressToTasksByType("train_units", currentTrainingAmount);
+  }
 
   attackTrainingInProgress = false;
   attackTrainingFinishAt = null;
@@ -6702,6 +7141,7 @@ function finishAttackTraining() {
   updateArmyProfileView();
   updateProfileStatsFromArmy();
 }
+
 
 
 function openAttackArmyPage() {
@@ -8628,7 +9068,23 @@ const inviteIcon = document.getElementById("invite-icon");
 const pvpIcon = document.getElementById("pvp-icon");
 const chatIcon = document.getElementById("chat-icon");
 const passIcon = document.getElementById("pass-icon");
+if (pvpIcon) {
+  pvpIcon.addEventListener("click", () => {
+    openArenaPage();     // نفتح الـ Lobby
+    closeRightMenu();
+  });
+}
 
+
+// لو عندك openChat ممكن تشبكه هنا، لو مفيش سيبه فاضي أو كومنت
+if (chatIcon) {
+  chatIcon.addEventListener("click", () => {
+    if (typeof openChat === "function") {
+      openChat();
+    }
+    closeRightMenu();
+  });
+}
 
 // ربط الشات
 const chatBackBtn = document.querySelector(".chat-back-btn");
@@ -9128,6 +9584,62 @@ function closeHeroSelection() {
       }
       inviteBtn.addEventListener("click", openInvites);
 
+function openArenaPage() {
+  const panels = document.querySelectorAll(".game-page-panel");
+  panels.forEach(p => p.classList.add("game-page-hidden"));
+
+  const arenaPage = document.getElementById("arena-page");
+  if (arenaPage) {
+    arenaPage.classList.remove("game-page-hidden");
+    // تنظيف أي ستايل خلفية قديم على البانل نفسها
+    arenaPage.style.backgroundImage = "none";
+    arenaPage.style.background = "rgba(10,15,30,0.97)";
+
+    // وضع الصورة في الحاوية المخصصة لها
+    const bgContainer = document.getElementById("arena-lobby-bg-container");
+    if (bgContainer) {
+      bgContainer.style.backgroundImage = "url('arena-bg.jpg.png')";
+      bgContainer.style.backgroundSize = "cover";
+      bgContainer.style.backgroundPosition = "center center";
+      bgContainer.style.backgroundRepeat = "no-repeat";
+    }
+
+    renderArenaTeamPreview();
+  }
+}
+
+
+
+
+function closeArenaPage() {
+  const arenaPage = document.getElementById("arena-page");
+  if (!arenaPage) return;
+  arenaPage.classList.add("game-page-hidden");
+}
+function openArenaBattlePage() {
+  const panels = document.querySelectorAll(".game-page-panel");
+  panels.forEach(p => p.classList.add("game-page-hidden"));
+
+  const battlePage = document.getElementById("arena-battle-page");
+  if (battlePage) {
+    battlePage.classList.remove("game-page-hidden");
+    // نحط الخلفية مباشرة
+    battlePage.style.backgroundImage = "url('arena-bg.jpg.png')";
+    battlePage.style.backgroundSize = "cover";
+    battlePage.style.backgroundPosition = "center top";
+    battlePage.style.backgroundRepeat = "no-repeat";
+  }
+}
+
+
+function closeArenaBattlePage() {
+  const battlePage = document.getElementById("arena-battle-page");
+  if (battlePage) {
+    battlePage.classList.add("game-page-hidden");
+  }
+  // نرجع للأرينا
+  openArenaPage();
+}
 
 
    /* --- Start App --- */
@@ -9758,32 +10270,31 @@ function finishCastlePanelUpgrade() {
   upgradeInProgress = false;
   currentUpgradeType = null;
 
-  // زيادة مستوى القلعة
   if (castleLevel < castleMaxLevel) {
     castleLevel += 1;
+
+    // مهمة طوّر أي مبنى (تحسب القلعة كمان)
+    addProgressToTasksByType("upgrade_building", 1);
   }
 
-  // فك عامل بناء واحد
   busyBuilders--;
   if (busyBuilders < 0) busyBuilders = 0;
 
-  // إعادة الحسابات
   recalculatePower();
   updateCastleInfoTab();
   updateCastleUpgradeTab();
 
-  // إعادة ضبط شريط التقدم
   const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
   const progressFill = document.getElementById("castle-upgrade-progress-fill");
   const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
 
   if (progressWrapper) progressWrapper.style.display = "none";
-  if (progressFill) progressFill.style.width = "0%";
+  if (progressFill) progressFill.style.width = "0";
   if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(0);
 
-  // حفظ الحالة بعد الترقية
   saveGameState();
 }
+
 
 
 /* --- Start App --- */
@@ -10896,49 +11407,79 @@ function renderTasksPage() {
     return;
   }
 
-  // --- باقي التابات (daily / weekly / social) ---
-  tasksList.forEach(task => {
-    const state = tasksState[task.id] || { progress: 0, done: false, claimed: false };
-    const progress = Math.min(state.progress, task.target);
-    const isDone = progress >= task.target;
-    const isClaimed = state.claimed;
+// --- باقي التابات (daily / weekly / social) ---
+tasksList.forEach(task => {
+  const state = tasksState[task.id] || { progress: 0, done: false, claimed: false };
+  const progress = Math.min(state.progress, task.target);
+  const isDone = progress >= task.target;
+  const isClaimed = state.claimed;
 
-    const div = document.createElement("div");
-    div.className = "task-item" + (isDone ? " completed" : "");
-    div.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div style="font-weight:bold;">${task.title}</div>
-          <div style="font-size:12px; opacity:0.8;">${task.desc}</div>
-                   <div style="font-size:12px; margin-top:4px;">
-            Progress: ${progress} / ${task.target}
-          </div>
-          <div style="font-size:11px; margin-top:2px; color:#9ca3af;">
-            Points: ${task.points || 0}
-          </div>
+  const percent = task.target > 0 ? Math.min(100, (progress / task.target) * 100) : 0;
 
-          <div style="font-size:12px; margin-top:2px; color:#facc15;">
-            <span style="margin-right:6px;">🎁 Rewards:</span>
-            ${(task.reward?.wood || 0) ? `🌲 ${formatShortNumber(task.reward.wood)}  ` : ""}
-            ${(task.reward?.food || 0) ? `🍖 ${formatShortNumber(task.reward.food)}  ` : ""}
-            ${(task.reward?.gold || 0) ? `🪙 ${formatShortNumber(task.reward.gold)}  ` : ""}
-            ${(task.reward?.gem || 0)  ? `💎 ${task.reward.gem}` : ""}
-          </div>
+  const div = document.createElement("div");
+  div.className = "task-item" + (isDone ? " completed" : "");
+  div.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+      <div style="flex:1;">
+        <div style="font-weight:bold;">${task.title}</div>
+        <div style="font-size:12px; opacity:0.8;">${task.desc}</div>
 
+        <!-- البار في النص -->
+        <div style="margin-top:6px;">
+          <div style="
+            width:100%;
+            height:10px;
+            border-radius:999px;
+            background:rgba(15,23,42,0.9);
+            overflow:hidden;
+          ">
+            <div style="
+              height:100%;
+              width:${percent}%;
+              background:linear-gradient(90deg,#22c55e,#facc15);
+              transition:width 0.25s ease-out;
+            "></div>
+          </div>
+          <div style="
+            margin-top:2px;
+            font-size:11px;
+            color:#e5e7eb;
+            text-align:center;
+          ">
+            ${progress.toLocaleString()} / ${task.target.toLocaleString()}
+          </div>
         </div>
+
+        <div style="font-size:11px; margin-top:4px; color:#9ca3af;">
+          Points: ${task.points || 0}
+        </div>
+
+        <div style="font-size:12px; margin-top:2px; color:#facc15;">
+          <span style="margin-right:6px;">🎁 Rewards:</span>
+          ${(task.reward?.wood || 0) ? `🌲 ${formatShortNumber(task.reward.wood)}  ` : ""}
+          ${(task.reward?.food || 0) ? `🍖 ${formatShortNumber(task.reward.food)}  ` : ""}
+          ${(task.reward?.gold || 0) ? `🪙 ${formatShortNumber(task.reward.gold)}  ` : ""}
+          ${(task.reward?.gem || 0)  ? `💎 ${task.reward.gem}` : ""}
+        </div>
+      </div>
+
+      <div style="min-width:80px; text-align:right; font-size:12px;">
+        <div>${isClaimed ? "Claimed" : (isDone ? "Ready" : "In progress")}</div>
         <button
-          style="margin-left:8px; padding:6px 10px; border:none; border-radius:10px;
+          style="margin-top:6px; padding:6px 10px; border:none; border-radius:10px;
                  background:${isClaimed ? '#4b5563' : isDone ? '#22c55e' : '#6b7280'};
-                 color:white; font-size:12px; cursor:${isDone && !isClaimed ? 'pointer' : 'default'};"
+                 color:white; font-size:12px;
+                 cursor:${isDone && !isClaimed ? 'pointer' : 'default'};"
           onclick="claimTaskReward('${currentTasksTab}','${task.id}')"
           ${isDone && !isClaimed ? "" : "disabled"}
         >
           ${isClaimed ? "Claimed" : isDone ? "Claim" : "In progress"}
         </button>
       </div>
-    `;
-    container.appendChild(div);
-  });
+    </div>
+  `;
+  container.appendChild(div);
+});
 }
 
 function formatTaskReward(reward) {
@@ -10952,46 +11493,52 @@ function formatTaskReward(reward) {
 
 function claimTaskReward(tab, taskId) {
   let tasksState;
+
   if (tab === "main") tasksState = mainTasksState;
   else if (tab === "daily") tasksState = dailyTasksState;
   else if (tab === "weekly") tasksState = weeklyTasksState;
-  else tasksState = socialTasksState;
+  else if (tab === "social") tasksState = socialTasksState;
+  else return;
 
   if (!tasksState) return;
+
   const state = tasksState[taskId];
   if (!state || !state.done || state.claimed) return;
 
-  const list = tab === "main" ? MAIN_TASKS :
-               tab === "daily" ? DAILY_TASKS :
-               tab === "weekly" ? WEEKLY_TASKS : SOCIAL_TASKS;
-  const task = list.find(t => t.id === taskId);
-  if (!task) return;
+  const list =
+    tab === "main"   ? MAIN_TASKS   :
+    tab === "daily"  ? DAILY_TASKS  :
+    tab === "weekly" ? WEEKLY_TASKS :
+                       SOCIAL_TASKS;
 
-  if (task.reward.gem) resources.gem += task.reward.gem;
+  const task = list.find(t => t.id === taskId);
+  if (!task || !task.reward) return;
+
+  if (task.reward.gem)  resources.gem  += task.reward.gem;
   if (task.reward.gold) resources.gold += task.reward.gold;
   if (task.reward.wood) resources.wood += task.reward.wood;
   if (task.reward.food) resources.food += task.reward.food;
 
-  // إضافة نقاط الـ Daily Track
+  // نقاط الـ Daily Track
   if (tab === "daily" && typeof task.points === "number") {
     dailyPoints += task.points;
     if (dailyPoints > 100) dailyPoints = 100;
   }
 
-  // إضافة نقاط الـ Weekly Track
+  // نقاط الـ Weekly Track
   if (tab === "weekly" && typeof task.points === "number") {
     weeklyPoints += task.points;
-    // هنا الماكس 1000 (حسب البار اللي فوق)
     if (weeklyPoints > 1000) weeklyPoints = 1000;
   }
 
+  state.claimed = true;
 
-state.claimed = true;
-saveTasksState();
-recalcTasksNotification();
-updateRes();
-renderTasksPage();
+  saveTasksState();
+  recalcTasksNotification();
+  updateRes();
+  renderTasksPage();
 }
+
 
 
 // === Invites Page ===
@@ -11163,61 +11710,76 @@ window.showBuildingActions = function (buildingKey) {
   if (infoLabel) infoLabel.textContent = "INFO";
   if (upgradeLabel) upgradeLabel.textContent = "UPGRADE";
 
-  // زر INFO
-  bottomInfoBtn.onclick = () => {
-    console.log("INFO for", buildingKey);
+// زر INFO
+bottomInfoBtn.onclick = () => {
+  console.log("INFO for", buildingKey);
 
-    const miningKeys = ["goldMine", "woodMine", "meatFarm"];
+  const miningKeys = ["goldMine", "woodMine", "meatFarm"];
 
-    if (miningKeys.includes(buildingKey)) {
-      window.currentMiningBuildingKey = buildingKey;
-      openMiningBuildingPanel(buildingKey);
-      updateGoldMineUI();
+  if (miningKeys.includes(buildingKey)) {
+    window.currentMiningBuildingKey = buildingKey;
+    openMiningBuildingPanel(buildingKey);
+    updateGoldMineUI();
 
-      const collectBtn = document.getElementById("gold-mine-collect-btn");
-      if (collectBtn) {
-        collectBtn.style.display = "block";
-        collectBtn.onclick = function () {
-          if (buildingKey === "goldMine") {
-            const stored = Math.floor(miningStored.goldMine || 0);
-            if (stored <= 0) return;
-            resources.gold += stored;
-            miningStored.goldMine = 0;
-            window.lastGoldMineCollectAt = Date.now();
-          } else if (buildingKey === "woodMine") {
-            const stored = Math.floor(miningStored.woodMine || 0);
-            if (stored <= 0) return;
-            resources.wood += stored;
-            miningStored.woodMine = 0;
-          } else if (buildingKey === "meatFarm") {
-            const stored = Math.floor(miningStored.meatFarm || 0);
-            if (stored <= 0) return;
-            resources.food += stored;
-            miningStored.meatFarm = 0;
+    const collectBtn = document.getElementById("gold-mine-collect-btn");
+    if (collectBtn) {
+      collectBtn.style.display = "block";
+      collectBtn.onclick = function () {
+        if (buildingKey === "goldMine") {
+          const stored = Math.floor(miningStored.goldMine || 0);
+          if (stored <= 0) return;
+
+          resources.gold += stored;
+          miningStored.goldMine = 0;
+          window.lastGoldMineCollectAt = Date.now();
+
+          // ربط مهمة جمع الذهب
+          if (typeof addProgressToTasksByType === "function") {
+            addProgressToTasksByType("collect_gold", stored);
           }
+
+          saveGameState();
           if (typeof updateTopBar === "function") updateTopBar();
           updateGoldMineUI();
-          saveGameState();
-        };
-      }
-    } else {
-      openBuildingPanel(buildingKey);
-      const collectBtn = document.getElementById("gold-mine-collect-btn");
-      if (collectBtn) {
-        collectBtn.style.display = "none";
-        collectBtn.onclick = null;
-      }
-    }
 
-    const tabInfo = document.getElementById("building-tab-info-btn");
-    const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
-    if (tabInfo && tabUpgrade) {
-      tabInfo.classList.add("active");
-      tabUpgrade.classList.remove("active");
-      document.getElementById("building-tab-info").style.display = "block";
-      document.getElementById("building-tab-upgrade").style.display = "none";
+        } else if (buildingKey === "woodMine") {
+          const stored = Math.floor(miningStored.woodMine || 0);
+          if (stored <= 0) return;
+          resources.wood += stored;
+          miningStored.woodMine = 0;
+          saveGameState();
+          if (typeof updateTopBar === "function") updateTopBar();
+          updateGoldMineUI();
+
+        } else if (buildingKey === "meatFarm") {
+          const stored = Math.floor(miningStored.meatFarm || 0);
+          if (stored <= 0) return;
+          resources.food += stored;
+          miningStored.meatFarm = 0;
+          saveGameState();
+          if (typeof updateTopBar === "function") updateTopBar();
+          updateGoldMineUI();
+        }
+      };
     }
-  };
+  } else {
+    openBuildingPanel(buildingKey);
+    const collectBtn = document.getElementById("gold-mine-collect-btn");
+    if (collectBtn) {
+      collectBtn.style.display = "none";
+      collectBtn.onclick = null;
+    }
+  }
+
+  const tabInfo = document.getElementById("building-tab-info-btn");
+  const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
+  if (tabInfo && tabUpgrade) {
+    tabInfo.classList.add("active");
+    tabUpgrade.classList.remove("active");
+    document.getElementById("building-tab-info").style.display = "block";
+    document.getElementById("building-tab-upgrade").style.display = "none";
+  }
+};
 
   // زر UPGRADE
   bottomUpgradeBtn.onclick = () => {
@@ -11254,7 +11816,6 @@ window.showBuildingActions = function (buildingKey) {
     };
   }
 };
-
 }); // هنا بتنتهي كل ربطات الـ DOMContentLoaded
 
 
@@ -12465,6 +13026,983 @@ function copyProfileLink(link) {
 function attackPlayer(telegramId) {
   alert("⚔️ نظام الهجوم قريباً!");
 }
+document.addEventListener("DOMContentLoaded", () => {
+  const startBtn = document.getElementById("arena-start-btn");
+  if (startBtn) {
+    startBtn.addEventListener("click", () => {
+      startTestArenaBattle();
+    });
+  }
+
+  const btnStartAuto = document.getElementById("arena-auto-battle-btn");
+
+  if (btnStartAuto) {
+    btnStartAuto.addEventListener("click", () => {
+      startTestArenaBattle();
+    });
+  }
+});
+
+
+
+// === HERO SYSTEM v1 (5 Heroes PVP) ===
+const HEROES_CONFIG = {
+  AEGIS9: {
+    id: 'AEGIS9',
+    name: 'Aegis-9 "The Broken Wall"',
+    rarity: 'Rare',
+    role: 'Tank',
+    baseAtk: 40,
+    baseHp: 180
+  },
+  VYRA: {
+    id: 'VYRA',
+    name: 'VYRA "Flame Protocol"',
+    rarity: 'Rare',
+    role: 'DPS',
+    baseAtk: 70,
+    baseHp: 120
+  },
+  KAIRO: {
+    id: 'KAIRO',
+    name: 'KAIRO "The Split Mind"',
+    rarity: 'Epic',
+    role: 'Control',
+    baseAtk: 60,
+    baseHp: 140
+  },
+  LUMA: {
+    id: 'LUMA',
+    name: 'LUMA "The Rewriter"',
+    rarity: 'Epic',
+    role: 'Support',
+    baseAtk: 35,
+    baseHp: 160
+  },
+  NOX: {
+    id: 'NOX',
+    name: 'NOX "The Last Glitch"',
+    rarity: 'Legendary',
+    role: 'Breaker',
+    baseAtk: 90,
+    baseHp: 150
+  }
+};
+
+// امتلاك الأبطال + فريق الـ PvP (3 Slots)
+let playerHeroesState = {
+  owned: ['AEGIS9'],            // يبدأ ببطل واحد
+  pvpTeam: ['AEGIS9', null, null] // 3 أماكن فقط
+};
+
+const HERO_STATE_KEY = 'raidexpvpheroes_v1';
+
+function saveHeroState() {
+  try {
+    localStorage.setItem(HERO_STATE_KEY, JSON.stringify(playerHeroesState));
+  } catch (e) {
+    console.error('Error saving hero state', e);
+  }
+}
+
+function loadHeroState() {
+  try {
+    const raw = localStorage.getItem(HERO_STATE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (Array.isArray(data.owned)) playerHeroesState.owned = data.owned;
+    if (Array.isArray(data.pvpTeam) && data.pvpTeam.length === 3) {
+      playerHeroesState.pvpTeam = data.pvpTeam;
+    }
+  } catch (e) {
+    console.error('Error loading hero state', e);
+  }
+}
+
+loadHeroState();
+const ARENA_STATE_KEY = 'raidex_arena_state_v1';
+
+let arenaPlayerState = {
+  points: 0,
+  winStreak: 0
+};
+
+function saveArenaState() {
+  try {
+    localStorage.setItem(ARENA_STATE_KEY, JSON.stringify(arenaPlayerState));
+  } catch (e) {
+    console.error('Error saving arena state', e);
+  }
+}
+
+function loadArenaState() {
+  try {
+    const raw = localStorage.getItem(ARENA_STATE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (typeof data.points === 'number') arenaPlayerState.points = data.points;
+    if (typeof data.winStreak === 'number') arenaPlayerState.winStreak = data.winStreak;
+  } catch (e) {
+    console.error('Error loading arena state', e);
+  }
+}
+
+loadArenaState();
+function showDamageFloat(targetElementId, damage, isHeal = false) {
+  const target = document.getElementById(targetElementId);
+  if (!target) return;
+
+  const rect = target.getBoundingClientRect();
+
+  const float = document.createElement("div");
+  float.className = "damage-float";
+  float.textContent = isHeal ? `+${damage} 💚` : `-${damage}`;
+  float.style.color = isHeal ? "#22c55e" : "#ef4444";
+  float.style.position = "fixed";
+
+  // Heal يطير على اليسار، Damage على اليمين
+  const offsetX = isHeal ? -20 : 20;
+  float.style.left = (rect.left + rect.width / 2 + offsetX) + "px";
+  float.style.top = (rect.top - 10) + "px";
+  float.style.transform = "translateX(-50%)";
+  float.style.fontSize = "18px";
+  float.style.fontWeight = "bold";
+  float.style.textShadow = "0 0 8px rgba(0,0,0,0.9)";
+  float.style.zIndex = "99999";
+  float.style.pointerEvents = "none";
+
+  document.body.appendChild(float);
+
+  const bar = document.getElementById(targetElementId);
+  if (bar) {
+    bar.classList.remove('flash-red', 'flash-green');
+    void bar.offsetWidth;
+    bar.classList.add(isHeal ? 'flash-green' : 'flash-red');
+    setTimeout(() => bar.classList.remove('flash-red', 'flash-green'), 400);
+  }
+
+  setTimeout(() => {
+    if (float.parentNode) float.parentNode.removeChild(float);
+  }, 1000);
+}
+
+
+
+
+function rarityColor(rarity) {
+  if (rarity === 'Rare') return '#38bdf8';
+  if (rarity === 'Epic') return '#a855f7';
+  if (rarity === 'Legendary') return '#facc15';
+  return '#e5e7eb';
+}
+function renderArenaTeamPreview() {
+  const container = document.getElementById("arena-team-preview");
+  const warn = document.getElementById("arena-team-warning");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const team = playerHeroesState.pvpTeam || [];
+  const owned = playerHeroesState.owned || [];
+
+  const nonEmpty = team.filter(id => !!id);
+
+  if (warn) {
+    if (nonEmpty.length === 0 || owned.length === 0) {
+      warn.style.display = "block";
+      warn.textContent = "You need at least 1 hero to start a battle.";
+    } else {
+      warn.style.display = "none";
+    }
+  }
+
+  for (let i = 0; i < 3; i++) {
+    const heroId = team[i];
+    const box = document.createElement("div");
+    box.style.flex = "1";
+    box.style.background = "rgba(15,23,42,0.95)";
+    box.style.borderRadius = "10px";
+    box.style.padding = "6px 4px";
+    box.style.textAlign = "center";
+    box.style.border = "1px solid rgba(55,65,81,0.9)";
+    box.style.fontSize = "11px";
+
+    if (!heroId) {
+      box.innerHTML = `
+        <div style="width:40px;height:40px;margin:0 auto 4px auto;border-radius:10px;
+                    background:rgba(31,41,55,0.9);border:1px dashed rgba(148,163,184,0.7);
+                    display:flex;align-items:center;justify-content:center;color:#9ca3af;">
+          Empty
+        </div>
+        <div style="color:#9ca3af;">Slot ${i + 1}</div>
+      `;
+    } else {
+      const hero = HEROES_CONFIG[heroId];
+      if (!hero) continue;
+      box.innerHTML = `
+        <div style="width:40px;height:40px;margin:0 auto 4px auto;border-radius:10px;
+                    background:rgba(15,23,42,0.95);border:2px solid ${rarityColor(hero.rarity)};
+                    display:flex;align-items:center;justify-content:center;color:#e5e7eb;font-size:11px;">
+          ${hero.role || "Hero"}
+        </div>
+        <div style="font-weight:bold;color:${rarityColor(hero.rarity)};">${hero.name}</div>
+        <div style="color:#9ca3af;font-size:10px;">ATK ${hero.baseAtk} • HP ${hero.baseHp}</div>
+      `;
+    }
+
+    container.appendChild(box);
+  }
+
+  const startBtn = document.getElementById("arena-start-btn");
+  if (startBtn) {
+    if (nonEmpty.length === 0 || owned.length === 0) {
+      startBtn.disabled = true;
+      startBtn.style.opacity = "0.6";
+      startBtn.style.cursor = "not-allowed";
+    } else {
+      startBtn.disabled = false;
+      startBtn.style.opacity = "1";
+      startBtn.style.cursor = "pointer";
+    }
+  }
+}
+
+function initPvpPanel() {
+  if (document.getElementById('pvp-panel')) return;
+
+  const panel = document.createElement('div');
+  panel.id = 'pvp-panel';
+  panel.className = 'game-page-panel';
+  panel.style.position = 'fixed';
+  panel.style.top = '50%';
+  panel.style.left = '50%';
+  panel.style.transform = 'translate(-50%, -50%)';
+  panel.style.width = '80%';
+  panel.style.maxWidth = '400px';
+  panel.style.background = '#020617';
+  panel.style.border = '2px solid #facc15';
+  panel.style.borderRadius = '16px';
+  panel.style.padding = '12px';
+  panel.style.zIndex = '9999';
+  panel.style.color = '#e5e7eb';
+  panel.style.boxShadow = '0 10px 30px rgba(0,0,0,0.7)';
+  panel.style.display = 'none';
+
+  const header = document.createElement('div');
+  header.style.display = 'flex';
+  header.style.justifyContent = 'space-between';
+  header.style.alignItems = 'center';
+  header.style.marginBottom = '8px';
+
+  const title = document.createElement('div');
+  title.textContent = 'PvP Team (3 Heroes)';
+  title.style.fontWeight = 'bold';
+  title.style.fontSize = '18px';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '×';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.border = 'none';
+  closeBtn.style.color = '#e5e7eb';
+  closeBtn.style.fontSize = '18px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = () => {
+    panel.style.display = 'none';
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const sub = document.createElement('div');
+  sub.textContent = 'اختر حتى 3 أبطال للقتال. لو عندك واحد بس تقدر تحارب بيه.';
+  sub.style.fontSize = '12px';
+  sub.style.color = '#9ca3af';
+  sub.style.marginBottom = '8px';
+  panel.appendChild(sub);
+
+  const slotsRow = document.createElement('div');
+  slotsRow.id = 'pvp-slots-row';
+  slotsRow.style.display = 'flex';
+  slotsRow.style.gap = '8px';
+  slotsRow.style.marginBottom = '10px';
+
+  for (let i = 0; i < 3; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'pvp-slot';
+    slot.dataset.index = i.toString();
+    slot.style.flex = '1';
+    slot.style.background = 'rgba(15,23,42,0.95)';
+    slot.style.borderRadius = '12px';
+    slot.style.padding = '8px 4px';
+    slot.style.textAlign = 'center';
+    slot.style.border = '1px solid rgba(148,163,184,0.7)';
+    slot.style.fontSize = '12px';
+    slot.style.cursor = 'pointer';
+
+    slot.innerHTML = `
+      <div style="width:60px;height:60px;margin:0 auto 4px auto;border-radius:12px;
+                  background:rgba(31,41,55,0.9);border:1px dashed rgba(148,163,184,0.7);
+                  display:flex;align-items:center;justify-content:center;font-size:11px;color:#9ca3af;">
+        Empty
+      </div>
+      <div class="pvp-slot-name" style="font-weight:bold;">-</div>
+      <div class="pvp-slot-meta" style="font-size:11px;color:#9ca3af;">Tap to assign</div>
+    `;
+    slot.onclick = () => openHeroPickForSlot(i);
+    slotsRow.appendChild(slot);
+  }
+
+  panel.appendChild(slotsRow);
+
+  const listTitle = document.createElement('div');
+  listTitle.textContent = 'Heroes Owned';
+  listTitle.style.fontSize = '13px';
+  listTitle.style.fontWeight = 'bold';
+  listTitle.style.marginBottom = '4px';
+  panel.appendChild(listTitle);
+
+  const list = document.createElement('div');
+  list.id = 'pvp-heroes-list';
+  list.style.maxHeight = '220px';
+  list.style.overflowY = 'auto';
+  list.style.display = 'flex';
+  list.style.flexDirection = 'column';
+  list.style.gap = '6px';
+  panel.appendChild(list);
+
+  document.body.appendChild(panel);
+
+  renderPvpPanel();
+}
+
+function renderPvpPanel() {
+  const panel = document.getElementById('pvp-panel');
+  if (!panel) return;
+
+  const slotsRow = document.getElementById('pvp-slots-row');
+  if (slotsRow) {
+    const slots = Array.from(slotsRow.querySelectorAll('.pvp-slot'));
+    slots.forEach((slot, index) => {
+      const heroId = playerHeroesState.pvpTeam[index];
+      const avatar = slot.querySelector('div:first-child');
+      const nameEl = slot.querySelector('.pvp-slot-name');
+      const metaEl = slot.querySelector('.pvp-slot-meta');
+
+      if (!heroId) {
+        if (avatar) {
+          avatar.textContent = 'Empty';
+          avatar.style.background = 'rgba(31,41,55,0.9)';
+          avatar.style.border = '1px dashed rgba(148,163,184,0.7)';
+        }
+        if (nameEl) nameEl.textContent = '-';
+        if (metaEl) metaEl.textContent = 'Tap to assign';
+        return;
+      }
+
+      const hero = HEROES_CONFIG[heroId];
+      if (!hero) return;
+
+      if (avatar) {
+        avatar.textContent = hero.role || 'Hero';
+        avatar.style.background = 'rgba(15,23,42,0.95)';
+        avatar.style.border = `2px solid ${rarityColor(hero.rarity)}`;
+      }
+      if (nameEl) {
+        nameEl.textContent = hero.name;
+        nameEl.style.color = rarityColor(hero.rarity);
+      }
+      if (metaEl) {
+        metaEl.textContent = `${hero.rarity} • ATK ${hero.baseAtk} • HP ${hero.baseHp}`;
+      }
+    });
+  }
+
+  const list = document.getElementById('pvp-heroes-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (!playerHeroesState.owned || playerHeroesState.owned.length === 0) {
+    const empty = document.createElement('div');
+    empty.textContent = 'لا تملك أي أبطال حتى الآن.';
+    empty.style.fontSize = '12px';
+    empty.style.color = '#9ca3af';
+    list.appendChild(empty);
+    return;
+  }
+
+  playerHeroesState.owned.forEach((heroId) => {
+    const hero = HEROES_CONFIG[heroId];
+    if (!hero) return;
+
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.justifyContent = 'space-between';
+    row.style.padding = '6px 8px';
+    row.style.borderRadius = '10px';
+    row.style.background = 'rgba(15,23,42,0.95)';
+    row.style.border = '1px solid rgba(55,65,81,0.9)';
+    row.style.fontSize = '12px';
+
+    const left = document.createElement('div');
+    left.style.display = 'flex';
+    left.style.alignItems = 'center';
+    left.style.gap = '8px';
+
+    const avatar = document.createElement('div');
+    avatar.style.width = '36px';
+    avatar.style.height = '36px';
+    avatar.style.borderRadius = '999px';
+    avatar.style.background = 'rgba(31,41,55,0.9)';
+    avatar.style.border = `2px solid ${rarityColor(hero.rarity)}`;
+    avatar.style.display = 'flex';
+    avatar.style.alignItems = 'center';
+    avatar.style.justifyContent = 'center';
+    avatar.style.fontSize = '11px';
+    avatar.textContent = hero.role || 'Hero';
+
+    const textBox = document.createElement('div');
+    const n = document.createElement('div');
+    n.textContent = hero.name;
+    n.style.fontWeight = 'bold';
+    n.style.color = rarityColor(hero.rarity);
+    const meta = document.createElement('div');
+    meta.textContent = `${hero.rarity} • ATK ${hero.baseAtk} • HP ${hero.baseHp}`;
+    meta.style.fontSize = '11px';
+    meta.style.color = '#9ca3af';
+
+    textBox.appendChild(n);
+    textBox.appendChild(meta);
+    left.appendChild(avatar);
+    left.appendChild(textBox);
+
+    const tag = document.createElement('div');
+    tag.textContent = 'Owned';
+    tag.style.fontSize = '11px';
+    tag.style.color = '#22c55e';
+
+    row.appendChild(left);
+    row.appendChild(tag);
+    list.appendChild(row);
+  });
+}
+
+let currentPvpSlotIndex = 0;
+
+function openHeroPickForSlot(slotIndex) {
+  currentPvpSlotIndex = slotIndex;
+
+  const owned = playerHeroesState.owned || [];
+  if (owned.length === 0) {
+    alert('ما عندكش أبطال لسه.');
+    return;
+  }
+
+  if (owned.length === 1) {
+    playerHeroesState.pvpTeam[slotIndex] = owned[0];
+    saveHeroState();
+    renderPvpPanel();
+    return;
+  }
+
+  const existing = document.getElementById('pvp-hero-pick');
+  if (existing) existing.remove();
+
+  const popup = document.createElement('div');
+  popup.id = 'pvp-hero-pick';
+  popup.style.position = 'fixed';
+  popup.style.inset = '0';
+  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.style.zIndex = '10000';
+
+  const box = document.createElement('div');
+  box.style.background = '#020617';
+  box.style.borderRadius = '14px';
+  box.style.border = '2px solid #facc15';
+  box.style.padding = '12px';
+  box.style.width = '80%';
+  box.style.maxWidth = '320px';
+  box.style.color = '#e5e7eb';
+
+  const title = document.createElement('div');
+  title.textContent = 'اختر بطل للـ Slot ' + (slotIndex + 1);
+  title.style.fontWeight = 'bold';
+  title.style.marginBottom = '8px';
+  title.style.fontSize = '14px';
+
+  const list = document.createElement('div');
+  list.style.maxHeight = '220px';
+  list.style.overflowY = 'auto';
+  list.style.display = 'flex';
+  list.style.flexDirection = 'column';
+  list.style.gap = '6px';
+
+  owned.forEach((heroId) => {
+    const hero = HEROES_CONFIG[heroId];
+    if (!hero) return;
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.alignItems = 'center';
+    row.style.padding = '6px 8px';
+    row.style.borderRadius = '10px';
+    row.style.background = 'rgba(15,23,42,0.95)';
+    row.style.border = '1px solid rgba(55,65,81,0.9)';
+    row.style.fontSize = '12px';
+    row.style.cursor = 'pointer';
+
+    const left = document.createElement('div');
+    left.style.display = 'flex';
+    left.style.alignItems = 'center';
+    left.style.gap = '8px';
+
+    const avatar = document.createElement('div');
+    avatar.style.width = '30px';
+    avatar.style.height = '30px';
+    avatar.style.borderRadius = '999px';
+    avatar.style.background = 'rgba(31,41,55,0.9)';
+    avatar.style.border = `2px solid ${rarityColor(hero.rarity)}`;
+    avatar.style.display = 'flex';
+    avatar.style.alignItems = 'center';
+    avatar.style.justifyContent = 'center';
+    avatar.style.fontSize = '10px';
+    avatar.textContent = hero.role || 'Hero';
+
+    const name = document.createElement('div');
+    name.textContent = hero.name;
+    name.style.color = rarityColor(hero.rarity);
+    name.style.fontWeight = 'bold';
+    name.style.fontSize = '12px';
+
+    left.appendChild(avatar);
+    left.appendChild(name);
+
+    const meta = document.createElement('div');
+    meta.textContent = `ATK ${hero.baseAtk} • HP ${hero.baseHp}`;
+    meta.style.fontSize = '11px';
+    meta.style.color = '#9ca3af';
+
+    row.appendChild(left);
+    row.appendChild(meta);
+
+    row.onclick = () => {
+      playerHeroesState.pvpTeam[slotIndex] = heroId;
+      saveHeroState();
+      renderPvpPanel();
+      document.body.removeChild(popup);
+    };
+
+    list.appendChild(row);
+  });
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = 'Cancel';
+  closeBtn.style.marginTop = '8px';
+  closeBtn.style.width = '100%';
+  closeBtn.style.padding = '6px 0';
+  closeBtn.style.borderRadius = '999px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = '#374151';
+  closeBtn.style.color = '#e5e7eb';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = () => {
+    document.body.removeChild(popup);
+  };
+
+  box.appendChild(title);
+  box.appendChild(list);
+  box.appendChild(closeBtn);
+  popup.appendChild(box);
+  popup.onclick = (e) => {
+    if (e.target === popup) document.body.removeChild(popup);
+  };
+
+  document.body.appendChild(popup);
+}
+
+function openPvpPanel() {
+  initPvpPanel();
+  const panel = document.getElementById('pvp-panel');
+  if (panel) {
+    renderPvpPanel();
+    panel.style.display = 'block';
+  }
+}
+let autoBattleInterval = null;
+
+function startTestArenaBattle() {
+  const team = playerHeroesState.pvpTeam || [];
+  const heroId = team.find(id => !!id);
+  if (!heroId) {
+    alert("You need at least 1 hero in your Arena Team.");
+    return;
+  }
+
+  const hero = HEROES_CONFIG[heroId];
+  if (!hero) return;
+
+  const bot = {
+    name: "Arena Bot",
+    atk: Math.round(hero.baseAtk * 0.7),
+    hp: Math.round(hero.baseHp * 0.9)
+  };
+
+  arenaBattleState.heroId = heroId;
+  arenaBattleState.heroHp = hero.baseHp;
+  arenaBattleState.heroMaxHp = hero.baseHp;
+  arenaBattleState.heroAtk = hero.baseAtk;
+  arenaBattleState.botName = bot.name;
+  arenaBattleState.botHp = bot.hp;
+  arenaBattleState.botMaxHp = bot.hp;
+  arenaBattleState.botAtk = bot.atk;
+  arenaBattleState.round = 0;
+
+  openArenaBattlePage();
+  updateArenaBattleUI(true);
+
+  // نخفي زر Start Auto Battle ونبدأ القتال
+  const autoBtn = document.getElementById("battle-btn-start-auto");
+  if (autoBtn) autoBtn.style.display = "none";
+
+  const statusText = document.getElementById("battle-status-text");
+  if (statusText) {
+    statusText.textContent = "القتال جارٍ...";
+    statusText.style.color = "#facc15";
+  }
+
+  // نبدأ الـ Auto Battle
+  if (autoBattleInterval) clearInterval(autoBattleInterval);
+  autoBattleInterval = setInterval(() => {
+    runAutoBattleRound();
+  }, 1500);
+}
+
+function getHeroAIAction(heroId, heroHp, heroMaxHp) {
+  const hero = HEROES_CONFIG[heroId];
+  if (!hero) return "attack";
+
+  const hpPercent = heroHp / heroMaxHp;
+
+  switch (hero.role) {
+    case "Tank":
+      // AEGIS9: يدافع لما HP أقل من 50%
+      return hpPercent < 0.5 ? "defend" : "attack";
+    case "DPS":
+      // VYRA: تهاجم دايمًا، Skill كل 3 Rounds
+      return (arenaBattleState.round % 3 === 0) ? "skill" : "attack";
+    case "Control":
+      // KAIRO: عشوائي
+      const actions = ["attack", "skill", "attack"];
+      return actions[Math.floor(Math.random() * actions.length)];
+    case "Support":
+      // LUMA: تشفي لو HP منخفض
+      return hpPercent < 0.4 ? "skill" : "attack";
+    case "Breaker":
+      // NOX: يتجاهل الدفاع دايمًا
+      return "skill";
+    default:
+      return "attack";
+  }
+}
+
+function addToArenaLog(html) {
+  const log = document.getElementById("arena-battle-log");
+  if (!log) return;
+  const entry = document.createElement("div");
+  entry.innerHTML = html;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+function runAutoBattleRound() {
+  if (arenaBattleState.heroHp <= 0 || arenaBattleState.botHp <= 0) {
+    clearInterval(autoBattleInterval);
+    autoBattleInterval = null;
+    return;
+  }
+
+  arenaBattleState.round = (arenaBattleState.round || 0) + 1;
+
+  const hero = HEROES_CONFIG[arenaBattleState.heroId];
+  if (!hero) return;
+
+  const playerAction = getHeroAIAction(
+    arenaBattleState.heroId,
+    arenaBattleState.heroHp,
+    arenaBattleState.heroMaxHp
+  );
+
+  const botActions = ["attack", "defend", "attack"];
+  const botAction = botActions[Math.floor(Math.random() * botActions.length)];
+
+  let heroDamage = arenaBattleState.heroAtk;
+  let botDamage = arenaBattleState.botAtk;
+
+  if (playerAction === "defend") botDamage = Math.round(botDamage * 0.3);
+  if (botAction === "defend") heroDamage = Math.round(heroDamage * 0.3);
+  if (playerAction === "skill") heroDamage = Math.round(heroDamage * 1.8);
+
+  let healAmount = 0;
+  if (hero.role === "Support" && playerAction === "skill") {
+    healAmount = Math.round(arenaBattleState.heroMaxHp * 0.15);
+    arenaBattleState.heroHp = Math.min(
+      arenaBattleState.heroMaxHp,
+      arenaBattleState.heroHp + healAmount
+    );
+    heroDamage = Math.round(heroDamage * 0.3);
+    showDamageFloat("arena-player-hp-fill", healAmount, true);
+  }
+
+  arenaBattleState.botHp -= heroDamage;
+  if (arenaBattleState.botHp < 0) arenaBattleState.botHp = 0;
+  showDamageFloat("arena-enemy-hp-fill", heroDamage, false);
+
+  // أنيميشن الضرب
+  const playerAvatar = document.getElementById("arena-player-avatar");
+  const enemyAvatar = document.getElementById("arena-enemy-avatar");
+  if (playerAvatar) {
+    playerAvatar.classList.add("attack-right");
+    setTimeout(() => playerAvatar.classList.remove("attack-right"), 400);
+  }
+  if (arenaBattleState.botHp > 0 && enemyAvatar) {
+    setTimeout(() => {
+      enemyAvatar.classList.add("hit-shake");
+      setTimeout(() => enemyAvatar.classList.remove("hit-shake"), 300);
+    }, 200);
+  }
+
+  let logHtml = `<div class="log-round">— Round ${arenaBattleState.round} —</div>`;
+
+  if (healAmount > 0) {
+    logHtml += `<div class="log-heal">💚 ${hero.name} استخدم Heal واسترد ${healAmount} HP!</div>`;
+  }
+
+  const actionEmoji = playerAction === "skill" ? "⚡" : playerAction === "defend" ? "🛡️" : "⚔️";
+  logHtml += `<div class="log-player">${actionEmoji} ${hero.name} ➜ <span style="color:#f97316;font-weight:bold;">${heroDamage}</span> ضرر</div>`;
+
+  if (arenaBattleState.botHp > 0) {
+    arenaBattleState.heroHp -= botDamage;
+    if (arenaBattleState.heroHp < 0) arenaBattleState.heroHp = 0;
+    showDamageFloat("arena-player-hp-fill", botDamage, false);
+    if (enemyAvatar) {
+      setTimeout(() => {
+        enemyAvatar.classList.add("attack-left");
+        setTimeout(() => enemyAvatar.classList.remove("attack-left"), 400);
+      }, 300);
+    }
+    if (playerAvatar) {
+      setTimeout(() => {
+        playerAvatar.classList.add("hit-shake");
+        setTimeout(() => playerAvatar.classList.remove("hit-shake"), 300);
+      }, 500);
+    }
+    const botEmoji = botAction === "defend" ? "🛡️" : "🤖";
+    logHtml += `<div class="log-enemy">${botEmoji} ${arenaBattleState.botName} ➜ <span style="color:#ef4444;font-weight:bold;">${botDamage}</span> ضرر</div>`;
+  } else {
+    logHtml += `<div class="log-enemy">💀 ${arenaBattleState.botName} سقط!</div>`;
+  }
+
+  if (arenaBattleState.botHp <= 0 && arenaBattaleState.heroHp > 0) {
+    logHtml += `<div class="log-win">🏆 ${hero.name} فاز!</div>`;
+    addToArenaLog(logHtml);
+    updateArenaBattleUI(false);
+    clearInterval(autoBattleInterval);
+    autoBattleInterval = null;
+    setTimeout(() => showBattleResult(true), 800);
+    return;
+  } else if (arenaBattleState.heroHp <= 0) {
+    logHtml += `<div class="log-lose">☠️ ${arenaBattleState.botName} انتصر...</div>`;
+    addToArenaLog(logHtml);
+    updateArenaBattleUI(false);
+    clearInterval(autoBattleInterval);
+    autoBattleInterval = null;
+    setTimeout(() => showBattleResult(false), 800);
+    return;
+  }
+
+  addToArenaLog(logHtml);
+  updateArenaBattleUI(false);
+}
+
+let arenaBattleState = {
+  heroId: null,
+  heroHp: 0,
+  heroMaxHp: 0,
+  heroAtk: 0,
+  botName: "Arena Bot",
+  botHp: 0,
+  botMaxHp: 0,
+  botAtk: 0
+};
+
+function updateArenaBattleUI(resetLog = false) {
+  const hero = HEROES_CONFIG[arenaBattleState.heroId];
+  if (!hero) return;
+
+  // تحديث أسماء
+  const playerNameEl = document.getElementById("arena-player-name");
+  const enemyNameEl = document.getElementById("arena-enemy-name");
+  const enemyNameTop = document.getElementById("arena-battle-enemy-name");
+  const roundEl = document.getElementById("arena-round-num");
+
+  if (playerNameEl) playerNameEl.textContent = hero.name;
+  if (enemyNameEl) enemyNameEl.textContent = arenaBattleState.botName;
+  if (enemyNameTop) enemyNameTop.textContent = arenaBattleState.botName;
+  if (roundEl) roundEl.textContent = arenaBattleState.round || 0;
+
+  // تحديث Avatar بالـ role emoji
+  const playerAvatar = document.getElementById("arena-player-avatar");
+  const enemyAvatar = document.getElementById("arena-enemy-avatar");
+  const roleEmojis = { Tank: '🛡️', DPS: '🔥', Control: '🌀', Support: '💚', Breaker: '💀' };
+  if (playerAvatar) playerAvatar.textContent = roleEmojis[hero.role] || '⚔️';
+  if (enemyAvatar) enemyAvatar.textContent = '🤖';
+
+  // تحديث HP Bars
+  const playerHpFill = document.getElementById("arena-player-hp-fill");
+  const playerHpText = document.getElementById("arena-player-hp-text");
+  const enemyHpFill = document.getElementById("arena-enemy-hp-fill");
+  const enemyHpText = document.getElementById("arena-enemy-hp-text");
+
+  if (playerHpFill) {
+    const ratio = arenaBattleState.heroMaxHp > 0
+      ? (arenaBattleState.heroHp / arenaBattleState.heroMaxHp) * 100 : 0;
+    playerHpFill.style.width = `${Math.max(0, Math.min(100, ratio))}%`;
+  }
+  if (playerHpText) playerHpText.textContent = `${arenaBattleState.heroHp}/${arenaBattleState.heroMaxHp}`;
+
+  if (enemyHpFill) {
+    const ratio = arenaBattleState.botMaxHp > 0
+      ? (arenaBattleState.botHp / arenaBattleState.botMaxHp) * 100 : 0;
+    enemyHpFill.style.width = `${Math.max(0, Math.min(100, ratio))}%`;
+  }
+  if (enemyHpText) enemyHpText.textContent = `${arenaBattleState.botHp}/${arenaBattleState.botMaxHp}`;
+
+  // تحديث Arena Points في الـ Top Bar
+  const pointsEl = document.getElementById("arena-battle-points");
+  if (pointsEl) pointsEl.textContent = arenaPlayerState.points;
+
+  // Reset Log
+  if (resetLog) {
+    const log = document.getElementById("arena-battle-log");
+    if (log) log.innerHTML = '<div class="arena-log-title">⚔️ Battle Log</div>';
+  }
+}
+
+function runArenaBattleRound(playerAction) {
+  const hero = HEROES_CONFIG[arenaBattleState.heroId];
+  if (!hero) return;
+  if (arenaBattleState.heroHp <= 0 || arenaBattleState.botHp <= 0) return;
+
+  const botActions = ["attack", "defend"];
+  const botAction = botActions[Math.floor(Math.random() * botActions.length)];
+
+  let heroDamage = arenaBattleState.heroAtk;
+  let botDamage = arenaBattleState.botAtk;
+
+  if (playerAction === "defend") botDamage = Math.round(botDamage * 0.4);
+  if (botAction === "defend") heroDamage = Math.round(heroDamage * 0.4);
+  if (playerAction === "skill") heroDamage = Math.round(heroDamage * 1.5);
+
+  arenaBattleState.botHp -= heroDamage;
+  if (arenaBattleState.botHp < 0) arenaBattleState.botHp = 0;
+
+  let logHtml = `<div class="log-player">🔹 ${hero.name} ➜ ${heroDamage} ضرر</div>`;
+
+  if (arenaBattleState.botHp > 0) {
+    arenaBattleState.heroHp -= botDamage;
+    if (arenaBattleState.heroHp < 0) arenaBattleState.heroHp = 0;
+    logHtml += `<div class="log-enemy">🔸 ${arenaBattleState.botName} ➜ ${botDamage} ضرر</div>`;
+  } else {
+    logHtml += `<div class="log-enemy">💀 ${arenaBattleState.botName} سقط.</div>`;
+  }
+
+  if (arenaBattleState.botHp <= 0 && arenaBattleState.heroHp > 0) {
+    logHtml += `<div class="log-win">🏆 ${hero.name} فاز!</div>`;
+    addToArenaLog(logHtml);
+    updateArenaBattleUI(false);
+    showBattleResult(true);
+    return;
+  } else if (arenaBattleState.heroHp <= 0 && arenaBattleState.botHp > 0) {
+    logHtml += `<div class="log-lose">☠️ ${arenaBattleState.botName} انتصر...</div>`;
+    addToArenaLog(logHtml);
+    updateArenaBattleUI(false);
+    showBattleResult(false);
+    return;
+  } else if (arenaBattleState.heroHp <= 0 && arenaBattleState.botHp <= 0) {
+    logHtml += `<div class="log-lose">⚖️ تعادل!</div>`;
+    addToArenaLog(logHtml);
+    updateArenaBattleUI(false);
+    showBattleResult(false);
+    return;
+  }
+
+  addToArenaLog(logHtml);
+  updateArenaBattleUI(false);
+}
+function showBattleResult(win) {
+  const resultBox = document.getElementById("arena-result-box");
+  const resultText = document.getElementById("arena-result-text");
+  const resultPoints = document.getElementById("arena-result-points");
+  const streakEl = document.getElementById("arena-streak");
+
+  if (!resultBox || !resultText || !resultPoints) return;
+
+  if (win) {
+    arenaPlayerState.points += 10;
+    arenaPlayerState.winStreak += 1;
+    resultBox.className = "arena-result-box win";
+    resultText.textContent = "🏆 فزت!";
+    resultText.style.color = "#22c55e";
+    resultPoints.textContent = "+ 10 Arena Points";
+    if (streakEl) {
+      streakEl.textContent = `Win Streak: ${arenaPlayerState.winStreak} 🔥`;
+      streakEl.style.color = "#22c55e";
+    }
+  } else {
+    arenaPlayerState.points = Math.max(0, arenaPlayerState.points - 5);
+    arenaPlayerState.winStreak = 0;
+    resultBox.className = "arena-result-box lose";
+    resultText.textContent = "☠️ خسرت...";
+    resultText.style.color = "#ef4444";
+    resultPoints.textContent = "- 5 Arena Points";
+    if (streakEl) {
+      streakEl.textContent = "Win Streak: 0";
+      streakEl.style.color = "#f97316";
+    }
+  }
+
+  const pointsEl = document.getElementById("arena-points");
+  if (pointsEl) pointsEl.textContent = arenaPlayerState.points.toString();
+  const battlePointsEl = document.getElementById("arena-battle-points");
+  if (battlePointsEl) battlePointsEl.textContent = arenaPlayerState.points;
+
+  saveArenaState();
+  resultBox.style.display = "block";
+}
+
+
+
+function playAgainArenaBattle() {
+  if (autoBattleInterval) {
+    clearInterval(autoBattleInterval);
+    autoBattleInterval = null;
+  }
+  const resultBox = document.getElementById("battle-result-box");
+  if (resultBox) resultBox.style.display = "none";
+  const autoBtn = document.getElementById("battle-btn-start-auto");
+  if (autoBtn) autoBtn.style.display = "block";
+  const statusText = document.getElementById("battle-status-text");
+  if (statusText) {
+    statusText.textContent = "اضغط لبدء القتال التلقائي.";
+    statusText.style.color = "#9ca3af";
+  }
+  startTestArenaBattle();
+}
+
 
 </script>
 
@@ -12504,6 +14042,157 @@ function attackPlayer(telegramId) {
     <div id="player-profile-content"></div>
   </div>
 </div>
+<!-- Arena Lobby Panel -->
+<div id="arena-page" class="game-page-panel game-page-hidden">
+
+  <!-- Header -->
+  <div class="page-header">
+    <span>Arena</span>
+    <button onclick="closeArenaPage()">Back</button>
+  </div>
+  <div class="page-sub">
+    3v3 Heroes • Turn-Based PvP
+  </div>
+
+  <!-- منطقة الصورة في المنتصف -->
+  <div id="arena-lobby-bg-container" style="flex:1; position:relative; overflow:hidden; min-height:200px; border-bottom: 2px solid #facc15;">
+    <!-- التدرج فوق الصورة لجعل الانتقال ناعم -->
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,15,30,0) 0%, rgba(10,15,30,0.8) 100%); z-index: 1;"></div>
+  </div>
+
+  <!-- الجزء السفلي: المحتوى -->
+  <div style="background:rgba(10,15,30,0.97); padding:10px; flex-shrink:0; z-index: 2;">
+
+    <!-- Rank + Points -->
+    <div style="background:rgba(15,23,42,0.95);border-radius:12px;padding:10px 12px;margin-bottom:10px;border:1px solid rgba(148,163,184,0.5);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:13px;color:#9ca3af;">Current League</div>
+          <div id="arena-league" style="font-size:16px;font-weight:bold;">Bronze I</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;color:#9ca3af;">Arena Points</div>
+          <div id="arena-points" style="font-size:16px;font-weight:bold;color:#facc15;">0</div>
+        </div>
+      </div>
+      <div id="arena-streak" style="margin-top:6px;font-size:12px;color:#22c55e;">
+        Win Streak: 0
+      </div>
+    </div>
+
+    <!-- Team preview -->
+    <div style="background:rgba(15,23,42,0.95);border-radius:12px;padding:10px 12px;margin-bottom:10px;border:1px solid rgba(148,163,184,0.5);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:13px;font-weight:bold;">Your Arena Team</div>
+        <button onclick="openPvpPanel()" style="padding:4px 10px;border-radius:999px;border:none;background:#0ea5e9;color:#0b1120;font-size:11px;font-weight:bold;cursor:pointer;">
+          Edit Team
+        </button>
+      </div>
+      <div id="arena-team-preview" style="display:flex;gap:6px;"></div>
+      <div id="arena-team-warning" style="margin-top:6px;font-size:11px;color:#f97316;">
+        You need at least 1 hero to start a battle.
+      </div>
+    </div>
+
+    <!-- Start battle -->
+    <button id="arena-start-btn"
+            style="width:100%;padding:10px 0;border-radius:999px;border:none;
+                   background:linear-gradient(135deg,#22c55e,#0ea5e9);color:#0b1120;
+                   font-size:15px;font-weight:bold;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,0.6);">
+      ⚔️ Start Battle
+    </button>
+
+  </div>
+</div>
+
+
+
+
+<!-- Arena Battle Panel -->
+<div id="arena-battle-page" class="game-page-panel game-page-hidden">
+
+  <!-- Top Bar -->
+  <div class="arena-top-bar">
+    <div class="arena-top-league">
+      💎 <span id="arena-battle-league">Bronze I</span>
+    </div>
+    <div class="arena-top-points">
+      ⚡ <span id="arena-battle-points">0</span> pts
+    </div>
+    <div class="arena-top-enemy">
+      <span id="arena-battle-enemy-name">Arena Bot</span> 🤖
+    </div>
+  </div>
+
+  <!-- VS Area -->
+  <div class="arena-vs-area">
+
+    <!-- البطل (اليسار) -->
+    <div class="arena-fighter">
+      <div class="arena-fighter-avatar player-avatar" id="arena-player-avatar">⚔️</div>
+      <div class="arena-fighter-name" id="arena-player-name" style="color:#38bdf8;">Hero</div>
+      <div class="arena-hp-bar-wrapper">
+        <div style="display:flex;justify-content:space-between;">
+          <span class="arena-hp-label">HP</span>
+          <span class="arena-hp-text" id="arena-player-hp-text">0/0</span>
+        </div>
+        <div class="arena-hp-track">
+          <div class="arena-hp-fill" id="arena-player-hp-fill"
+               style="width:100%; background:linear-gradient(90deg,#16a34a,#22c55e); box-shadow:0 0 8px rgba(34,197,94,0.7);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VS + Round -->
+    <div class="arena-vs-divider">
+      <div class="arena-vs-text">VS</div>
+      <div class="arena-round-text">Round <span id="arena-round-num">0</span></div>
+    </div>
+
+    <!-- البوت (اليمين) -->
+    <div class="arena-fighter">
+      <div class="arena-fighter-avatar enemy-avatar" id="arena-enemy-avatar">🤖</div>
+      <div class="arena-fighter-name" id="arena-enemy-name" style="color:#ef4444;">Arena Bot</div>
+      <div class="arena-hp-bar-wrapper">
+        <div style="display:flex;justify-content:space-between;">
+          <span class="arena-hp-label">HP</span>
+          <span class="arena-hp-text" id="arena-enemy-hp-text">0/0</span>
+        </div>
+        <div class="arena-hp-track enemy-track">
+          <div class="arena-hp-fill" id="arena-enemy-hp-fill"
+               style="width:100%; background:linear-gradient(90deg,#991b1b,#ef4444); box-shadow:0 0 8px rgba(239,68,68,0.7);"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Battle Log -->
+  <div class="arena-log-wrapper" id="arena-battle-log">
+    <div class="arena-log-title">⚔️ Battle Log</div>
+  </div>
+
+  <!-- Auto Battle Button -->
+  <button class="arena-auto-btn" id="arena-auto-battle-btn">
+    ⚔️ AUTO BATTLE
+  </button>
+
+  <!-- Result Box -->
+  <div class="arena-result-box" id="arena-result-box">
+    <div class="arena-result-text" id="arena-result-text"></div>
+    <div class="arena-result-points" id="arena-result-points"></div>
+    <button class="arena-play-again-btn" onclick="playAgainArenaBattle()">Play Again</button>
+  </div>
+
+  <!-- Back -->
+  <button onclick="closeArenaBattlePage()"
+          style="margin:6px 12px; width:calc(100% - 24px); padding:8px 0; border-radius:999px; border:none;
+                 background:rgba(30,41,59,0.9); color:#e5e7eb; font-size:13px; cursor:pointer;">
+    ← Back to Arena
+  </button>
+
+</div>
+
 
   </body>
 </html>
