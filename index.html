@@ -13634,6 +13634,18 @@ function openPvpPanel() {
 }
 let autoBattleInterval = null;
 
+let arenaBattleState = {
+  heroId: null,
+  heroHp: 0,
+  heroMaxHp: 0,
+  heroAtk: 0,
+  botName: "Arena Bot",
+  botHp: 0,
+  botMaxHp: 0,
+  botAtk: 0,
+  round: 0
+};
+
 function startTestArenaBattle() {
   const team = playerHeroesState.pvpTeam || [];
   const heroId = team.find(id => !!id);
@@ -13647,10 +13659,11 @@ function startTestArenaBattle() {
 
   const bot = {
     name: "Arena Bot",
-    atk: Math.round(hero.baseAtk * 0.7),
+    atk: Math.round(hero.baseAtk * 0.75),
     hp: Math.round(hero.baseHp * 0.9)
   };
 
+  // تهيئة البيانات
   arenaBattleState.heroId = heroId;
   arenaBattleState.heroHp = hero.baseHp;
   arenaBattleState.heroMaxHp = hero.baseHp;
@@ -13664,22 +13677,23 @@ function startTestArenaBattle() {
   openArenaBattlePage();
   updateArenaBattleUI(true);
 
-  // نخفي زر Start Auto Battle ونبدأ القتال
-  const autoBtn = document.getElementById("battle-btn-start-auto");
+  // إخفاء زرار AUTO BATTLE عشان ما ينداسش مرتين
+  const autoBtn = document.getElementById("arena-auto-battle-btn");
   if (autoBtn) autoBtn.style.display = "none";
 
   const statusText = document.getElementById("battle-status-text");
   if (statusText) {
-    statusText.textContent = "القتال جارٍ...";
+    statusText.textContent = "⚔️ القتال جارٍ...";
     statusText.style.color = "#facc15";
   }
 
-  // نبدأ الـ Auto Battle
+  // بدء التايمر للقتال التلقائي
   if (autoBattleInterval) clearInterval(autoBattleInterval);
   autoBattleInterval = setInterval(() => {
     runAutoBattleRound();
-  }, 1500);
+  }, 1200); 
 }
+
 
 function getHeroAIAction(heroId, heroHp, heroMaxHp) {
   const hero = HEROES_CONFIG[heroId];
@@ -13710,38 +13724,35 @@ function getHeroAIAction(heroId, heroHp, heroMaxHp) {
 }
 
 function addToArenaLog(html) {
-  const log = document.getElementById("arena-battle-log");
+  const log = document.getElementById("arena-battle-log"); // التأكد من الـ ID الجديد
   if (!log) return;
   const entry = document.createElement("div");
   entry.innerHTML = html;
   log.appendChild(entry);
-  log.scrollTop = log.scrollHeight;
+  log.scrollTop = log.scrollHeight; // عشان ينزل لتحت تلقائي مع كل ضربة
 }
 
+
 function runAutoBattleRound() {
+  // 1. فحص نهاية القتال قبل بدء الجولة
   if (arenaBattleState.heroHp <= 0 || arenaBattleState.botHp <= 0) {
-    clearInterval(autoBattleInterval);
-    autoBattleInterval = null;
+    stopBattle();
     return;
   }
 
-  arenaBattleState.round = (arenaBattleState.round || 0) + 1;
-
+  arenaBattleState.round++;
   const hero = HEROES_CONFIG[arenaBattleState.heroId];
   if (!hero) return;
 
-  const playerAction = getHeroAIAction(
-    arenaBattleState.heroId,
-    arenaBattleState.heroHp,
-    arenaBattleState.heroMaxHp
-  );
-
+  // 2. اختيار الحركات (AI)
+  const playerAction = getHeroAIAction(arenaBattleState.heroId, arenaBattleState.heroHp, arenaBattleState.heroMaxHp);
   const botActions = ["attack", "defend", "attack"];
   const botAction = botActions[Math.floor(Math.random() * botActions.length)];
 
   let heroDamage = arenaBattleState.heroAtk;
   let botDamage = arenaBattleState.botAtk;
 
+  // 3. حساب التأثيرات (دفاع، مهارات، علاج)
   if (playerAction === "defend") botDamage = Math.round(botDamage * 0.3);
   if (botAction === "defend") heroDamage = Math.round(heroDamage * 0.3);
   if (playerAction === "skill") heroDamage = Math.round(heroDamage * 1.8);
@@ -13749,95 +13760,87 @@ function runAutoBattleRound() {
   let healAmount = 0;
   if (hero.role === "Support" && playerAction === "skill") {
     healAmount = Math.round(arenaBattleState.heroMaxHp * 0.15);
-    arenaBattleState.heroHp = Math.min(
-      arenaBattleState.heroMaxHp,
-      arenaBattleState.heroHp + healAmount
-    );
+    arenaBattleState.heroHp = Math.min(arenaBattleState.heroMaxHp, arenaBattleState.heroHp + healAmount);
     heroDamage = Math.round(heroDamage * 0.3);
-    showDamageFloat("arena-player-hp-fill", healAmount, true);
+    showDamageFloat("arena-player-hp-fill", healAmount, true); 
   }
 
+  // --- تسلسل الحرب الحقيقية ---
+
+  // أ. هجوم بطل اللاعب
   arenaBattleState.botHp -= heroDamage;
   if (arenaBattleState.botHp < 0) arenaBattleState.botHp = 0;
+  
+  // تفعيل أنيميشن الضرب والاهتزاز
+  animateFighterAction("arena-player-avatar", "attack-right", "arena-enemy-avatar");
   showDamageFloat("arena-enemy-hp-fill", heroDamage, false);
 
-  // أنيميشن الضرب
-  const playerAvatar = document.getElementById("arena-player-avatar");
-  const enemyAvatar = document.getElementById("arena-enemy-avatar");
-  if (playerAvatar) {
-    playerAvatar.classList.add("attack-right");
-    setTimeout(() => playerAvatar.classList.remove("attack-right"), 400);
-  }
-  if (arenaBattleState.botHp > 0 && enemyAvatar) {
-    setTimeout(() => {
-      enemyAvatar.classList.add("hit-shake");
-      setTimeout(() => enemyAvatar.classList.remove("hit-shake"), 300);
-    }, 200);
-  }
-
   let logHtml = `<div class="log-round">— Round ${arenaBattleState.round} —</div>`;
+  if (healAmount > 0) logHtml += `<div class="log-heal">💚 ${hero.name} استعاد ${healAmount} HP</div>`;
+  const pEmoji = playerAction === "skill" ? "⚡" : (playerAction === "defend" ? "🛡️" : "⚔️");
+  logHtml += `<div class="log-player">${pEmoji} ${hero.name} ➜ <span style="font-weight:bold;">${heroDamage}</span> ضرر</div>`;
 
-  if (healAmount > 0) {
-    logHtml += `<div class="log-heal">💚 ${hero.name} استخدم Heal واسترد ${healAmount} HP!</div>`;
-  }
-
-  const actionEmoji = playerAction === "skill" ? "⚡" : playerAction === "defend" ? "🛡️" : "⚔️";
-  logHtml += `<div class="log-player">${actionEmoji} ${hero.name} ➜ <span style="color:#f97316;font-weight:bold;">${heroDamage}</span> ضرر</div>`;
-
+  // ب. رد بطل العدو (بعد تأخير بسيط 500ms عشان يبان التسلسل)
   if (arenaBattleState.botHp > 0) {
-    arenaBattleState.heroHp -= botDamage;
-    if (arenaBattleState.heroHp < 0) arenaBattleState.heroHp = 0;
-    showDamageFloat("arena-player-hp-fill", botDamage, false);
-    if (enemyAvatar) {
-      setTimeout(() => {
-        enemyAvatar.classList.add("attack-left");
-        setTimeout(() => enemyAvatar.classList.remove("attack-left"), 400);
-      }, 300);
-    }
-    if (playerAvatar) {
-      setTimeout(() => {
-        playerAvatar.classList.add("hit-shake");
-        setTimeout(() => playerAvatar.classList.remove("hit-shake"), 300);
-      }, 500);
-    }
-    const botEmoji = botAction === "defend" ? "🛡️" : "🤖";
-    logHtml += `<div class="log-enemy">${botEmoji} ${arenaBattleState.botName} ➜ <span style="color:#ef4444;font-weight:bold;">${botDamage}</span> ضرر</div>`;
+    setTimeout(() => {
+      arenaBattleState.heroHp -= botDamage;
+      if (arenaBattleState.heroHp < 0) arenaBattleState.heroHp = 0;
+      
+      animateFighterAction("arena-enemy-avatar", "attack-left", "arena-player-avatar");
+      showDamageFloat("arena-player-hp-fill", botDamage, false);
+      
+      const bEmoji = botAction === "defend" ? "🛡️" : "🤖";
+      addToArenaLog(logHtml + `<div class="log-enemy">${bEmoji} ${arenaBattleState.botName} ➜ <span style="font-weight:bold;">${botDamage}</span> ضرر</div>`);
+      updateArenaBattleUI(false);
+      checkBattleStatus(); // فحص هل مات حد بعد رد الفعل
+    }, 500); 
   } else {
-    logHtml += `<div class="log-enemy">💀 ${arenaBattleState.botName} سقط!</div>`;
-  }
-
-  if (arenaBattleState.botHp <= 0 && arenaBattaleState.heroHp > 0) {
-    logHtml += `<div class="log-win">🏆 ${hero.name} فاز!</div>`;
-    addToArenaLog(logHtml);
+    // لو العدو مات من أول ضربة
+    addToArenaLog(logHtml + `<div class="log-enemy">💀 ${arenaBattleState.botName} سقط!</div>`);
     updateArenaBattleUI(false);
-    clearInterval(autoBattleInterval);
-    autoBattleInterval = null;
-    setTimeout(() => showBattleResult(true), 800);
-    return;
-  } else if (arenaBattleState.heroHp <= 0) {
-    logHtml += `<div class="log-lose">☠️ ${arenaBattleState.botName} انتصر...</div>`;
-    addToArenaLog(logHtml);
-    updateArenaBattleUI(false);
-    clearInterval(autoBattleInterval);
-    autoBattleInterval = null;
-    setTimeout(() => showBattleResult(false), 800);
-    return;
+    checkBattleStatus();
   }
-
-  addToArenaLog(logHtml);
-  updateArenaBattleUI(false);
 }
 
-let arenaBattleState = {
-  heroId: null,
-  heroHp: 0,
-  heroMaxHp: 0,
-  heroAtk: 0,
-  botName: "Arena Bot",
-  botHp: 0,
-  botMaxHp: 0,
-  botAtk: 0
-};
+// دالة الأنيميشن (لازم تضيفها برضه)
+function animateFighterAction(attackerId, animClass, victimId) {
+  const attacker = document.getElementById(attackerId);
+  const victim = document.getElementById(victimId);
+  if (attacker) {
+    attacker.classList.add(animClass);
+    setTimeout(() => attacker.classList.remove(animClass), 400);
+  }
+  if (victim) {
+    setTimeout(() => {
+      victim.classList.add("hit-shake");
+      setTimeout(() => victim.classList.remove("hit-shake"), 350);
+    }, 250);
+  }
+}
+
+// دالة فحص النهاية
+function checkBattleStatus() {
+  if (arenaBattleState.botHp <= 0 || arenaBattleState.heroHp <= 0) {
+    stopBattle();
+    const win = arenaBattleState.botHp <= 0 && arenaBattleState.heroHp > 0;
+    const hero = HEROES_CONFIG[arenaBattleState.heroId];
+    if (win) {
+      addToArenaLog(`<div class="log-win">🏆 مبروك! ${hero.name} حسم المعركة.</div>`);
+    } else {
+      addToArenaLog(`<div class="log-lose">☠️ هُزم فريقك في ساحة الأرينا...</div>`);
+    }
+    setTimeout(() => showBattleResult(win), 1000);
+  }
+}
+
+function stopBattle() {
+  if (autoBattleInterval) {
+    clearInterval(autoBattleInterval);
+    autoBattleInterval = null;
+  }
+}
+
+
 
 function updateArenaBattleUI(resetLog = false) {
   const hero = HEROES_CONFIG[arenaBattleState.heroId];
@@ -13987,21 +13990,27 @@ function showBattleResult(win) {
 
 
 function playAgainArenaBattle() {
-  if (autoBattleInterval) {
-    clearInterval(autoBattleInterval);
-    autoBattleInterval = null;
-  }
-  const resultBox = document.getElementById("battle-result-box");
+  stopBattle(); // نوقف أي تايمر قديم
+  
+  // إخفاء صندوق النتيجة
+  const resultBox = document.getElementById("arena-result-box");
   if (resultBox) resultBox.style.display = "none";
-  const autoBtn = document.getElementById("battle-btn-start-auto");
+  
+  // إظهار زر AUTO BATTLE مرة تانية
+  const autoBtn = document.getElementById("arena-auto-battle-btn");
   if (autoBtn) autoBtn.style.display = "block";
+  
+  // تحديث النص لو موجود، لو مش موجود الكود هيكمل عادي من غير Error
   const statusText = document.getElementById("battle-status-text");
   if (statusText) {
     statusText.textContent = "اضغط لبدء القتال التلقائي.";
-    statusText.style.color = "#9ca3af";
   }
+
+  // بدأ الماتش من جديد
   startTestArenaBattle();
 }
+
+
 
 
 </script>
