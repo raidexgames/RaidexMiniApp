@@ -772,129 +772,6 @@
   border: 1px solid rgba(239,68,68,0.4);
 }
 
-/* VS Area */
-.arena-vs-area {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 10px 12px 10px;
-  gap: 8px;
-  flex-shrink: 0;
-  flex: 1;
-}
-
-
-.arena-fighter {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Avatar كبير واحترافي */
-.arena-fighter-avatar {
-  width: 130px;
-  height: 130px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 70px;
-  position: relative;
-  transition: transform 0.15s ease;
-  flex-shrink: 0;
-}
-
-.arena-fighter-avatar.player-avatar {
-  background: linear-gradient(135deg, rgba(14,165,233,0.3), rgba(56,189,248,0.1));
-  border: 3px solid #38bdf8;
-  box-shadow: 0 0 30px rgba(56,189,248,0.5), inset 0 0 20px rgba(56,189,248,0.1);
-}
-
-.arena-fighter-avatar.enemy-avatar {
-  background: linear-gradient(135deg, rgba(239,68,68,0.3), rgba(248,113,113,0.1));
-  border: 3px solid #ef4444;
-  box-shadow: 0 0 30px rgba(239,68,68,0.5), inset 0 0 20px rgba(239,68,68,0.1);
-}
-
-.arena-fighter-name {
-  font-size: 11px;
-  font-weight: bold;
-  text-align: center;
-  max-width: 110px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* HP Bar أوسع وأوضح */
-.arena-hp-bar-wrapper {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.arena-hp-label {
-  font-size: 10px;
-  color: #9ca3af;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-.arena-hp-track {
-  width: 100%;
-  height: 12px;
-  background: rgba(30,64,175,0.3);
-  border-radius: 999px;
-  overflow: hidden;
-  border: 1px solid rgba(56,189,248,0.2);
-}
-
-.arena-hp-track.enemy-track {
-  background: rgba(127,29,29,0.3);
-  border: 1px solid rgba(239,68,68,0.2);
-}
-
-.arena-hp-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.4s ease;
-}
-
-.arena-hp-text {
-  font-size: 11px;
-  color: #e5e7eb;
-  font-weight: bold;
-}
-
-/* VS في المنتصف */
-.arena-vs-divider {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  min-width: 50px;
-}
-
-.arena-vs-text {
-  font-size: 36px;
-  font-weight: bold;
-  color: #facc15;
-  text-shadow: 0 0 20px rgba(250,204,21,0.9), 0 0 40px rgba(250,204,21,0.5);
-  letter-spacing: 3px;
-}
-
-
-.arena-round-text {
-  font-size: 10px;
-  color: #9ca3af;
-  background: rgba(255,255,255,0.05);
-  padding: 2px 6px;
-  border-radius: 999px;
-}
-
 /* Battle Log */
 .arena-log-wrapper {
   background: rgba(0,0,0,0.5);
@@ -995,7 +872,7 @@
   box-shadow: 0 4px 15px rgba(250,204,21,0.4);
 }
 
-/* Animations */
+/* Animations / damage float / flash كما هي */
 @keyframes attackRight {
   0%   { transform: translateX(0) scale(1); }
   40%  { transform: translateX(25px) scale(1.15); }
@@ -1044,7 +921,6 @@
   text-shadow: 0 0 10px currentColor, 2px 2px 4px rgba(0,0,0,0.8);
 }
 
-/* Flash Effects */
 @keyframes flashRed {
   0%   { filter: brightness(1); }
   30%  { filter: brightness(3) sepia(1) saturate(5) hue-rotate(-20deg); }
@@ -1058,7 +934,200 @@
 }
 
 .flash-red  { animation: flashRed 0.4s ease-out; }
-.flash-green { animation: flashGreen 0.4s ease-out; }
+.flash-green{ animation: flashGreen 0.4s ease-out; }
+
+
+/* الحاوية العليا كلها (المستطيل + الأبطال) */
+.arena-top-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 10px 16px;
+}
+
+/* المستطيل العلوي (الرانك + النقاط) */
+.arena-header-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(15,23,42,0.95), rgba(15,23,42,0.75));
+  border: 1px solid rgba(148,163,184,0.4);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+}
+
+/* صناديق الرانك يمين ويسار */
+.arena-rank-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.arena-rank-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: radial-gradient(circle at top, #38bdf8, #0f172a);
+  box-shadow: 0 0 12px rgba(56,189,248,0.7);
+}
+
+.arena-rank-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.arena-rank-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.arena-rank-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ألوان مميزة لكل جانب */
+.arena-rank-you .arena-rank-name {
+  color: #38bdf8;
+}
+
+.arena-rank-enemy .arena-rank-icon {
+  background: radial-gradient(circle at top, #fb7185, #0f172a);
+  box-shadow: 0 0 12px rgba(248,113,113,0.7);
+}
+
+.arena-rank-enemy .arena-rank-name {
+  color: #fb7185;
+}
+
+/* مركز النقاط */
+.arena-center-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.arena-center-title {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #e5e7eb;
+}
+
+.arena-center-points {
+  font-size: 20px;
+  font-weight: 800;
+  color: #facc15;
+  text-shadow: 0 0 12px rgba(250,204,21,0.8);
+}
+
+.arena-center-vs {
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow:
+    0 0 10px rgba(0,0,0,0.9),
+    0 0 20px rgba(56,189,248,0.7),
+    0 0 20px rgba(248,113,113,0.7);
+}
+
+.arena-center-names {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.arena-center-you {
+  color: #38bdf8;
+}
+
+.arena-center-enemy {
+  color: #fb7185;
+}
+
+/* شريط الأبطال 3v3 */
+.arena-heroes-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 8px 4px 0 4px;
+}
+
+.arena-side {
+  width: 42%;
+  display: flex;
+}
+
+.arena-side-you {
+  justify-content: flex-start;
+}
+
+.arena-side-enemy {
+  justify-content: flex-end;
+}
+
+.arena-heroes-row {
+  display: flex;
+  gap: 8px;
+}
+
+.arena-side-enemy .arena-heroes-row {
+  flex-direction: row-reverse;
+}
+
+.arena-hero-slot {
+  width: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* صورة البطل واقف */
+.arena-hero-big {
+  width: 100px;
+  height: 160px;
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.9);
+}
+
+/* البطل اللي في النص أكبر */
+.arena-side-you .arena-hero-slot:nth-child(2) .arena-hero-big,
+.arena-side-enemy .arena-hero-slot:nth-child(2) .arena-hero-big {
+  width: 120px;
+  height: 180px;
+}
+
+/* HP bar تحت كل بطل */
+.arena-hero-hp-bar {
+  margin-top: 4px;
+  width: 90%;
+  height: 9px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.arena-hero-hp-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,#22c55e,#4ade80);
+  box-shadow: 0 0 6px rgba(34,197,94,0.8);
+}
+
+.arena-hero-hp-fill.enemy {
+  background: linear-gradient(90deg,#f97316,#ef4444);
+  box-shadow: 0 0 6px rgba(248,113,113,0.8);
+}
 
 
       /* Task Page */
@@ -1910,7 +1979,83 @@
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50% { transform: translateX(-50%) translateY(-8px); }
 }
+/* --- Summon button glow --- */
+.summon-button {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 2px solid #facc15;
+  background: radial-gradient(circle at 30% 20%, #fef9c3 0, #facc15 25%, #0f172a 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 12px rgba(250, 204, 21, 0.8),
+    0 0 24px rgba(250, 204, 21, 0.6);
+  cursor: pointer;
+  animation: summon-pulse 1.8s infinite ease-in-out;
+}
 
+.summon-button span {
+  font-size: 22px;
+  filter: drop-shadow(0 0 6px rgba(250, 250, 250, 0.9));
+}
+
+/* label تحت الزر */
+.summon-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background-image: linear-gradient(45deg, #facc15, #f97316, #facc15);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+/* أنيميشن النبض */
+@keyframes summon-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow:
+      0 0 10px rgba(250, 204, 21, 0.7),
+      0 0 20px rgba(250, 204, 21, 0.4);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow:
+      0 0 18px rgba(250, 204, 21, 1),
+      0 0 40px rgba(250, 204, 21, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 10px rgba(250, 204, 21, 0.7),
+      0 0 20px rgba(250, 204, 21, 0.4);
+  }
+}
+
+@keyframes summon-pulse-inline {
+  0% {
+    transform: scale(1);
+    box-shadow:
+      0 0 6px rgba(96,165,250,0.7),
+      0 0 14px rgba(96,165,250,0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow:
+      0 0 14px rgba(96,165,250,1),
+      0 0 28px rgba(96,165,250,0.9);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 6px rgba(96,165,250,0.7),
+      0 0 14px rgba(96,165,250,0.5);
+  }
+}
     </style>
   </head>
   <body>
@@ -2076,10 +2221,13 @@
       <div class="menu-item">🌐 Language</div>
     </div>
 <div class="right-arrow-menu">
- <button id="right-arrow-btn" class="right-arrow-btn">
-  ❯
-  <span id="right-arrow-badge" style="display:none; position:absolute; top:-2px; right:-2px; width:10px; height:10px; background:#ef4444; border-radius:50%; box-shadow:0 0 6px rgba(239,68,68,0.9);"></span>
-</button>
+  <button id="right-arrow-btn" class="right-arrow-btn">
+    ❯
+    <span id="right-arrow-badge"
+          style="display:none; position:absolute; top:-2px; right:-2px;
+                 width:10px; height:10px; background:#ef4444; border-radius:50%;
+                 box-shadow:0 0 6px rgba(239,68,68,0.9);"></span>
+  </button>
 
   <div id="right-options" class="right-options">
     <button class="icon-circle" id="pvp-icon">
@@ -2092,10 +2240,46 @@
       <span>🎫</span>
     </button>
     <button class="icon-circle" id="leaderboard-icon" onclick="openLeaderboardPage()">
-  <span>🏆</span>
-</button>
+      <span>🏆</span>
+    </button>
+  </div>
+
+  <!-- Summon button تحت السهم بشكل حلو -->
+  <div id="summon-wrapper"
+       style="
+         margin-top:10px;
+         margin-left:-4px;
+         display:flex;
+         flex-direction:column;
+         align-items:center;
+         gap:3px;
+       ">
+    <button id="summon-icon"
+            onclick="openSummonShop()"
+            style="
+              width:52px;height:52px;border-radius:16px;
+              border:2px solid #60a5fa;
+              background:radial-gradient(circle at 30% 20%, #e5f2ff 0, #60a5fa 35%, #0f172a 75%);
+              display:flex;align-items:center;justify-content:center;
+              cursor:pointer;
+              animation:summon-pulse-inline 1.9s infinite ease-in-out;
+            ">
+      <span style="font-size:22px;filter:drop-shadow(0 0 6px rgba(248,250,252,0.9));">
+        ✨
+      </span>
+    </button>
+    <div style="
+      font-size:12px;
+      font-weight:bold;
+      letter-spacing:0.6px;
+      color:#e5f2ff;
+      text-shadow:0 0 6px rgba(15,23,42,0.9);
+    ">
+      Summon
+    </div>
   </div>
 </div>
+
 
     <!-- Invite -->
     <div id="invite-btn">🎁</div>
@@ -2310,6 +2494,194 @@
     <!-- الباقات هتتولد ديناميكياً من JavaScript -->
   </div>
 </div>
+<div id="summon-shop-panel" class="game-page-panel game-page-hidden">
+  <!-- هيدر -->
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-weight:700;font-size:16px;display:flex;align-items:center;gap:6px;">
+      <span style="font-size:18px;">✨</span>
+      Summon
+    </span>
+    <button onclick="closeSummonShop()"
+            style="
+              width:28px;height:28px;border-radius:999px;
+              border:1px solid rgba(148,163,184,0.6);
+              background:rgba(15,23,42,0.95);
+              color:#e5e7eb;font-size:18px;line-height:1;
+              display:flex;align-items:center;justify-content:center;
+              cursor:pointer;
+            ">
+      ×
+    </button>
+  </div>
+
+  <!-- جسم البانل -->
+  <div class="page-content"
+       style="
+         margin-top:6px;
+         padding:10px 8px 12px;
+         border-radius:16px;
+         background:radial-gradient(circle at top, rgba(248,250,252,0.06), transparent 55%),
+                    radial-gradient(circle at bottom, rgba(56,189,248,0.16), transparent 65%),
+                    rgba(15,23,42,0.98);
+         border:1px solid rgba(31,41,55,0.9);
+         display:flex;
+         flex-direction:column;
+         gap:10px;
+       ">
+
+    <!-- العنوان في النص + وصف -->
+    <div style="text-align:center;margin-bottom:4px;">
+      <div style="font-size:15px;font-weight:700;color:#f9fafb;">
+        Summon Random Units
+      </div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:2px;">
+        You can summon all types of soldiers and heroes.
+      </div>
+    </div>
+
+    <!-- تبويب الجنود / الأبطال + زر Summon Probability -->
+    <div style="margin:6px auto 4px;width:100%;display:flex;flex-direction:column;gap:4px;">
+      <div style="display:flex;gap:6px;background:rgba(15,23,42,0.9);padding:4px;border-radius:999px;">
+        <button id="summon-tab-soldiers"
+                style="
+                  flex:1;padding:6px 0;border:none;border-radius:999px;
+                  background:#0ea5e9;color:#0b1120;font-size:13px;font-weight:bold;
+                  cursor:pointer;box-shadow:0 0 10px rgba(14,165,233,0.8);
+                ">
+          Soldiers
+        </button>
+        <button id="summon-tab-heroes"
+                style="
+                  flex:1;padding:6px 0;border:none;border-radius:999px;
+                  background:rgba(15,23,42,0.95);color:#e5e7eb;font-size:13px;font-weight:500;
+                  cursor:pointer;
+                ">
+          Heroes
+        </button>
+      </div>
+
+      <!-- زر Summon Probability تحت زر Soldiers -->
+      <div style="display:flex;justify-content:flex-start;margin-top:2px;">
+        <button onclick="openSummonRatesModal()"
+                style="
+                  margin-left:6px;
+                  display:flex;
+                  align-items:center;
+                  gap:6px;
+                  padding:4px 10px;
+                  border:none;
+                  border-radius:8px;
+                  background:linear-gradient(135deg,#7f1d1d,#b91c1c);
+                  box-shadow:0 0 10px rgba(248,113,113,0.7);
+                  cursor:pointer;
+                ">
+          <span style="
+            width:18px;height:18px;
+            border-radius:4px;
+            border:1px solid rgba(248,250,252,0.6);
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;
+            color:#fee2e2;
+            background:rgba(0,0,0,0.2);
+          ">
+            i
+          </span>
+          <span style="font-size:11px;color:#fee2e2;font-weight:600;white-space:nowrap;">
+            Summon Probability
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- الكارت في النص -->
+    <div style="display:flex;justify-content:center;margin:6px 0 4px;">
+      <div style="
+        width:120px;
+        height:170px;
+        border-radius:14px;
+        padding:3px;
+        background:linear-gradient(135deg,#f97316,#facc15);
+        box-shadow:0 0 16px rgba(248,250,252,0.25);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      ">
+        <div style="
+          width:100%;
+          height:100%;
+          border-radius:11px;
+          background:radial-gradient(circle at top,rgba(15,23,42,0.95),rgba(15,23,42,1));
+          border:1px solid rgba(148,163,184,0.8);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:22px;
+          font-weight:800;
+          letter-spacing:2px;
+          color:#e5e7eb;
+          text-shadow:0 0 8px rgba(248,250,252,0.7);
+        ">
+          ALL
+        </div>
+      </div>
+    </div>
+
+    <!-- أزرار السُمِّن في شريط تحت -->
+    <div style="
+      margin-top:8px;
+      padding-top:8px;
+      border-top:1px solid rgba(31,41,55,0.9);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    ">
+      <div style="display:flex;gap:6px;">
+        <button id="summon-1-btn"
+                style="
+                  flex:1;padding:8px 8px;border:none;border-radius:999px;
+                  background:rgba(15,23,42,0.95);
+                  color:#e5e7eb;font-weight:600;font-size:12px;
+                  cursor:pointer;border:1px solid rgba(75,85,99,0.9);
+                ">
+          Summon ×1
+        </button>
+
+        <button id="summon-10-btn"
+                style="
+                  flex:1;padding:8px 8px;border:none;border-radius:999px;
+                  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+                  color:#f9fafb;font-weight:700;font-size:12px;
+                  cursor:pointer;box-shadow:0 0 12px rgba(129,140,248,0.8);
+                ">
+          Summon ×10
+        </button>
+      </div>
+
+      <div style="display:flex;gap:6px;">
+        <button id="summon-50-btn"
+                style="
+                  flex:1;padding:8px 8px;border:none;border-radius:999px;
+                  background:linear-gradient(135deg,#312e81,#4c1d95);
+                  color:#e5e7eb;font-weight:600;font-size:12px;
+                  cursor:pointer;border:1px solid rgba(129,140,248,0.6);
+                ">
+          Summon ×50
+        </button>
+
+        <button id="summon-ads-btn"
+                style="
+                  flex:1;padding:8px 8px;border:none;border-radius:999px;
+                  background:linear-gradient(135deg,#22c55e,#a3e635);
+                  color:#0b1120;font-weight:700;font-size:12px;
+                  cursor:pointer;box-shadow:0 0 12px rgba(34,197,94,0.8);
+                ">
+          Free (3× Daily)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Tasks Page -->
 <div id="tasks-page" class="game-page-panel game-page-hidden">
@@ -2925,6 +3297,122 @@ function closeResourceShop() {
   const panel = document.getElementById("resource-shop-panel");
   if (panel) panel.classList.add("hidden");
 }
+function openSummonShop() {
+  // اخفي كل البانلات التانية
+  const panels = document.querySelectorAll(".game-page-panel");
+  panels.forEach(p => p.classList.add("game-page-hidden"));
+
+  const panel = document.getElementById("summon-shop-panel");
+  if (panel) {
+    panel.classList.remove("game-page-hidden");
+  }
+
+  // أخفي زر السيمون لأن البانل فتح
+  showSummonButton(false);
+}
+
+
+
+function closeSummonShop() {
+  const panel = document.getElementById("summon-shop-panel");
+  if (panel) {
+    panel.classList.add("game-page-hidden");
+  }
+
+  // رجّع زر السيمون
+  showSummonButton(true);
+}
+function openSummonRatesModal() {
+  const old = document.getElementById("summon-rates-modal");
+  if (old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "summon-rates-modal";
+  modal.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      background: #020617;
+      border-radius: 16px;
+      padding: 12px 14px;
+      width: 92%;
+      max-width: 380px;
+      border: 1px solid rgba(148,163,184,0.7);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      color: #e5e7eb;
+      font-size: 13px;
+    ">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;">
+          <span style="color:#facc15;">i</span>
+          Summon Probability
+        </div>
+        <button onclick="document.getElementById('summon-rates-modal').remove()"
+                style="
+                  width:24px;height:24px;border-radius:999px;
+                  border:1px solid rgba(148,163,184,0.5);
+                  background:rgba(15,23,42,0.95);
+                  color:#e5e7eb;font-size:14px;line-height:1;
+                  display:flex;align-items:center;justify-content:center;
+                  cursor:pointer;
+                ">
+          ×
+        </button>
+      </div>
+
+      <div style="margin-bottom:8px;color:#9ca3af;font-size:12px;">
+        Overall rarity chances when summoning any unit.
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;">
+        <thead>
+          <tr style="color:#9ca3af;border-bottom:1px solid rgba(55,65,81,0.9);">
+            <th style="text-align:left;padding:4px 2px;">Rarity</th>
+            <th style="text-align:right;padding:4px 2px;">Chance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:4px 2px;color:#e5e7eb;">Common</td>
+            <td style="padding:4px 2px;text-align:right;color:#e5e7eb;">60%</td>
+          </tr>
+          <tr>
+            <td style="padding:4px 2px;color:#60a5fa;">Rare</td>
+            <td style="padding:4px 2px;text-align:right;color:#60a5fa;">25%</td>
+          </tr>
+          <tr>
+            <td style="padding:4px 2px;color:#a855f7;">Epic</td>
+            <td style="padding:4px 2px;text-align:right;color:#a855f7;">10%</td>
+          </tr>
+          <tr>
+            <td style="padding:4px 2px;color:#facc15;">Legendary</td>
+            <td style="padding:4px 2px;text-align:right;color:#facc15;">5%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="font-size:11px;color:#9ca3af;line-height:1.4;">
+        Each rarity contains different unit types (Attack, HP and more).
+        All units inside the same rarity share the same base chance.
+      </div>
+    </div>
+  `;
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.remove();
+  });
+
+  document.body.appendChild(modal);
+}
+
 
 function buyResourcePack(resourceType, amount, gemCost) {
   if (resources.gem < gemCost) {
@@ -3371,13 +3859,6 @@ const MININGBUILDINGSINFO = {
   goldMine:    { name: "منجم الذهب",   image: "goldmine.png",   desc: "" },
   woodMine:    { name: "منجم الخشب",   image: "woodmine.png",   desc: "" },
   meatFarm:    { name: "مزرعة اللحم",  image: "meatfarm.png",   desc: "" },
-  school:      { name: "المدرسة",      image: "school.png",     desc: "" },
-  attackTower: { name: "برج الهجوم",   image: "attack_tower.png", desc: "" },
-  defenseTower:{ name: "برج الدفاع",   image: "defense_tower.png", desc: "" },
-  heroesHall:  { name: "قاعة الأبطال", image: "heroes_hall.png",  desc: "" },
-  market:      { name: "السوق",        image: "market.png",     desc: "" },
-  booster:     { name: "برج البوست",   image: "booster_tower.png", desc: "" },
-  hospital:    { name: "المستشفى",     image: "hospital.png",   desc: "" }
 };
 function getBuildingImageByKey(key) {
   if (key === 'goldMine')    return 'goldmine.png';
@@ -3390,6 +3871,7 @@ function getBuildingImageByKey(key) {
   if (key === 'market')      return 'market.png';
   if (key === 'booster')     return 'boostertower.png';
   if (key === 'hospital')    return 'hospital.png';
+  if (key === "dragonTower") return "dragontower.png";
   return '';
 }
 function fillGenericUpgradeTab(buildingKey) {
@@ -3793,26 +4275,26 @@ function openMiningBuildingPanel(buildingKey) {
   const currentLevel = buildingLevels[buildingKey] || 1;
   let currentProd = 0;
 
-  // المناجم فقط (goldMine / woodMine / meatFarm)
   if (buildingKey === "goldMine" || buildingKey === "woodMine" || buildingKey === "meatFarm") {
     currentProd = calcMiningProductionPerHour(buildingKey, currentLevel);
   } else {
     currentProd = 0;
   }
 
-
   buildingPanelTitle.textContent = info.name;
   buildingPanelImage.src = info.image;
   buildingPanelImage.alt = info.name;
   buildingPanelDesc.textContent = info.desc;
- window.currentMiningBuildingKey = buildingKey;
-updateGoldMineUI();
 
+  window.currentMiningBuildingKey = buildingKey;
+  updateGoldMineUI();
 
   fillGenericUpgradeTab(buildingKey);
   switchBuildingPanelTab("info");
-  buildingPanel.classList.remove("hidden");
+  buildingPanel.classList.remove("hidden"); // نرجعها زي ما كانت
 }
+
+
 
 function fillMiningUpgradeTab(buildingKey) {
   const currentLevel = buildingLevels[buildingKey] || 1;
@@ -4591,17 +5073,19 @@ function collectGoldFromMine(amount) {
 
 // إعدادات المباني: شروط الفتح ونوع المبنى
 const BUILDINGS_CONFIG = {
-  1: { id: "building-1", key: "goldMine",   name: "منجم الذهب",   unlockLevel: 2 },  // مفتوح من البداية
-  2: { id: "building-2", key: "woodMine",   name: "منجم الخشب",   unlockLevel: 2 },
-  3: { id: "building-3", key: "school",     name: "المدرسة",      unlockLevel: 3 },
-  4: { id: "building-4", key: "attackTower",name: "برج الهجوم",   unlockLevel: 5 },
-  5: { id: "building-5", key: "defenseTower",name:"برج الدفاع",   unlockLevel: 7 },
-  6: { id: "building-6", key: "meatFarm",   name: "مزرعة اللحم",  unlockLevel: 2 },
-  7: { id: "building-7", key: "heroesHall", name: "قاعة الأبطال", unlockLevel: 4 },
-  8: { id: "building-8", key: "market",     name: "السوق",        unlockLevel: 6 },
-  9: { id: "building-9", key: "booster",    name: "برج البوست",   unlockLevel: 8 },
-  10:{ id: "building-10",key: "hospital",   name: "المستشفى",     unlockLevel: 10 }
+  1:  { id: "building-1",  key: "goldMine",     name: "منجم الذهب",    unlockLevel: 2 },
+  2:  { id: "building-2",  key: "woodMine",     name: "منجم الخشب",    unlockLevel: 2 },
+  3:  { id: "building-3",  key: "school",       name: "المدرسة",       unlockLevel: 3 },
+  4:  { id: "building-4",  key: "attackTower",  name: "برج الهجوم",   unlockLevel: 5 },
+  5:  { id: "building-5",  key: "defenseTower", name: "برج الدفاع",   unlockLevel: 7 },
+  6:  { id: "building-6",  key: "meatFarm",     name: "مزرعة اللحم",  unlockLevel: 2 },
+  7:  { id: "building-7",  key: "heroesHall",   name: "قاعة الأبطال", unlockLevel: 4 },
+  8:  { id: "building-8",  key: "market",       name: "السوق",        unlockLevel: 6 },
+  9:  { id: "building-9",  key: "booster",      name: "برج البوست",   unlockLevel: 8 },
+  10: { id: "building-10", key: "hospital",     name: "المستشفى",     unlockLevel: 10 },
+  11: { id: "building-11", key: "dragonTower",  name: "برج التنانين", unlockLevel: 6 },
 };
+
 // حالة فتح المباني (true/false لكل building key)
 let unlockedBuildings = {};
 function getBuildingNameByKey(key) {
@@ -5600,19 +6084,20 @@ castleWrapper.addEventListener("click", openCastlePanel);
 
 cityScreen.appendChild(castleWrapper);
 
-    // 10 مباني حوالين القلعة (placeholder)
-    const buildingPositions = [
-      { left: "50%", top: "20%" }, // 1
-      { left: "74%", top: "26%" }, // 2
-      { left: "82%", top: "50%" }, // 3
-      { left: "74%", top: "74%" }, // 4
-      { left: "50%", top: "82%" }, // 5
-      { left: "26%", top: "74%" }, // 6
-      { left: "18%", top: "50%" }, // 7
-      { left: "26%", top: "26%" }, // 8
-      { left: "64%", top: "36%" }, // 9
-      { left: "36%", top: "64%" }  // 10
-    ];
+  const buildingPositions = [
+  { left: "50%", top: "20%" }, // 1
+  { left: "74%", top: "26%" }, // 2
+  { left: "82%", top: "50%" }, // 3
+  { left: "74%", top: "74%" }, // 4
+  { left: "50%", top: "82%" }, // 5
+  { left: "26%", top: "74%" }, // 6
+  { left: "18%", top: "50%" }, // 7
+  { left: "26%", top: "26%" }, // 8
+  { left: "64%", top: "36%" }, // 9
+  { left: "36%", top: "64%" }, // 10
+  { left: "64%", top: "64%" }, // 11 برج التنانين
+];
+
 
 // إنشاء مربعات المباني الأساسية 1..10
 buildingPositions.forEach((pos, index) => {
@@ -6917,6 +7402,65 @@ hospital.onclick = function () {
     hospital.appendChild(hospitalStatusBox);
   }
 }
+// 11) building-11 - Dragon Tower
+const dragonTowerEl = document.getElementById("building-11");
+if (dragonTowerEl) {
+  const requiredLevel = 6; // نفس unlockLevel في BUILDINGS_CONFIG
+
+  dragonTowerEl.style.border = "none";
+  dragonTowerEl.style.background = "transparent";
+  dragonTowerEl.style.width = "140px";
+  dragonTowerEl.style.height = "160px";
+  dragonTowerEl.style.position = "absolute";
+  dragonTowerEl.style.left = buildingPositions[10].left;  // index 10 = المبنى 11
+  dragonTowerEl.style.top = buildingPositions[10].top;
+  dragonTowerEl.style.transform = "translate(-50%, -50%)";
+  dragonTowerEl.style.zIndex = 95;
+  dragonTowerEl.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = "dragontower.png"; // تأكد من اسم ملف الصورة
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  dragonTowerEl.appendChild(img);
+
+  const statusBox = document.createElement("div");
+  statusBox.id = "dragon-tower-status-box";
+  statusBox.style.position = "absolute";
+  statusBox.style.bottom = "-18px";
+  statusBox.style.left = "50%";
+  statusBox.style.transform = "translateX(-50%)";
+  statusBox.style.background = "rgba(0,0,0,0.7)";
+  statusBox.style.padding = "2px 6px";
+  statusBox.style.borderRadius = "8px";
+  statusBox.style.fontSize = "10px";
+  statusBox.style.minWidth = "70px";
+  statusBox.style.textAlign = "center";
+
+  if (castleLevel < requiredLevel) {
+    dragonTowerEl.style.filter = "grayscale(1)";
+    dragonTowerEl.style.opacity = "0.5";
+
+    statusBox.textContent = "Lv." + requiredLevel;
+    dragonTowerEl.appendChild(statusBox);
+
+    dragonTowerEl.onclick = function () {
+      alert("برج التنانين مقفول.\nرقّي القلعة للمستوى " + requiredLevel + " أولاً.");
+    };
+  } else {
+    dragonTowerEl.style.filter = "none";
+    dragonTowerEl.style.opacity = "1";
+
+    statusBox.textContent = "Lv." + (buildingLevels.dragonTower || 1);
+    dragonTowerEl.appendChild(statusBox);
+
+    dragonTowerEl.onclick = function () {
+      showBuildingPopup("dragonTower");
+    };
+  }
+}
 
 
     addTopBar();
@@ -7999,6 +8543,43 @@ if (savedHealthArmy) {
     console.error("Error parsing saved health army", e);
   }
 }
+const DRAGON_ARMIES = {
+  elephant: [
+    { key: "eledragon1", name: "تنين صغير",   img: "elephantatksoldier1.png", atk: 50,  hp: 200, levelRequired: 1 },
+    { key: "eledragon2", name: "تنين ناري",   img: "elephantatksoldier2.png", atk: 90,  hp: 260, levelRequired: 10 },
+    { key: "eledragon3", name: "تنين مدرع",   img: "elephantatksoldier3.png", atk: 140, hp: 340, levelRequired: 25 },
+    { key: "eledragon4", name: "تنين أسطوري", img: "elephantatksoldier4.png", atk: 220, hp: 450, levelRequired: 35 },
+  ],
+  tiger: [
+    { key: "tigdragon1", name: "تنين الظل",    img: "tigeratksoldier1.png", atk: 60,  hp: 160, levelRequired: 1 },
+    { key: "tigdragon2", name: "تنين اللهب",  img: "tigeratksoldier2.png", atk: 110, hp: 220, levelRequired: 10 },
+    { key: "tigdragon3", name: "تنين الريح",  img: "tigeratksoldier3.png", atk: 170, hp: 290, levelRequired: 25 },
+    { key: "tigdragon4", name: "تنين العاصفة",img: "tigeratksoldier4.png", atk: 250, hp: 380, levelRequired: 35 },
+  ],
+  kong: [
+    { key: "kongdragon1", name: "تنين الصخر", img: "kongatksoldier1.png", atk: 55,  hp: 230, levelRequired: 1 },
+    { key: "kongdragon2", name: "تنين البرق", img: "kongatksoldier2.png", atk: 100, hp: 310, levelRequired: 10 },
+    { key: "kongdragon3", name: "تنين السم",  img: "kongatksoldier3.png", atk: 150, hp: 380, levelRequired: 25 },
+    { key: "kongdragon4", name: "تنين الملك", img: "kongatksoldier4.png", atk: 230, hp: 480, levelRequired: 35 },
+  ],
+};
+
+
+let trainedDragonArmy = {
+  elephant: { eledragon1: 0, eledragon2: 0, eledragon3: 0, eledragon4: 0 },
+  tiger:    { tigdragon1: 0, tigdragon2: 0, tigdragon3: 0, tigdragon4: 0 },
+  kong:     { kongdragon1: 0, kongdragon2: 0, kongdragon3: 0, kongdragon4: 0 },
+};
+
+const savedDragonArmy = localStorage.getItem("raidex_dragon_army_v1");
+if (savedDragonArmy) {
+  try {
+    const parsed = JSON.parse(savedDragonArmy);
+    trainedDragonArmy = { ...trainedDragonArmy, ...parsed };
+  } catch (e) {
+    console.error("Error parsing dragon army", e);
+  }
+}
 
 
 function getAttackArmyCapacity(level) {
@@ -8594,6 +9175,200 @@ document.body.appendChild(panel);
     }
   }
 }
+function initDragonArmyPanel() {
+  if (document.getElementById("dragon-army-panel")) return;
+
+  const panel = document.createElement("div");
+  panel.id = "dragon-army-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "50%";
+  panel.style.left = "50%";
+  panel.style.transform = "translate(-50%, -50%)";
+  panel.style.width = "80%";
+  panel.style.maxWidth = "400px";
+  panel.style.background = "#020617";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "12px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.display = "none";
+
+  // Header
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "8px";
+
+  const title = document.createElement("div");
+  title.textContent = "برج التنانين";
+  title.style.fontWeight = "bold";
+  title.style.fontSize = "18px";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.color = "#e5e7eb";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  // جسم البانل (نفس تقسيمة الهجوم بس IDs مختلفة)
+  const infoTab = document.createElement("div");
+  infoTab.id = "dragon-army-panel-info";
+  infoTab.innerHTML = `
+    <div id="dragon-army-cards-row"
+         style="display:flex; gap:8px; margin-bottom:6px; justify-content:space-between;"></div>
+
+    <div id="dragon-army-selected-name"
+         style="font-weight:bold; text-align:center; margin-bottom:4px;"></div>
+
+    <div style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
+
+    <div id="dragon-army-detail"
+         style="display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:8px;"></div>
+  `;
+
+  panel.appendChild(infoTab);
+  document.body.appendChild(panel);
+
+  const cardsRow = infoTab.querySelector("#dragon-army-cards-row");
+  const selectedNameEl = infoTab.querySelector("#dragon-army-selected-name");
+  const detailEl = infoTab.querySelector("#dragon-army-detail");
+
+  function renderDragonArmyTraining() {
+    const heroKey = currentHero || "elephant";
+    const armyList = DRAGON_ARMIES[heroKey] || [];
+    const towerLevel = buildingLevels.dragonTower || 1;
+
+    cardsRow.innerHTML = "";
+    selectedNameEl.textContent = "";
+    detailEl.innerHTML = "";
+
+    if (!armyList.length) {
+      selectedNameEl.textContent = "لا توجد وحدات تنانين لهذا البطل.";
+      return;
+    }
+
+    armyList.forEach((unit, index) => {
+      const isLocked = towerLevel < unit.levelRequired;
+
+      const card = document.createElement("div");
+      card.style.flex = "1";
+      card.style.background = "rgba(15,23,42,0.9)";
+      card.style.border = "1px solid rgba(148,163,184,0.6)";
+      card.style.borderRadius = "10px";
+      card.style.padding = "4px";
+      card.style.textAlign = "center";
+      card.style.fontSize = "11px";
+      card.style.cursor = isLocked ? "default" : "pointer";
+      card.style.position = "relative";
+      card.style.transition = "0.2s";
+      if (isLocked) card.style.opacity = "0.5";
+
+      card.innerHTML = `
+        <div style="width:100%; height:40px; margin-bottom:4px; position:relative;">
+          <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+          ${
+            isLocked
+              ? `<div style="
+                  position:absolute; inset:0;
+                  display:flex; align-items:center; justify-content:center;
+                  background:rgba(0,0,0,0.4);
+                  font-size:14px; font-weight:bold; color:#facc15;
+                ">
+                  🔒 Lv.${unit.levelRequired}
+                </div>`
+              : ""
+          }
+        </div>
+        <div>${unit.name}</div>
+      `;
+
+      if (!isLocked) {
+        card.onclick = () => {
+          Array.from(cardsRow.children).forEach(c => (c.style.outline = "none"));
+          card.style.outline = "2px solid #facc15";
+
+          const currentCount =
+            (trainedDragonArmy[heroKey] && trainedDragonArmy[heroKey][unit.key]) || 0;
+
+          selectedNameEl.textContent = unit.name;
+          detailEl.innerHTML = `
+            <div style="width:80px; height:80px; flex-shrink:0;">
+              <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+            </div>
+            <div style="font-size:13px; line-height:1.6;">
+              <div>الهجوم: ${unit.atk}</div>
+              <div>الصحة: ${unit.hp}</div>
+              <div style="margin-top:4px;">
+                عدد التنانين الحالي:
+                <span id="dragon-unit-count-text">${currentCount}</span>
+              </div>
+              <button id="dragon-train-button"
+                      style="margin-top:8px; padding:6px 12px; border:none; border-radius:999px;
+                             background:#22c55e; color:#0b1120; font-weight:bold; cursor:pointer; font-size:12px;">
+                تدريب تنين
+              </button>
+            </div>
+          `;
+
+          const trainBtn = detailEl.querySelector("#dragon-train-button");
+          const countSpan = detailEl.querySelector("#dragon-unit-count-text");
+
+          if (trainBtn && countSpan) {
+            trainBtn.onclick = () => {
+              // مؤقتاً: تدريب 1 تنين بتكلفة ثابتة
+              const costGold = 10000;
+              const costFood = 20000;
+
+              if (resources.gold < costGold || resources.food < costFood) {
+                alert("الموارد لا تكفي لتدريب هذا التنين.");
+                return;
+              }
+
+              resources.gold -= costGold;
+              resources.food -= costFood;
+
+              const heroArmy = trainedDragonArmy[heroKey];
+              heroArmy[unit.key] = (heroArmy[unit.key] || 0) + 1;
+              countSpan.textContent = heroArmy[unit.key];
+
+              localStorage.setItem(
+                "raidex_dragon_army_v1",
+                JSON.stringify(trainedDragonArmy)
+              );
+              if (typeof saveGameState === "function") saveGameState();
+              if (typeof updateTopBar === "function") updateTopBar();
+              if (typeof updateArmyProfileView === "function") updateArmyProfileView();
+              if (typeof updateProfileStatsFromArmy === "function") updateProfileStatsFromArmy();
+            };
+          }
+        };
+
+        if (index === 0) {
+          setTimeout(() => card.onclick(), 0);
+        }
+      }
+
+      cardsRow.appendChild(card);
+    });
+  }
+
+  renderDragonArmyTraining();
+}
+
+
 function initHealthArmyPanel() {
   if (document.getElementById("health-army-panel")) return;
 
@@ -9199,6 +9974,15 @@ const inviteIcon = document.getElementById("invite-icon");
 const pvpIcon = document.getElementById("pvp-icon");
 const chatIcon = document.getElementById("chat-icon");
 const passIcon = document.getElementById("pass-icon");
+const summonIcon = document.getElementById("summon-icon");
+
+if (summonIcon) {
+  summonIcon.addEventListener("click", () => {
+    openSummonShop();   // هنعرفها تحت
+    closeRightMenu();
+  });
+}
+
 if (pvpIcon) {
   pvpIcon.addEventListener("click", () => {
     openArenaPage();     // نفتح الـ Lobby
@@ -9716,6 +10500,9 @@ function closeHeroSelection() {
       inviteBtn.addEventListener("click", openInvites);
 
 function openArenaPage() {
+  // إخفاء زر الـ Summon في الأرينا
+  showSummonButton(false);
+
   const panels = document.querySelectorAll(".game-page-panel");
   panels.forEach(p => p.classList.add("game-page-hidden"));
 
@@ -9739,6 +10526,17 @@ function openArenaPage() {
   }
 }
 
+function backToCityFromArena() {
+  const panels = document.querySelectorAll(".game-page-panel");
+  panels.forEach(p => p.classList.add("game-page-hidden"));
+
+  const city = document.getElementById("city-screen");
+  if (city) {
+    city.style.display = "block";
+  }
+
+  showSummonButton(true); // رجّع زر السيمون
+}
 
 
 
@@ -10991,6 +11789,14 @@ function hideAllGamePages() {
     }
   });
 }
+function showSummonButton(show) {
+  const wrap = document.getElementById("summon-wrapper");
+  if (!wrap) return;
+  wrap.style.display = show ? "flex" : "none";
+}
+
+// نخلّي الزر ظاهر أول ما اللعبة تفتح
+showSummonButton(true);
 
 function showGamePage(id) {
   hideAllGamePages();
@@ -10998,7 +11804,26 @@ function showGamePage(id) {
   if (el) {
     el.classList.remove("game-page-hidden");
   }
+
+  // أي بانل يتفتح → أخفي زر السيمون
+  showSummonButton(false);
 }
+
+function refreshSummonVisibility() {
+  const panels = document.querySelectorAll(".game-page-panel");
+  let anyOpen = false;
+
+  panels.forEach(p => {
+    if (!p.classList.contains("game-page-hidden")) {
+      anyOpen = true;
+    }
+  });
+
+  // لو فيه بانل مفتوح → خفي الزر، لو مفيش → اظهره
+  showSummonButton(!anyOpen);
+}
+setInterval(refreshSummonVisibility, 300);
+
 
 // === Tasks Page ===
 function openTasksPage() {
@@ -11759,9 +12584,12 @@ function openResourceShop(resourceType) {
 
 function closeResourceShop() {
   const panel = document.getElementById("resource-shop-panel");
-  if (!panel) return;
-  panel.classList.add("game-page-hidden");
+  if (panel) panel.classList.add("hidden");
+
+  // رجّع زر السيمون لما تقفل شوب الموارد
+  showSummonButton(true);
 }
+
 
 // 3) نربط bottom bar زر المهام لو مش مربوط
 (function wireBottomBarButtons() {
@@ -11931,21 +12759,33 @@ bottomInfoBtn.onclick = () => {
     }
   };
 
-  // لمبنى الهجوم/الدفاع: TRAIN
-  if (buildingKey === "attackTower" || buildingKey === "defenseTower") {
-    if (infoLabel) infoLabel.textContent = "TRAIN";
-    bottomInfoBtn.onclick = () => {
-      if (buildingKey === "attackTower") {
-        initAttackArmyPanel();
-        const panel = document.getElementById("attack-army-panel");
-        if (panel) panel.style.display = "block";
-      } else if (buildingKey === "defenseTower") {
-        initDefenseArmyPanel();
-        const panel = document.getElementById("defense-army-panel");
-        if (panel) panel.style.display = "block";
-      }
-    };
-  }
+// TRAIN
+if (
+  buildingKey === "attackTower" ||
+  buildingKey === "defenseTower" ||
+  buildingKey === "dragonTower"
+) {
+  if (infoLabel) infoLabel.textContent = "TRAIN";
+
+  bottomInfoBtn.onclick = function () {
+    if (buildingKey === "attackTower") {
+      initAttackArmyPanel();
+      const panel = document.getElementById("attack-army-panel");
+      if (panel) panel.style.display = "block";
+    } else if (buildingKey === "defenseTower") {
+      initHealthArmyPanel();
+      const panel = document.getElementById("health-army-panel");
+      if (panel) panel.style.display = "block";
+    } else if (buildingKey === "dragonTower") {
+      initDragonArmyPanel();
+      const panel = document.getElementById("dragon-army-panel");
+      if (panel) panel.style.display = "block";
+    }
+  };
+}
+
+
+
 };
 }); // هنا بتنتهي كل ربطات الـ DOMContentLoaded
 
@@ -13184,7 +14024,8 @@ const HEROES_CONFIG = {
     rarity: 'Rare',
     role: 'Tank',
     baseAtk: 40,
-    baseHp: 180
+    baseHp: 180,
+    img: 'aegis9.png'     // ← اسم ملف صورة إيجيس
   },
   VYRA: {
     id: 'VYRA',
@@ -13192,7 +14033,8 @@ const HEROES_CONFIG = {
     rarity: 'Rare',
     role: 'DPS',
     baseAtk: 70,
-    baseHp: 120
+    baseHp: 120,
+    img: 'vyra.png'       // ← اسم ملف صورة ڤيرا
   },
   KAIRO: {
     id: 'KAIRO',
@@ -13200,7 +14042,8 @@ const HEROES_CONFIG = {
     rarity: 'Epic',
     role: 'Control',
     baseAtk: 60,
-    baseHp: 140
+    baseHp: 140,
+    img: 'kairo.png'      // ← اسم ملف صورة كايرو
   },
   LUMA: {
     id: 'LUMA',
@@ -13208,7 +14051,8 @@ const HEROES_CONFIG = {
     rarity: 'Epic',
     role: 'Support',
     baseAtk: 35,
-    baseHp: 160
+    baseHp: 160,
+    img: 'luma.png'       // ← اسم ملف صورة لوما
   },
   NOX: {
     id: 'NOX',
@@ -13216,9 +14060,11 @@ const HEROES_CONFIG = {
     rarity: 'Legendary',
     role: 'Breaker',
     baseAtk: 90,
-    baseHp: 150
+    baseHp: 150,
+    img: 'nox.png'        // ← اسم ملف صورة نوكس
   }
 };
+
 
 // امتلاك الأبطال + فريق الـ PvP (3 Slots)
 let playerHeroesState = {
@@ -13397,8 +14243,27 @@ function renderArenaTeamPreview() {
     }
   }
 }
+function normalizePvpTeamFromOwned() {
+  const owned = playerHeroesState.owned || [];
+
+  if (owned.length === 0) {
+    playerHeroesState.pvpTeam = [null, null, null];
+  } else if (owned.length === 1) {
+    playerHeroesState.pvpTeam = [owned[0], null, null];
+  } else if (owned.length === 2) {
+    playerHeroesState.pvpTeam = [owned[0], owned[1], null];
+  } else {
+    playerHeroesState.pvpTeam = [owned[0], owned[1], owned[2]];
+  }
+}
 
 function initPvpPanel() {
+  // نضمن إن pvpTeam متظبطة أول مرة من الأبطال المملوكين
+  if (!Array.isArray(playerHeroesState.pvpTeam)) {
+    normalizePvpTeamFromOwned();
+  }
+
+  // لو البانل مبني قبل كده ما نعيدوش
   if (document.getElementById('pvp-panel')) return;
 
   const panel = document.createElement('div');
@@ -13438,12 +14303,71 @@ function initPvpPanel() {
   closeBtn.style.fontSize = '18px';
   closeBtn.style.cursor = 'pointer';
   closeBtn.onclick = () => {
-    panel.style.display = 'none';
+    closePvpPanel();
   };
 
   header.appendChild(title);
   header.appendChild(closeBtn);
   panel.appendChild(header);
+
+   // أزرار Clear Team + Auto Fill
+  const actionsRow = document.createElement('div');
+  actionsRow.style.display = 'flex';
+  actionsRow.style.justifyContent = 'flex-end';
+  actionsRow.style.gap = '8px';
+  actionsRow.style.marginBottom = '6px';
+
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = 'Clear Team';
+  clearBtn.style.padding = '3px 10px';
+  clearBtn.style.borderRadius = '999px';
+  clearBtn.style.border = 'none';
+  clearBtn.style.background = '#ef4444';
+  clearBtn.style.color = '#0b1120';
+  clearBtn.style.fontSize = '11px';
+  clearBtn.style.fontWeight = 'bold';
+  clearBtn.style.cursor = 'pointer';
+  clearBtn.onclick = () => {
+    playerHeroesState.pvpTeam = [null, null, null];
+    saveHeroState();
+    renderPvpPanel();
+    if (typeof renderArenaTeamPreview === 'function') {
+      renderArenaTeamPreview();
+    }
+  };
+
+  const autoBtn = document.createElement('button');
+  autoBtn.textContent = 'Auto Fill';
+  autoBtn.style.padding = '3px 10px';
+  autoBtn.style.borderRadius = '999px';
+  autoBtn.style.border = 'none';
+  autoBtn.style.background = '#22c55e';
+  autoBtn.style.color = '#0b1120';
+  autoBtn.style.fontSize = '11px';
+  autoBtn.style.fontWeight = 'bold';
+  autoBtn.style.cursor = 'pointer';
+  autoBtn.onclick = () => {
+    const owned = playerHeroesState.owned || [];
+    if (owned.length === 0) {
+      playerHeroesState.pvpTeam = [null, null, null];
+    } else if (owned.length === 1) {
+      playerHeroesState.pvpTeam = [owned[0], null, null];
+    } else if (owned.length === 2) {
+      playerHeroesState.pvpTeam = [owned[0], owned[1], null];
+    } else {
+      playerHeroesState.pvpTeam = [owned[0], owned[1], owned[2]];
+    }
+    saveHeroState();
+    renderPvpPanel();
+    if (typeof renderArenaTeamPreview === 'function') {
+      renderArenaTeamPreview();
+    }
+  };
+
+  actionsRow.appendChild(clearBtn);
+  actionsRow.appendChild(autoBtn);
+  panel.appendChild(actionsRow);
+
 
   const sub = document.createElement('div');
   sub.textContent = 'اختر حتى 3 أبطال للقتال. لو عندك واحد بس تقدر تحارب بيه.';
@@ -13472,9 +14396,11 @@ function initPvpPanel() {
     slot.style.cursor = 'pointer';
 
     slot.innerHTML = `
-      <div style="width:60px;height:60px;margin:0 auto 4px auto;border-radius:12px;
-                  background:rgba(31,41,55,0.9);border:1px dashed rgba(148,163,184,0.7);
-                  display:flex;align-items:center;justify-content:center;font-size:11px;color:#9ca3af;">
+      <div class="pvp-slot-avatar" style="
+           width:60px;height:60px;margin:0 auto 4px auto;border-radius:12px;
+           background:rgba(31,41,55,0.9);border:1px dashed rgba(148,163,184,0.7);
+           display:flex;align-items:center;justify-content:center;
+           font-size:11px;color:#9ca3af;">
         Empty
       </div>
       <div class="pvp-slot-name" style="font-weight:bold;">-</div>
@@ -13507,15 +14433,49 @@ function initPvpPanel() {
   renderPvpPanel();
 }
 
+
+function toggleHeroInPvpTeam(heroId) {
+  if (!Array.isArray(playerHeroesState.pvpTeam)) {
+    playerHeroesState.pvpTeam = [null, null, null];
+  }
+  const team = playerHeroesState.pvpTeam;
+
+  const idx = team.indexOf(heroId);
+
+  if (idx !== -1) {
+    // لو البطل موجود في الفريق، شيله من مكانه
+    team[idx] = null;
+  } else {
+    // لو مش موجود، حطه في أول خانة فاضية
+    const emptyIndex = team.indexOf(null);
+    if (emptyIndex !== -1) {
+      team[emptyIndex] = heroId;
+    } else {
+      // لو التيم مليان 3 أبطال مختلفين، نستبدل أول واحد
+      team[0] = heroId;
+    }
+  }
+}
+
+let currentPvpSlotIndex = 0;
+
 function renderPvpPanel() {
   const panel = document.getElementById('pvp-panel');
   if (!panel) return;
 
+  // تأمين مصفوفة التيم 3 خانات
+  if (!Array.isArray(playerHeroesState.pvpTeam)) {
+    playerHeroesState.pvpTeam = [null, null, null];
+  }
+
+  const team = playerHeroesState.pvpTeam;
+
+  // تحديث السلوطات اللي فوق
   const slotsRow = document.getElementById('pvp-slots-row');
   if (slotsRow) {
     const slots = Array.from(slotsRow.querySelectorAll('.pvp-slot'));
     slots.forEach((slot, index) => {
-      const heroId = playerHeroesState.pvpTeam[index];
+      const heroId = team[index];
       const avatar = slot.querySelector('div:first-child');
       const nameEl = slot.querySelector('.pvp-slot-name');
       const metaEl = slot.querySelector('.pvp-slot-meta');
@@ -13549,6 +14509,7 @@ function renderPvpPanel() {
     });
   }
 
+  // قائمة الأبطال المملوكين تحت
   const list = document.getElementById('pvp-heroes-list');
   if (!list) return;
   list.innerHTML = '';
@@ -13575,6 +14536,7 @@ function renderPvpPanel() {
     row.style.background = 'rgba(15,23,42,0.95)';
     row.style.border = '1px solid rgba(55,65,81,0.9)';
     row.style.fontSize = '12px';
+    row.style.cursor = 'pointer';
 
     const left = document.createElement('div');
     left.style.display = 'flex';
@@ -13609,17 +14571,34 @@ function renderPvpPanel() {
     left.appendChild(textBox);
 
     const tag = document.createElement('div');
-    tag.textContent = 'Owned';
     tag.style.fontSize = '11px';
-    tag.style.color = '#22c55e';
+
+    // هل البطل موجود في التيم بالفعل؟
+    const inTeamIndex = team.indexOf(heroId);
+    if (inTeamIndex !== -1) {
+      tag.textContent = `Slot ${inTeamIndex + 1}`;
+      tag.style.color = '#22c55e';
+    } else {
+      tag.textContent = 'Owned';
+      tag.style.color = '#9ca3af';
+    }
 
     row.appendChild(left);
     row.appendChild(tag);
+
+    // كليك يضيف/يشيل من التيم
+    row.onclick = () => {
+      toggleHeroInPvpTeam(heroId);
+      saveHeroState();
+      renderPvpPanel();
+      if (typeof renderArenaTeamPreview === 'function') {
+        renderArenaTeamPreview();
+      }
+    };
+
     list.appendChild(row);
   });
 }
-
-let currentPvpSlotIndex = 0;
 
 function openHeroPickForSlot(slotIndex) {
   currentPvpSlotIndex = slotIndex;
@@ -13630,13 +14609,7 @@ function openHeroPickForSlot(slotIndex) {
     return;
   }
 
-  if (owned.length === 1) {
-    playerHeroesState.pvpTeam[slotIndex] = owned[0];
-    saveHeroState();
-    renderPvpPanel();
-    return;
-  }
-
+  // حتى لو عندك بطل واحد، برضه افتح البوب أب وخليه يعدي على toggleHeroInPvpTeam
   const existing = document.getElementById('pvp-hero-pick');
   if (existing) existing.remove();
 
@@ -13675,6 +14648,7 @@ function openHeroPickForSlot(slotIndex) {
   owned.forEach((heroId) => {
     const hero = HEROES_CONFIG[heroId];
     if (!hero) return;
+
     const row = document.createElement('div');
     row.style.display = 'flex';
     row.style.justifyContent = 'space-between';
@@ -13720,10 +14694,14 @@ function openHeroPickForSlot(slotIndex) {
     row.appendChild(left);
     row.appendChild(meta);
 
+    // نفس منطق الليست تحت: إضافة/إزالة من التيم مع منع التكرار
     row.onclick = () => {
-      playerHeroesState.pvpTeam[slotIndex] = heroId;
+      toggleHeroInPvpTeam(heroId);
       saveHeroState();
       renderPvpPanel();
+      if (typeof renderArenaTeamPreview === 'function') {
+        renderArenaTeamPreview();
+      }
       document.body.removeChild(popup);
     };
 
@@ -13748,6 +14726,7 @@ function openHeroPickForSlot(slotIndex) {
   box.appendChild(list);
   box.appendChild(closeBtn);
   popup.appendChild(box);
+
   popup.onclick = (e) => {
     if (e.target === popup) document.body.removeChild(popup);
   };
@@ -13755,14 +14734,32 @@ function openHeroPickForSlot(slotIndex) {
   document.body.appendChild(popup);
 }
 
+
 function openPvpPanel() {
   initPvpPanel();
+
+  const panel = document.getElementById('pvp-panel');
+  if (!panel) return;
+
+  renderPvpPanel();
+
+  // نضمن إنه ظاهر ومش متعلم عليه hidden
+  panel.style.display = 'block';
+  panel.classList.remove('game-page-hidden');
+}
+
+
+
+function closePvpPanel() {
   const panel = document.getElementById('pvp-panel');
   if (panel) {
-    renderPvpPanel();
-    panel.style.display = 'block';
+    panel.style.display = 'none';
+    panel.classList.add('game-page-hidden');
   }
 }
+
+
+
 let autoBattleInterval = null;
 
 let arenaBattleState = {
@@ -13770,12 +14767,15 @@ let arenaBattleState = {
   heroHp: 0,
   heroMaxHp: 0,
   heroAtk: 0,
+  heroEffects: [], // التأثيرات على البطل
   botName: "Arena Bot",
   botHp: 0,
   botMaxHp: 0,
   botAtk: 0,
+  botEffects: [],  // التأثيرات على البوت
   round: 0
 };
+
 
 function startTestArenaBattle() {
   const team = playerHeroesState.pvpTeam || [];
@@ -13804,6 +14804,9 @@ function startTestArenaBattle() {
   arenaBattleState.botMaxHp = bot.hp;
   arenaBattleState.botAtk = bot.atk;
   arenaBattleState.round = 0;
+  // حطهم هنا: تصفير التأثيرات
+  arenaBattleState.heroEffects = [];
+  arenaBattleState.botEffects = [];
 
   openArenaBattlePage();
   updateArenaBattleUI(true);
@@ -13865,7 +14868,6 @@ function addToArenaLog(html) {
 
 
 function runAutoBattleRound() {
-  // 1. فحص نهاية القتال قبل بدء الجولة
   if (arenaBattleState.heroHp <= 0 || arenaBattleState.botHp <= 0) {
     stopBattle();
     return;
@@ -13875,63 +14877,89 @@ function runAutoBattleRound() {
   const hero = HEROES_CONFIG[arenaBattleState.heroId];
   if (!hero) return;
 
-  // 2. اختيار الحركات (AI)
-  const playerAction = getHeroAIAction(arenaBattleState.heroId, arenaBattleState.heroHp, arenaBattleState.heroMaxHp);
-  const botActions = ["attack", "defend", "attack"];
-  const botAction = botActions[Math.floor(Math.random() * botActions.length)];
+  let logHtml = `<div class="log-round">— Round ${arenaBattleState.round} —</div>`;
 
-  let heroDamage = arenaBattleState.heroAtk;
-  let botDamage = arenaBattleState.botAtk;
-
-  // 3. حساب التأثيرات (دفاع، مهارات، علاج)
-  if (playerAction === "defend") botDamage = Math.round(botDamage * 0.3);
-  if (botAction === "defend") heroDamage = Math.round(heroDamage * 0.3);
-  if (playerAction === "skill") heroDamage = Math.round(heroDamage * 1.8);
-
-  let healAmount = 0;
-  if (hero.role === "Support" && playerAction === "skill") {
-    healAmount = Math.round(arenaBattleState.heroMaxHp * 0.15);
-    arenaBattleState.heroHp = Math.min(arenaBattleState.heroMaxHp, arenaBattleState.heroHp + healAmount);
-    heroDamage = Math.round(heroDamage * 0.3);
-    showDamageFloat("arena-player-hp-fill", healAmount, true); 
+  // --- 1. تطبيق تأثيرات الـ DOT (ضرر مستمر مثل الحرق) في بداية الدور ---
+  
+  // تأثيرات على البوت
+  if (arenaBattleState.botEffects.includes("Burn")) {
+    const burnDmg = Math.round(arenaBattleState.botMaxHp * 0.05);
+    arenaBattleState.botHp -= burnDmg;
+    logHtml += `<div style="color:#f97316;">🔥 حريق! تضرر العدو بـ ${burnDmg} HP</div>`;
+    showDamageFloat("arena-enemy-hp-fill", burnDmg, false);
   }
 
-  // --- تسلسل الحرب الحقيقية ---
+  // تأثيرات على البطل
+  if (arenaBattleState.heroEffects.includes("Burn")) {
+    const burnDmg = Math.round(arenaBattleState.heroMaxHp * 0.05);
+    arenaBattleState.heroHp -= burnDmg;
+    logHtml += `<div style="color:#f97316;">🔥 حريق! تضرر بطلُك بـ ${burnDmg} HP</div>`;
+    showDamageFloat("arena-player-hp-fill", burnDmg, false);
+  }
 
-  // أ. هجوم بطل اللاعب
-  arenaBattleState.botHp -= heroDamage;
-  if (arenaBattleState.botHp < 0) arenaBattleState.botHp = 0;
-  
-  // تفعيل أنيميشن الضرب والاهتزاز
-  animateFighterAction("arena-player-avatar", "attack-right", "arena-enemy-avatar");
-  showDamageFloat("arena-enemy-hp-fill", heroDamage, false);
+  updateArenaBattleUI(false);
+  if (arenaBattleState.botHp <= 0 || arenaBattleState.heroHp <= 0) { checkBattleStatus(); return; }
 
-  let logHtml = `<div class="log-round">— Round ${arenaBattleState.round} —</div>`;
-  if (healAmount > 0) logHtml += `<div class="log-heal">💚 ${hero.name} استعاد ${healAmount} HP</div>`;
-  const pEmoji = playerAction === "skill" ? "⚡" : (playerAction === "defend" ? "🛡️" : "⚔️");
-  logHtml += `<div class="log-player">${pEmoji} ${hero.name} ➜ <span style="font-weight:bold;">${heroDamage}</span> ضرر</div>`;
+  // --- 2. التحقق من الـ Freeze (تجميد - تخطي الدور) ---
+  const isBotFrozen = arenaBattleState.botEffects.includes("Freeze");
+  const isHeroFrozen = arenaBattleState.heroEffects.includes("Freeze");
 
-  // ب. رد بطل العدو (بعد تأخير بسيط 500ms عشان يبان التسلسل)
-  if (arenaBattleState.botHp > 0) {
+  // --- 3. حركة البطل ---
+  if (!isHeroFrozen) {
+    const playerAction = getHeroAIAction(arenaBattleState.heroId, arenaBattleState.heroHp, arenaBattleState.heroMaxHp);
+    let heroDamage = arenaBattleState.heroAtk;
+
+    // ميكانيكا خاصة لكل بطل (تطبيق التأثيرات)
+    if (hero.id === "VYRA" && Math.random() > 0.6) {
+       if (!arenaBattleState.botEffects.includes("Burn")) arenaBattleState.botEffects.push("Burn");
+       logHtml += `<div style="color:#f97316;">✨ VYRA أشعلت النيران في الخصم!</div>`;
+    }
+    if (hero.id === "KAIRO" && Math.random() > 0.7) {
+       arenaBattleState.botEffects.push("Freeze");
+       logHtml += `<div style="color:#a855f7;">❄️ KAIRO جمد الخصم للدور القادم!</div>`;
+    }
+    if (playerAction === "skill") heroDamage = Math.round(heroDamage * 1.8);
+
+    // ضرب البوت
+    arenaBattleState.botHp -= heroDamage;
+    if (arenaBattleState.botHp < 0) arenaBattleState.botHp = 0;
+    
+    animateFighterAction("arena-player-avatar", "attack-right", "arena-enemy-avatar");
+    showDamageFloat("arena-enemy-hp-fill", heroDamage, false);
+    logHtml += `<div class="log-player">⚔️ ${hero.name} ➜ ${heroDamage} ضرر</div>`;
+  } else {
+    logHtml += `<div style="color:#38bdf8;">🧊 بطلُك متجمد ولا يستطيع الحركة!</div>`;
+    // إزالة التجميد بعد انتهاء الدور
+    arenaBattleState.heroEffects = arenaBattleState.heroEffects.filter(e => e !== "Freeze");
+  }
+
+  // --- 4. رد البوت (لو لسه عايش ومش متجمد) ---
+  if (arenaBattleState.botHp > 0 && !isBotFrozen) {
     setTimeout(() => {
+      const botDamage = arenaBattleState.botAtk;
       arenaBattleState.heroHp -= botDamage;
       if (arenaBattleState.heroHp < 0) arenaBattleState.heroHp = 0;
       
       animateFighterAction("arena-enemy-avatar", "attack-left", "arena-player-avatar");
       showDamageFloat("arena-player-hp-fill", botDamage, false);
       
-      const bEmoji = botAction === "defend" ? "🛡️" : "🤖";
-      addToArenaLog(logHtml + `<div class="log-enemy">${bEmoji} ${arenaBattleState.botName} ➜ <span style="font-weight:bold;">${botDamage}</span> ضرر</div>`);
+      addToArenaLog(logHtml + `<div class="log-enemy">🤖 ${arenaBattleState.botName} ➜ ${botDamage} ضرر</div>`);
       updateArenaBattleUI(false);
-      checkBattleStatus(); // فحص هل مات حد بعد رد الفعل
-    }, 500); 
+      checkBattleStatus();
+    }, 600);
+  } else if (isBotFrozen) {
+    logHtml += `<div style="color:#ef4444;">🧊 العدو متجمد! فرصتك للضرب.</div>`;
+    arenaBattleState.botEffects = arenaBattleState.botEffects.filter(e => e !== "Freeze");
+    addToArenaLog(logHtml);
+    updateArenaBattleUI(false);
+    checkBattleStatus();
   } else {
-    // لو العدو مات من أول ضربة
-    addToArenaLog(logHtml + `<div class="log-enemy">💀 ${arenaBattleState.botName} سقط!</div>`);
+    addToArenaLog(logHtml);
     updateArenaBattleUI(false);
     checkBattleStatus();
   }
 }
+
 
 // دالة الأنيميشن (لازم تضيفها برضه)
 function animateFighterAction(attackerId, animClass, victimId) {
@@ -13972,12 +15000,44 @@ function stopBattle() {
 }
 
 
+function renderArenaHeroesFromTeam() {
+  // مصفوفة الفريق بتاعك (3 أماكن)
+  const team = playerHeroesState.pvpTeam || []; // ['AEGIS9', 'VYRA', null] مثلاً
+
+  // مصفوفة IDs السلوطات في الـ UI
+  const youSlots = ['you-hero-1', 'you-hero-2', 'you-hero-3'];
+
+  for (let i = 0; i < youSlots.length; i++) {
+    const slotId = youSlots[i];
+    const heroId = team[i];               // ممكن يبقى null
+    const el = document.getElementById(slotId);
+
+    if (!el) continue;
+
+    if (heroId && HEROES_CONFIG[heroId] && HEROES_CONFIG[heroId].img) {
+      el.style.backgroundImage = `url('${HEROES_CONFIG[heroId].img}')`;
+    } else {
+      // فاضي (مكان بدون بطل)
+      el.style.backgroundImage = '';
+    }
+  }
+
+  // TODO: لما نعمل أبطال للعدو، نربطهم هنا بنفس الفكرة على enemy-hero-1..3
+}
 
 function updateArenaBattleUI(resetLog = false) {
   const hero = HEROES_CONFIG[arenaBattleState.heroId];
   if (!hero) return;
+  // رندر كل أبطال الفريق في الشريط العلوي (لو pvpTeam متظبط)
+  renderArenaHeroesFromTeam();
 
-  // تحديث أسماء
+  // حط صورة البطل في أول سلوط عند فريقك (layout الجديد 3v3)
+  const youHero1 = document.getElementById("you-hero-1");
+  if (youHero1 && hero.img) {
+    youHero1.style.backgroundImage = `url('${hero.img}')`;
+  }
+
+  // تحديث أسماء (لو حابب تسيب اسم البطل في مكان قديم)
   const playerNameEl = document.getElementById("arena-player-name");
   const enemyNameEl = document.getElementById("arena-enemy-name");
   const enemyNameTop = document.getElementById("arena-battle-enemy-name");
@@ -13988,14 +15048,11 @@ function updateArenaBattleUI(resetLog = false) {
   if (enemyNameTop) enemyNameTop.textContent = arenaBattleState.botName;
   if (roundEl) roundEl.textContent = arenaBattleState.round || 0;
 
-  // تحديث Avatar بالـ role emoji
-  const playerAvatar = document.getElementById("arena-player-avatar");
+  // مش محتاجين الأفاتار القديم دلوقتي، نسيبه فاضي لو مش مستخدم في الـ HTML
   const enemyAvatar = document.getElementById("arena-enemy-avatar");
-  const roleEmojis = { Tank: '🛡️', DPS: '🔥', Control: '🌀', Support: '💚', Breaker: '💀' };
-  if (playerAvatar) playerAvatar.textContent = roleEmojis[hero.role] || '⚔️';
   if (enemyAvatar) enemyAvatar.textContent = '🤖';
 
-  // تحديث HP Bars
+  // تحديث HP Bars القديمة (لو لسه مستخدمة في مكان آخر)
   const playerHpFill = document.getElementById("arena-player-hp-fill");
   const playerHpText = document.getElementById("arena-player-hp-text");
   const enemyHpFill = document.getElementById("arena-enemy-hp-fill");
@@ -14006,18 +15063,26 @@ function updateArenaBattleUI(resetLog = false) {
       ? (arenaBattleState.heroHp / arenaBattleState.heroMaxHp) * 100 : 0;
     playerHpFill.style.width = `${Math.max(0, Math.min(100, ratio))}%`;
   }
-  if (playerHpText) playerHpText.textContent = `${arenaBattleState.heroHp}/${arenaBattleState.heroMaxHp}`;
+  if (playerHpText) {
+    playerHpText.textContent = `${arenaBattleState.heroHp}/${arenaBattleState.heroMaxHp}`;
+  }
 
   if (enemyHpFill) {
     const ratio = arenaBattleState.botMaxHp > 0
       ? (arenaBattleState.botHp / arenaBattleState.botMaxHp) * 100 : 0;
     enemyHpFill.style.width = `${Math.max(0, Math.min(100, ratio))}%`;
   }
-  if (enemyHpText) enemyHpText.textContent = `${arenaBattleState.botHp}/${arenaBattleState.botMaxHp}`;
+  if (enemyHpText) {
+    enemyHpText.textContent = `${arenaBattleState.botHp}/${arenaBattleState.botMaxHp}`;
+  }
 
   // تحديث Arena Points في الـ Top Bar
   const pointsEl = document.getElementById("arena-battle-points");
   if (pointsEl) pointsEl.textContent = arenaPlayerState.points;
+
+  // تحديث النقاط في المستطيل الجديد في المنتصف
+  const centerPoints = document.getElementById("arena-center-points");
+  if (centerPoints) centerPoints.textContent = arenaPlayerState.points || 0;
 
   // Reset Log
   if (resetLog) {
@@ -14025,6 +15090,9 @@ function updateArenaBattleUI(resetLog = false) {
     if (log) log.innerHTML = '<div class="arena-log-title">⚔️ Battle Log</div>';
   }
 }
+
+
+
 
 function runArenaBattleRound(playerAction) {
   const hero = HEROES_CONFIG[arenaBattleState.heroId];
@@ -14264,48 +15332,96 @@ function playAgainArenaBattle() {
     </div>
   </div>
 
-  <!-- VS Area -->
-  <div class="arena-vs-area">
+   <!-- TOP ARENA HEADER + 3v3 HERO ROW -->
+  <div class="arena-top-wrapper">
 
-    <!-- البطل (اليسار) -->
-    <div class="arena-fighter">
-      <div class="arena-fighter-avatar player-avatar" id="arena-player-avatar">⚔️</div>
-      <div class="arena-fighter-name" id="arena-player-name" style="color:#38bdf8;">Hero</div>
-      <div class="arena-hp-bar-wrapper">
-        <div style="display:flex;justify-content:space-between;">
-          <span class="arena-hp-label">HP</span>
-          <span class="arena-hp-text" id="arena-player-hp-text">0/0</span>
+    <!-- شريط الرانك + النقاط -->
+    <div class="arena-header-strip">
+      <!-- رانكك -->
+      <div class="arena-rank-box arena-rank-you">
+        <div class="arena-rank-icon"></div>
+        <div class="arena-rank-text">
+          <div class="arena-rank-label">YOU</div>
+          <div class="arena-rank-name" id="arena-rank-you">Bronze II</div>
         </div>
-        <div class="arena-hp-track">
-          <div class="arena-hp-fill" id="arena-player-hp-fill"
-               style="width:100%; background:linear-gradient(90deg,#16a34a,#22c55e); box-shadow:0 0 8px rgba(34,197,94,0.7);"></div>
+      </div>
+
+      <!-- مركز النقاط + VS -->
+      <div class="arena-center-box">
+        <div class="arena-center-title">ARENA POINTS</div>
+        <div class="arena-center-points" id="arena-center-points">0</div>
+        <div class="arena-center-vs">VS</div>
+        <div class="arena-center-names">
+          <span class="arena-center-you">YOU</span>
+          <span class="arena-center-enemy">ENEMY</span>
+        </div>
+      </div>
+
+      <!-- رانك العدو -->
+      <div class="arena-rank-box arena-rank-enemy">
+        <div class="arena-rank-icon"></div>
+        <div class="arena-rank-text">
+          <div class="arena-rank-label">ENEMY</div>
+          <div class="arena-rank-name" id="arena-rank-enemy">Bronze II</div>
         </div>
       </div>
     </div>
 
-    <!-- VS + Round -->
-    <div class="arena-vs-divider">
-      <div class="arena-vs-text">VS</div>
-      <div class="arena-round-text">Round <span id="arena-round-num">0</span></div>
-    </div>
+    <!-- صف الأبطال 3v3 -->
+    <div class="arena-heroes-strip">
 
-    <!-- البوت (اليمين) -->
-    <div class="arena-fighter">
-      <div class="arena-fighter-avatar enemy-avatar" id="arena-enemy-avatar">🤖</div>
-      <div class="arena-fighter-name" id="arena-enemy-name" style="color:#ef4444;">Arena Bot</div>
-      <div class="arena-hp-bar-wrapper">
-        <div style="display:flex;justify-content:space-between;">
-          <span class="arena-hp-label">HP</span>
-          <span class="arena-hp-text" id="arena-enemy-hp-text">0/0</span>
-        </div>
-        <div class="arena-hp-track enemy-track">
-          <div class="arena-hp-fill" id="arena-enemy-hp-fill"
-               style="width:100%; background:linear-gradient(90deg,#991b1b,#ef4444); box-shadow:0 0 8px rgba(239,68,68,0.7);"></div>
+      <!-- أبطال الفريق (يسار) -->
+      <div class="arena-side arena-side-you">
+        <div class="arena-heroes-row">
+          <div class="arena-hero-slot">
+            <div class="arena-hero-big" id="you-hero-1"></div>
+            <div class="arena-hero-hp-bar">
+              <div class="arena-hero-hp-fill" id="you-hero-1-hp"></div>
+            </div>
+          </div>
+          <div class="arena-hero-slot">
+            <div class="arena-hero-big" id="you-hero-2"></div>
+            <div class="arena-hero-hp-bar">
+              <div class="arena-hero-hp-fill" id="you-hero-2-hp"></div>
+            </div>
+          </div>
+          <div class="arena-hero-slot">
+            <div class="arena-hero-big" id="you-hero-3"></div>
+            <div class="arena-hero-hp-bar">
+              <div class="arena-hero-hp-fill" id="you-hero-3-hp"></div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- أبطال العدو (يمين) -->
+      <div class="arena-side arena-side-enemy">
+        <div class="arena-heroes-row">
+          <div class="arena-hero-slot">
+            <div class="arena-hero-big" id="enemy-hero-1"></div>
+            <div class="arena-hero-hp-bar">
+              <div class="arena-hero-hp-fill enemy" id="enemy-hero-1-hp"></div>
+            </div>
+          </div>
+          <div class="arena-hero-slot">
+            <div class="arena-hero-big" id="enemy-hero-2"></div>
+            <div class="arena-hero-hp-bar">
+              <div class="arena-hero-hp-fill enemy" id="enemy-hero-2-hp"></div>
+            </div>
+          </div>
+          <div class="arena-hero-slot">
+            <div class="arena-hero-big" id="enemy-hero-3"></div>
+            <div class="arena-hero-hp-bar">
+              <div class="arena-hero-hp-fill enemy" id="enemy-hero-3-hp"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
+
 
   <!-- Battle Log -->
   <div class="arena-log-wrapper" id="arena-battle-log">
@@ -14332,7 +15448,5 @@ function playAgainArenaBattle() {
   </button>
 
 </div>
-
-
   </body>
 </html>
