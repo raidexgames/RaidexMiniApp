@@ -114,18 +114,9 @@
   height: 100vh;
   background: #121a2f;
   position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
-#city-wrapper {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-#city-wrapper::-webkit-scrollbar {
-  display: none;
-}
 
 .right-arrow-menu {
   position: fixed;
@@ -358,7 +349,7 @@
 
       /* Top bar */
 #top-bar {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -388,8 +379,8 @@
 
 
       /* Bottom bar */
- #bottom-bar {
-  position: absolute;
+#bottom-bar {
+  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -402,7 +393,6 @@
   z-index: 100;
   border-top: 1px solid rgba(148, 163, 184, 0.4);
 }
-
 
  .bar-item {
   text-align: center;
@@ -5240,8 +5230,10 @@ function getBuildingImageByKey(key) {
 }
 
 function openBuildingPanel(buildingKey) {
+  lockCityScroll();
   console.log("Open building panel for:", buildingKey);
   currentBuildingKey = buildingKey;
+
 
   const cfg = Object.values(BUILDINGS_CONFIG).find(c => c.key === buildingKey);
   if (!cfg) return;
@@ -6048,6 +6040,7 @@ if (buildingTabUpgradeBtn) {
 
 buildingPanelCloseBtn.onclick = function () {
   buildingPanel.classList.add('hidden');
+  unlockCityScroll();
 };
 
 
@@ -6073,33 +6066,56 @@ buildingPanelCloseBtn.onclick = function () {
         characterScreen.style.display = "none";
         enterCity();
       }
-/* --- City --- */
+function lockCityScroll() {
+  const cs = document.querySelector("#city-screen");
+  if (cs) {
+    cs.style.overflowY = "hidden";
+    cs.style.overflowX = "hidden";
+  }
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.overflow = "hidden";
+}
+
+function unlockCityScroll() {
+  const cs = document.querySelector("#city-screen");
+  if (cs) {
+    cs.style.overflowY = "auto";
+    cs.style.overflowX = "hidden";
+  }
+  document.body.style.overflow = "";
+  document.documentElement.style.overflow = "";
+}
+
+
 function enterCity() {
   cityScreen.style.display = "block";
-  let cityWrapper = document.getElementById("city-wrapper");
-if (!cityWrapper) {
-  cityWrapper = document.createElement("div");
-  cityWrapper.id = "city-wrapper";
-  cityWrapper.style.position = "absolute";
-  cityWrapper.style.top = "80px";
-  cityWrapper.style.left = "0";
-  cityWrapper.style.right = "0";
-  cityWrapper.style.bottom = "60px";
-  cityWrapper.style.overflowY = "auto";
-  cityWrapper.style.overflowX = "hidden";
-  cityScreen.appendChild(cityWrapper);
-}
+
+  let cityMapContainer = document.getElementById("city-map-container");
+  if (!cityMapContainer) {
+    cityMapContainer = document.createElement("div");
+    cityMapContainer.id = "city-map-container";
+    cityMapContainer.style.position = "absolute";
+    cityMapContainer.style.top = "80px";
+    cityMapContainer.style.left = "0";
+    cityMapContainer.style.right = "0";
+    cityMapContainer.style.bottom = "60px";
+    cityMapContainer.style.overflowY = "auto";
+    cityMapContainer.style.overflowX = "hidden";
+    cityScreen.appendChild(cityMapContainer);
+  }
 
   if (!document.getElementById("city-bg")) {
     const cityMap = document.createElement("img");
     cityMap.id = "city-bg";
     cityMap.src = "city-bg.png";
-cityMap.style.width = "100%";
-cityMap.style.height = "100%";
-    cityMap.style.position = "absolute";
-    cityMap.style.top = "0";
-    cityMap.style.left = "0";
-cityWrapper.appendChild(cityMap);
+    cityMap.style.width = "100%";
+    cityMap.style.height = "1000px";
+    cityMap.style.minHeight = "1000px";
+    cityMap.style.objectFit = "fill";
+    cityMap.style.position = "relative";
+    cityMap.style.display = "block";
+    cityMapContainer.appendChild(cityMap);
+
 
    // القلعة في النص
 const castleWrapper = document.createElement("div");
@@ -6107,7 +6123,7 @@ castleWrapper.id = "castle-building";
 castleWrapper.style.position = "absolute";
 castleWrapper.style.width = "170px";
 castleWrapper.style.left = "50%";
-castleWrapper.style.top = "45%";
+castleWrapper.style.top = "55%";
 castleWrapper.style.transform = "translate(-50%, -50%)";
 castleWrapper.style.zIndex = 100;
 
@@ -6138,21 +6154,27 @@ castleWrapper.appendChild(castleStatusBox);
 
 castleWrapper.addEventListener("click", openCastlePanel);
 
-cityWrapper.appendChild(castleWrapper);
+cityMapContainer.appendChild(castleWrapper);
 
-  const buildingPositions = [
-  { left: "50%", top: "20%" }, // 1
-  { left: "74%", top: "26%" }, // 2
-  { left: "82%", top: "50%" }, // 3
-  { left: "74%", top: "74%" }, // 4
-  { left: "50%", top: "82%" }, // 5
-  { left: "26%", top: "74%" }, // 6
-  { left: "18%", top: "50%" }, // 7
-  { left: "26%", top: "26%" }, // 8
-  { left: "64%", top: "36%" }, // 9
-  { left: "36%", top: "64%" }, // 10
-  { left: "64%", top: "64%" }, // 11 برج التنانين
+
+const buildingPositions = [
+  { left: "25%", top: "25%" },  // 1 - منجم الذهب
+  { left: "65%", top: "20%" },  // 2 - منجم الخشب
+  { left: "15%", top: "55%" },  // 3 - المدرسة
+  { left: "85%", top: "55%" },  // 4 - برج الهجوم
+  { left: "20%", top: "35%" },  // 5 - برج الدفاع
+  { left: "80%", top: "35%" },  // 6 - مزرعة اللحم
+  { left: "20%", top: "115%" }, // 7 - قاعة الأبطال
+  { left: "50%", top: "110%" }, // 8 - السوق
+  { left: "80%", top: "115%" }, // 9 - برج البوست
+  { left: "30%", top: "145%" }, // 10 - المستشفى
+  { left: "70%", top: "145%" }, // 11 - برج التنانين
 ];
+
+
+
+
+
 
 
 // إنشاء مربعات المباني الأساسية 1..10
@@ -6163,7 +6185,7 @@ buildingPositions.forEach((pos, index) => {
     b = document.createElement("div");
     b.id = id;
     b.className = "city-building";
-cityWrapper.appendChild(b);
+cityMapContainer.appendChild(b);
   }
 
   b.style.position = "absolute";
@@ -10626,6 +10648,7 @@ function updateTasksTabsNotification(flags) {
 
    /* --- Profile --- */
 function openProfile() {
+  lockCityScroll();
   const statsPage = document.getElementById("stats-page");
   if (!statsPage) return;
 
@@ -10699,11 +10722,13 @@ function openProfile() {
 }
 
 function closeStats() {
+  unlockCityScroll();
   const statsPage = document.getElementById("stats-page");
   if (statsPage) {
     statsPage.classList.add("game-page-hidden");
   }
 }
+
 
 function renderArmy() {
   armyContainer.innerHTML = "";
@@ -15004,6 +15029,7 @@ function openHeroPickForSlot(slotIndex) {
 
 
 function openPvpPanel() {
+  lockCityScroll();
   initPvpPanel();
 
   const panel = document.getElementById('pvp-panel');
@@ -15019,6 +15045,7 @@ function openPvpPanel() {
 
 
 function closePvpPanel() {
+  unlockCityScroll();
   const panel = document.getElementById('pvp-panel');
   if (panel) {
     panel.style.display = 'none';
