@@ -116,6 +116,9 @@
   position: relative;
   overflow: hidden;
 }
+#city-map-container {
+  background: #121a2f;
+}
 
 
 .right-arrow-menu {
@@ -6098,32 +6101,34 @@ function enterCity() {
     cityMapContainer.style.top = "80px";
     cityMapContainer.style.left = "0";
     cityMapContainer.style.right = "0";
-    cityMapContainer.style.bottom = "60px";
+    cityMapContainer.style.height = "calc(100vh - 140px)";
     cityMapContainer.style.overflowY = "auto";
     cityMapContainer.style.overflowX = "hidden";
     cityScreen.appendChild(cityMapContainer);
   }
 
-  if (!document.getElementById("city-bg")) {
-    const cityMap = document.createElement("img");
-    cityMap.id = "city-bg";
-    cityMap.src = "city-bg.png";
-    cityMap.style.width = "100%";
-    cityMap.style.height = "1000px";
-    cityMap.style.minHeight = "1000px";
-    cityMap.style.objectFit = "fill";
-    cityMap.style.position = "relative";
-    cityMap.style.display = "block";
-    cityMapContainer.appendChild(cityMap);
+if (!document.getElementById("city-bg")) {
+  const cityMap = document.createElement("img");
+  cityMap.id = "city-bg";
+  cityMap.src = "city-bg.png";
+  cityMap.style.width = "100%";
+  cityMap.style.height = "1000px";
+  cityMap.style.objectFit = "cover";
+  cityMap.style.display = "block";
+  cityMap.style.position = "relative";
+  cityMapContainer.appendChild(cityMap);
+
+
+
 
 
    // القلعة في النص
 const castleWrapper = document.createElement("div");
 castleWrapper.id = "castle-building";
 castleWrapper.style.position = "absolute";
-castleWrapper.style.width = "170px";
+castleWrapper.style.width = "210px";
 castleWrapper.style.left = "50%";
-castleWrapper.style.top = "55%";
+castleWrapper.style.top = "58%";
 castleWrapper.style.transform = "translate(-50%, -50%)";
 castleWrapper.style.zIndex = 100;
 
@@ -6158,17 +6163,17 @@ cityMapContainer.appendChild(castleWrapper);
 
 
 const buildingPositions = [
-  { left: "25%", top: "25%" },  // 1 - منجم الذهب
-  { left: "65%", top: "20%" },  // 2 - منجم الخشب
-  { left: "15%", top: "55%" },  // 3 - المدرسة
-  { left: "85%", top: "55%" },  // 4 - برج الهجوم
-  { left: "20%", top: "35%" },  // 5 - برج الدفاع
-  { left: "80%", top: "35%" },  // 6 - مزرعة اللحم
-  { left: "20%", top: "115%" }, // 7 - قاعة الأبطال
-  { left: "50%", top: "110%" }, // 8 - السوق
-  { left: "80%", top: "115%" }, // 9 - برج البوست
-  { left: "30%", top: "145%" }, // 10 - المستشفى
-  { left: "70%", top: "145%" }, // 11 - برج التنانين
+  { left: "80%", top: "45%" },  // 1 - منجم الذهب
+  { left: "19%", top: "105%" },  // 2 - منجم الخشب
+  { left: "81%", top: "78%" },  // 3 - المدرسة
+  { left: "75%", top: "19%" },  // 4 - برج الهجوم
+  { left: "25%", top: "18%" },  // 5 - برج الدفاع
+  { left: "23%", top: "42%" },  // 6 - مزرعة اللحم
+  { left: "20%", top: "81%" }, // 7 - قاعة الأبطال
+  { left: "70%", top: "125%" }, // 8 - السوق
+  { left: "84%", top: "105%" }, // 9 - برج البوست
+  { left: "26%", top: "126%" }, // 10 - المستشفى
+{ left: "51%", top: "97%" }, // 11 - برج التنانين
 ];
 
 
@@ -6242,8 +6247,8 @@ const goldMine = document.getElementById("building-1");
 if (goldMine) {
   goldMine.style.border = "none";
   goldMine.style.background = "transparent";
-  goldMine.style.width = "120px";
-  goldMine.style.height = "140px";
+  goldMine.style.width = "130px";
+  goldMine.style.height = "150px";
   goldMine.style.position = "absolute";
   goldMine.style.left = buildingPositions[0].left;
   goldMine.style.top = buildingPositions[0].top;
@@ -6377,8 +6382,8 @@ if (woodMine) {
 
   woodMine.style.border = "none";
   woodMine.style.background = "transparent";
-  woodMine.style.width = "120px";
-  woodMine.style.height = "140px";
+  woodMine.style.width = "170px";
+  woodMine.style.height = "150px";
   woodMine.style.position = "absolute";
   woodMine.style.left = buildingPositions[1].left;
   woodMine.style.top = buildingPositions[1].top;
@@ -6521,7 +6526,7 @@ if (school) {
 
   school.style.border = "none";
   school.style.background = "transparent";
-  school.style.width = "100px";
+  school.style.width = "160px";
   school.style.height = "160px";
   school.style.position = "absolute";
   school.style.left = buildingPositions[2].left;
@@ -6637,8 +6642,8 @@ if (attackTower) {
 
   attackTower.style.border = "none";
   attackTower.style.background = "transparent";
-  attackTower.style.width = "200px";
-  attackTower.style.height = "180px";
+  attackTower.style.width = "240px";
+  attackTower.style.height = "200px";
   attackTower.style.position = "absolute";
   attackTower.style.left = buildingPositions[3].left;
   attackTower.style.top = buildingPositions[3].top;
@@ -6758,8 +6763,8 @@ if (defenseTower) {
 
   defenseTower.style.border = "none";
   defenseTower.style.background = "transparent";
-  defenseTower.style.width = "200px";
-  defenseTower.style.height = "180px";
+  defenseTower.style.width = "220px";
+  defenseTower.style.height = "200px";
   defenseTower.style.position = "absolute";
   defenseTower.style.left = buildingPositions[4].left;
   defenseTower.style.top = buildingPositions[4].top;
@@ -6873,8 +6878,8 @@ if (meatFarm) {
 
   meatFarm.style.border = "none";
   meatFarm.style.background = "transparent";
-  meatFarm.style.width = "170px";
-  meatFarm.style.height = "170px";
+  meatFarm.style.width = "180px";
+  meatFarm.style.height = "180px";
   meatFarm.style.position = "absolute";
   meatFarm.style.left = buildingPositions[5].left;
   meatFarm.style.top = buildingPositions[5].top;
@@ -7014,8 +7019,8 @@ if (heroesHall) {
 
   heroesHall.style.border = "none";
   heroesHall.style.background = "transparent";
-  heroesHall.style.width = "140px";
-  heroesHall.style.height = "160px";
+  heroesHall.style.width = "180px";
+  heroesHall.style.height = "200px";
   heroesHall.style.position = "absolute";
   heroesHall.style.left = buildingPositions[6].left;
   heroesHall.style.top = buildingPositions[6].top;
@@ -7133,8 +7138,8 @@ if (market) {
 
   market.style.border = "none";
   market.style.background = "transparent";
-  market.style.width = "120px";
-  market.style.height = "140px";
+  market.style.width = "180px";
+  market.style.height = "200px";
   market.style.position = "absolute";
   market.style.left = buildingPositions[7].left;
   market.style.top = buildingPositions[7].top;
@@ -7253,8 +7258,8 @@ if (booster) {
 
   booster.style.border = "none";
   booster.style.background = "transparent";
-  booster.style.width = "120px";
-  booster.style.height = "140px";
+  booster.style.width = "130px";
+  booster.style.height = "130px";
   booster.style.position = "absolute";
   booster.style.left = buildingPositions[8].left;
   booster.style.top = buildingPositions[8].top;
@@ -7371,8 +7376,8 @@ if (hospital) {
 
   hospital.style.border = "none";
   hospital.style.background = "transparent";
-  hospital.style.width = "120px";
-  hospital.style.height = "140px";
+  hospital.style.width = "195px";
+  hospital.style.height = "175px";
   hospital.style.position = "absolute";
   hospital.style.left = buildingPositions[9].left;
   hospital.style.top = buildingPositions[9].top;
@@ -7487,8 +7492,8 @@ if (dragonTowerEl) {
 
   dragonTowerEl.style.border = "none";
   dragonTowerEl.style.background = "transparent";
-  dragonTowerEl.style.width = "140px";
-  dragonTowerEl.style.height = "160px";
+  dragonTowerEl.style.width = "190px";
+  dragonTowerEl.style.height = "190px";
   dragonTowerEl.style.position = "absolute";
   dragonTowerEl.style.left = buildingPositions[10].left;  // index 10 = المبنى 11
   dragonTowerEl.style.top = buildingPositions[10].top;
