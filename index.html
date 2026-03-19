@@ -114,7 +114,10 @@
   height: 100vh;
   background: #121a2f;
   position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
+
 
 .right-arrow-menu {
   position: fixed;
@@ -346,19 +349,20 @@
 
 
       /* Top bar */
-      #top-bar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 80px;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 0 15px;
-        z-index: 100;
-      }
+#top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  z-index: 100;
+}
+
       #player-avatar {
         width: 50px;
         height: 50px;
@@ -366,11 +370,15 @@
         cursor: pointer;
         border: 3px solid gold;
       }
-      #resources {
-        display: flex;
-        gap: 10px;
-        font-size: 13px;
-      }
+#resources {
+  display: flex;
+  gap: 4px;
+  font-size: 10px;
+  flex: 1;
+  overflow: hidden;
+}
+
+
       /* Bottom bar */
  #bottom-bar {
   position: absolute;
@@ -1210,16 +1218,18 @@
       /* ======================================================
          ADDED BY CHATGPT - MENU BUTTON & DROPDOWN
          ====================================================== */
-     #menu-btn {
-  font-size: 26px;
+#menu-btn {
+  font-size: 20px;
   cursor: pointer;
-  margin-left: 10px;
+  margin-left: 4px;
   user-select: none;
-  padding: 8px 12px;
+  padding: 4px 8px;
   border-radius: 10px;
-  position: relative;   /* سطر جديد مهم */
-  z-index: 10001;       /* أعلى من 9999 بتاع البانلات */
+  position: relative;
+  z-index: 10001;
+  flex-shrink: 0;
 }
+
 
 
       #menu-btn:active {
@@ -2352,7 +2362,7 @@
 
   <div class="page-content">
     <div class="profile-card">
-      <div class="profile-card-top">
+      <div class="profile-card-top" style="position:relative;">
         <div class="profile-hero-wrapper">
           <img
             id="profile-hero-img"
@@ -2361,6 +2371,19 @@
             onclick="changeHero()"
           />
         </div>
+        <button id="menu-btn" style="
+  position:absolute;
+  top:0;
+ right:0;
+  background:transparent;
+  border:none;
+  color:#e5e7eb;
+  font-size:22px;
+  cursor:pointer;
+  padding:4px 8px;
+  z-index:10001;
+">☰</button>
+
         <div class="profile-main-info">
           <div class="profile-name" id="profile-name">Player</div>
           <div class="profile-meta" id="profile-meta">
@@ -3091,12 +3114,12 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.7);
       ">
 
-    <!-- Header -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+  <!-- Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
   <button id="building-info-btn" onclick="openBuildingInfoModal()"
     style="background:rgba(14,165,233,0.2); border:1px solid #0ea5e9; color:#0ea5e9; 
     border-radius:50%; width:28px; height:28px; font-size:14px; cursor:pointer; font-weight:bold;">
-    ⓘ
+    !
   </button>
   <div id="building-panel-title"
        style="font-weight:bold; font-size:18px; text-align:center; flex:1;">
@@ -3108,14 +3131,12 @@
   </button>
 </div>
 
-
-   <!-- أزرار التابات: معلومات / ترقية -->
+<!-- تاب الترقية فقط -->
 <div style="display:flex; margin-bottom:8px; border-bottom:1px solid rgba(148,163,184,0.5);">
-  <button id="building-tab-info-btn"
-          style="flex:1; padding:6px 0; border:none; background:transparent;
-                 color:#facc15; font-weight:bold; cursor:pointer; font-size:13px;">
-    ⓘ المعلومات
-  </button>
+  <div id="building-tab-info-btn"
+       style="flex:1; padding:6px 0; color:#facc15; font-weight:bold; font-size:13px; text-align:center;">
+    المعلومات
+  </div>
   <button id="building-tab-upgrade-btn"
           style="flex:1; padding:6px 0; border:none; background:transparent;
                  color:#9ca3af; font-weight:bold; cursor:pointer; font-size:13px;">
@@ -3123,26 +3144,20 @@
   </button>
 </div>
 
+<!-- تاب المعلومات -->
+<div id="building-tab-info">
+  <div style="text-align:center; margin-bottom:8px;">
+    <img id="building-panel-image" src="" alt=""
+         style="width:180px;height:180px;border-radius:18px;
+                object-fit:cover;border:1px solid rgba(148,163,184,0.8);" />
+  </div>
+  <div id="building-panel-desc"
+       style="margin-bottom:8px; font-size:13px; color:#9ca3af; text-align:center;">
+  </div>
+  <div style="border-top:1px solid rgba(148,163,184,0.5); margin:8px 0;"></div>
+  <div id="building-panel-extra-info" style="font-size:13px; text-align:center;"></div>
+</div>
 
-    <!-- تاب المعلومات -->
-    <div id="building-tab-info">
-      <div style="text-align:center; margin-bottom:8px;">
-        <img id="building-panel-image"
-             src=""
-             alt=""
-             style="width:180px;height:180px;border-radius:18px;
-                    object-fit:cover;border:1px solid rgba(148,163,184,0.8);" />
-      </div>
-
-      <div id="building-panel-desc"
-           style="margin-bottom:8px; font-size:13px; color:#9ca3af; text-align:center;">
-      </div>
-
-      <div style="border-top:1px solid rgba(148,163,184,0.5); margin:8px 0;"></div>
-
-      <div id="building-panel-extra-info"
-           style="font-size:13px; text-align:center;"></div>
-    </div>
 <button id="gold-mine-collect-btn"
         style="margin-top:10px;width:100%;padding:8px 0;border:none;
                border-radius:999px;background:#22c55e;color:#0b1120;
@@ -3150,9 +3165,8 @@
   جمع ذهب المنجم
 </button>
 
-
-    <!-- تاب الترقية -->
-    <div id="building-tab-upgrade" style="display:none; font-size:13px;">
+<!-- تاب الترقية -->
+<div id="building-tab-upgrade" style="display:none; font-size:13px;">
 
       <!-- صورة المبنى + الليفل الحالي/التالي -->
       <div style="text-align:center; margin-bottom:8px;">
@@ -5014,6 +5028,14 @@ function saveGameState() {
       currentHealthTrainingHeroKey,
       currentHealthTrainingUnitKey,
       currentHealthTrainingAmount,
+      dragonTrainingInProgress,
+dragonTrainingFinishAt,
+dragonTrainingRemainingTime,
+dragonTrainingTotalTime,
+currentDragonTrainingHeroKey,
+currentDragonTrainingUnitKey,
+currentDragonTrainingAmount,
+
       buildingLevels,
       buildingUpgrades,
       miningStored,
@@ -5251,7 +5273,18 @@ function openBuildingPanel(buildingKey) {
       cancelBtn.onclick = null;
     }
   }
-
+const panelInner = document.getElementById("building-panel-inner");
+if (panelInner) {
+  panelInner.style.position = "fixed";
+  panelInner.style.top = "80px";
+  panelInner.style.left = "10px";
+  panelInner.style.right = "10px";
+  panelInner.style.bottom = "150px";
+  panelInner.style.width = "auto";
+  panelInner.style.maxWidth = "100%";
+  panelInner.style.transform = "none";
+  panelInner.style.overflowY = "auto";
+}
   switchBuildingPanelTab('info');
   buildingPanel.classList.remove('hidden');
 }
@@ -5799,6 +5832,14 @@ let healthTrainingInterval = null; // setInterval
 let currentHealthTrainingHeroKey = null;
 let currentHealthTrainingUnitKey = null;
 let currentHealthTrainingAmount = 0;
+let dragonTrainingInProgress = false;
+let dragonTrainingFinishAt = null;
+let dragonTrainingRemainingTime = 0;
+let dragonTrainingTotalTime = 0;
+let dragonTrainingInterval = null;
+let currentDragonTrainingHeroKey = null;
+let currentDragonTrainingUnitKey = null;
+let currentDragonTrainingAmount = 0;
 
 // منجم الذهب - ترقية مستقلة
 let goldMineUpgradeInProgress = false;
@@ -5991,12 +6032,6 @@ function switchBuildingPanelTab(tab) {
   }
 }
 
-if (buildingTabInfoBtn) {
-  buildingTabInfoBtn.onclick = function () {
-    switchBuildingPanelTab('info');
-  };
-}
-
 if (buildingTabUpgradeBtn) {
   buildingTabUpgradeBtn.onclick = function () {
     switchBuildingPanelTab('upgrade');
@@ -6033,17 +6068,30 @@ buildingPanelCloseBtn.onclick = function () {
 /* --- City --- */
 function enterCity() {
   cityScreen.style.display = "block";
+  let cityWrapper = document.getElementById("city-wrapper");
+if (!cityWrapper) {
+  cityWrapper = document.createElement("div");
+  cityWrapper.id = "city-wrapper";
+  cityWrapper.style.position = "absolute";
+  cityWrapper.style.top = "80px";
+  cityWrapper.style.left = "0";
+  cityWrapper.style.right = "0";
+  cityWrapper.style.bottom = "60px";
+  cityWrapper.style.overflowY = "auto";
+  cityWrapper.style.overflowX = "hidden";
+  cityScreen.appendChild(cityWrapper);
+}
 
   if (!document.getElementById("city-bg")) {
     const cityMap = document.createElement("img");
     cityMap.id = "city-bg";
     cityMap.src = "city-bg.png";
-    cityMap.style.width = "100%";
-    cityMap.style.height = "100%";
+cityMap.style.width = "100%";
+cityMap.style.height = "100%";
     cityMap.style.position = "absolute";
     cityMap.style.top = "0";
     cityMap.style.left = "0";
-    cityScreen.appendChild(cityMap);
+cityWrapper.appendChild(cityMap);
 
    // القلعة في النص
 const castleWrapper = document.createElement("div");
@@ -6082,7 +6130,7 @@ castleWrapper.appendChild(castleStatusBox);
 
 castleWrapper.addEventListener("click", openCastlePanel);
 
-cityScreen.appendChild(castleWrapper);
+cityWrapper.appendChild(castleWrapper);
 
   const buildingPositions = [
   { left: "50%", top: "20%" }, // 1
@@ -6107,7 +6155,7 @@ buildingPositions.forEach((pos, index) => {
     b = document.createElement("div");
     b.id = id;
     b.className = "city-building";
-    cityScreen.appendChild(b);
+cityWrapper.appendChild(b);
   }
 
   b.style.position = "absolute";
@@ -7707,6 +7755,59 @@ function startHealthTrainingTimer() {
     renderHealthTrainProgressUI();
   }, 1000);
 }
+function startDragonTrainingTimer() {
+  if (dragonTrainingInterval) clearInterval(dragonTrainingInterval);
+  renderDragonTrainProgressUI();
+  dragonTrainingInterval = setInterval(() => {
+    dragonTrainingRemainingTime -= 1;
+    renderDragonTrainProgressUI();
+    const panel = document.getElementById("dragon-army-panel");
+if (panel) panel.scrollTop = panel.scrollHeight;
+
+    if (dragonTrainingRemainingTime <= 0) {
+      dragonTrainingRemainingTime = 0;
+      clearInterval(dragonTrainingInterval);
+      dragonTrainingInterval = null;
+      finishDragonTraining();
+    }
+  }, 1000);
+}
+
+
+function finishDragonTraining() {
+  if (!currentDragonTrainingHeroKey || !currentDragonTrainingUnitKey || !currentDragonTrainingAmount) {
+    dragonTrainingInProgress = false;
+    return;
+  }
+  const heroKey = currentDragonTrainingHeroKey;
+  const unitKey = currentDragonTrainingUnitKey;
+  const amount = currentDragonTrainingAmount;
+
+  if (!trainedDragonArmy[heroKey]) trainedDragonArmy[heroKey] = {};
+  trainedDragonArmy[heroKey][unitKey] = (trainedDragonArmy[heroKey][unitKey] || 0) + amount;
+  localStorage.setItem("raidex_dragon_army_v1", JSON.stringify(trainedDragonArmy));
+
+  dragonTrainingInProgress = false;
+  dragonTrainingFinishAt = null;
+  dragonTrainingRemainingTime = 0;
+  dragonTrainingTotalTime = 0;
+  currentDragonTrainingHeroKey = null;
+  currentDragonTrainingUnitKey = null;
+  currentDragonTrainingAmount = 0;
+renderDragonTrainProgressUI();
+  saveGameState();
+  if (typeof updateTopBar === "function") updateTopBar();
+  if (typeof updateArmyProfileView === "function") updateArmyProfileView();
+  if (typeof updateProfileStatsFromArmy === "function") updateProfileStatsFromArmy();
+
+  const panel = document.getElementById("dragon-army-panel");
+  if (panel && panel.style.display !== "none") {
+    const sliderEl = panel.querySelector("input[type='range']");
+    if (sliderEl) sliderEl.dispatchEvent(new Event("input"));
+  }
+}
+
+
 function renderHealthTrainProgressUI() {
   const progressWrapper = document.getElementById("health-train-progress-wrapper");
   const remainingTimeEl = document.getElementById("health-train-remaining-time");
@@ -7748,12 +7849,10 @@ function finishHealthTraining() {
   const prev = trainedHealthArmy[heroKey][unitKey] || 0;
   trainedHealthArmy[heroKey][unitKey] = prev + amount;
 
-  // ربط مهمة تدريب الجيش اليومية (الدفاع)
   if (typeof addProgressToTasksByType === "function") {
     addProgressToTasksByType("train_units", amount);
   }
 
-  // حفظ المخزون في localStorage
   localStorage.setItem("raidex_trainedHealthArmy_v1", JSON.stringify(trainedHealthArmy));
 
   healthTrainingInProgress = false;
@@ -7765,9 +7864,17 @@ function finishHealthTraining() {
   currentHealthTrainingAmount = 0;
 
   renderHealthTrainProgressUI();
-  renderHealthArmyTraining();
   saveGameState();
+  if (typeof updateArmyProfileView === "function") updateArmyProfileView();
+  if (typeof updateProfileStatsFromArmy === "function") updateProfileStatsFromArmy();
+
+  const panel = document.getElementById("health-army-panel");
+  if (panel && panel.style.display !== "none") {
+    const sliderEl = panel.querySelector("input[type='range']");
+    if (sliderEl) sliderEl.dispatchEvent(new Event("input"));
+  }
 }
+
 
 
 function finishAttackTraining() {
@@ -7785,7 +7892,6 @@ function finishAttackTraining() {
 
   trainedArmy[currentTrainingHeroKey][currentTrainingUnitKey] += currentTrainingAmount;
 
-  // ربط مهمة "درّب 50 جندي" بتدريب الهجوم
   if (typeof addProgressToTasksByType === "function") {
     addProgressToTasksByType("train_units", currentTrainingAmount);
   }
@@ -7815,7 +7921,14 @@ function finishAttackTraining() {
 
   updateArmyProfileView();
   updateProfileStatsFromArmy();
+
+  const panel = document.getElementById("attack-army-panel");
+  if (panel && panel.style.display !== "none") {
+    const sliderEl = panel.querySelector("input[type='range']");
+    if (sliderEl) sliderEl.dispatchEvent(new Event("input"));
+  }
 }
+
 
 
 
@@ -8652,15 +8765,21 @@ function updateArmyProfileView() {
 
   const heroKey = currentHero || "elephant";
 
+  // هجوم عادي
   const heroAttackArmy = trainedArmy[heroKey] || {};
   const attackConfig = (HERO_ARMIES[heroKey] || []).slice(0, 4);
 
+  // صحة
   const heroHealthArmy = trainedHealthArmy[heroKey] || {};
   const healthConfig = (HERO_HEALTH_ARMIES[heroKey] || []).slice(0, 4);
 
+  // تنانين
+  const heroDragonArmy = trainedDragonArmy[heroKey] || {};
+  const dragonConfig = (DRAGON_ARMIES[heroKey] || []).slice(0, 4);
+
   const slots = Array.from(grid.querySelectorAll(".army-slot"));
 
-  // تصفير كل الخانات
+  // تصفير
   slots.forEach((slot) => {
     const icon = slot.querySelector(".army-slot-icon");
     const countEl = slot.querySelector(".army-slot-count");
@@ -8677,7 +8796,7 @@ function updateArmyProfileView() {
 
   let slotIndex = 0;
 
-  // 4 وحدات هجوم كحد أقصى
+  // 4 وحدات هجوم
   attackConfig.forEach((unit) => {
     if (!slots[slotIndex]) return;
     const slot = slots[slotIndex];
@@ -8703,7 +8822,7 @@ function updateArmyProfileView() {
     slotIndex++;
   });
 
-  // 4 وحدات صحة كحد أقصى
+  // 4 وحدات صحة
   healthConfig.forEach((unit) => {
     if (!slots[slotIndex]) return;
     const slot = slots[slotIndex];
@@ -8727,41 +8846,107 @@ function updateArmyProfileView() {
     };
 
     slotIndex++;
+  });
 
+  // 4 وحدات تنانين
+  dragonConfig.forEach((unit) => {
+    if (!slots[slotIndex]) return;
+    const slot = slots[slotIndex];
+    const icon = slot.querySelector(".army-slot-icon");
+    const countEl = slot.querySelector(".army-slot-count");
+
+    const count =
+      typeof heroDragonArmy[unit.key] === "number" ? heroDragonArmy[unit.key] : 0;
+
+    if (icon) {
+      icon.style.backgroundImage = `url(${unit.img})`;
+      icon.style.backgroundSize = "cover";
+      icon.style.backgroundPosition = "center";
+    }
+    if (countEl) {
+      countEl.textContent = count.toString();
+    }
+
+    slot.onclick = () => {
+      openArmyUnitPopup(unit, count, "dragon");
+    };
+
+    slotIndex++;
   });
 }
+
 function openArmyUnitPopup(unit, count, type) {
   const popup = document.getElementById("army-unit-popup");
   const titleEl = document.getElementById("army-unit-popup-title");
   const imgBox = document.getElementById("army-unit-popup-img");
   const nameEl = document.getElementById("army-unit-popup-name");
-  const statsEl = document.getElementById("army-unit-popup-stats");
+  const typeEl = document.getElementById("army-unit-popup-type");
+  const atkEl = document.getElementById("army-unit-atk");
+  const hpEl = document.getElementById("army-unit-hp");
+  const countEl = document.getElementById("army-unit-count");
   const extraEl = document.getElementById("army-unit-popup-extra");
   const closeBtn = document.getElementById("army-unit-popup-close");
 
-  if (!popup || !titleEl || !imgBox || !nameEl || !statsEl || !extraEl || !closeBtn) return;
+  if (!popup || !titleEl || !imgBox || !nameEl || !typeEl || !atkEl || !hpEl || !countEl || !extraEl || !closeBtn) {
+    return;
+  }
 
-  popup.style.display = "flex";
+  if (type === "dragon") {
+    titleEl.textContent = unit.name || "";
+    typeEl.textContent = "النوع: تنين";
+  } else if (type === "health") {
+    titleEl.textContent = unit.name || "";
+    typeEl.textContent = "النوع: صحة";
+  } else {
+    titleEl.textContent = unit.name || "";
+    typeEl.textContent = "النوع: هجوم";
+  }
 
-  titleEl.textContent = type === "attack" ? "وحدة هجوم" : "وحدة صحة";
-  imgBox.style.backgroundImage = `url(${unit.img})`;
-  nameEl.textContent = unit.name;
+  imgBox.style.backgroundImage = unit.img ? `url(${unit.img})` : "";
+  nameEl.textContent = unit.name || "";
+  atkEl.textContent = unit.atk || 0;
+  hpEl.textContent = unit.hp || 0;
+  countEl.textContent = count || 0;
 
-  statsEl.textContent = `هجوم: ${unit.atk} | صحة: ${unit.hp}` +
-    (typeof count === "number" ? ` | عدد: ${count}` : "");
-
-  extraEl.textContent = unit.levelRequired
-    ? `متاحة من مستوى بطل ${unit.levelRequired}`
+  const levelText = unit.levelRequired
+    ? `مطلوب مستوى برج: ${unit.levelRequired}`
     : "";
+  extraEl.textContent = levelText;
+// زر التدريب
+const trainBtn = document.getElementById("army-unit-popup-train-btn");
+if (trainBtn) {
+  trainBtn.onclick = () => {
+    popup.style.display = "none";
+    if (type === "attack") {
+      initAttackArmyPanel();
+      const p = document.getElementById("attack-army-panel");
+      if (p) p.style.display = "block";
+    } else if (type === "health") {
+      initHealthArmyPanel();
+      const p = document.getElementById("health-army-panel");
+      if (p) p.style.display = "block";
+    } else if (type === "dragon") {
+      initDragonArmyPanel();
+      const p = document.getElementById("dragon-army-panel");
+      if (p) p.style.display = "block";
+    }
+  };
+}
+
+  popup.style.zIndex = "99999";
+  popup.style.display = "flex";
+  document.body.appendChild(popup);
 
   closeBtn.onclick = () => {
     popup.style.display = "none";
   };
-
   popup.onclick = (e) => {
     if (e.target === popup) popup.style.display = "none";
   };
 }
+
+
+
 
 function updateProfileStatsFromArmy() {
   if (!currentHero) return;
@@ -8771,7 +8956,7 @@ function updateProfileStatsFromArmy() {
   const atkAttack = atkArmy.totalAttack || 0;
   const atkHp = atkArmy.totalHp || 0;
 
-  // 2) جيش الصحة (بالأسامي الحقيقية عندك)
+  // 2) جيش الصحة
   const heroHealthArmy = trainedHealthArmy[currentHero] || {};
   const healthConfig = HERO_HEALTH_ARMIES[currentHero] || [];
 
@@ -8786,9 +8971,24 @@ function updateProfileStatsFromArmy() {
     healthHp += unit.hp * count;
   });
 
-  // 3) الإجمالي اللي ينعرض في البروفايل
-  const totalAttack = atkAttack + healthAttack;
-  const totalHp = atkHp + healthHp;
+  // 3) جيش التنانين
+  const heroDragonArmy = trainedDragonArmy[currentHero] || {};
+  const dragonConfig = DRAGON_ARMIES[currentHero] || [];
+
+  let dragonAttack = 0;
+  let dragonHp = 0;
+
+  Object.entries(heroDragonArmy).forEach(([unitKey, count]) => {
+    if (count <= 0) return;
+    const unit = dragonConfig.find(u => u.key === unitKey);
+    if (!unit) return;
+    dragonAttack += unit.atk * count;
+    dragonHp += unit.hp * count;
+  });
+
+  // 4) الإجمالي
+  const totalAttack = atkAttack + healthAttack + dragonAttack;
+  const totalHp = atkHp + healthHp + dragonHp;
 
   const attackEl = document.getElementById("profile-attack");
   const hpEl = document.getElementById("profile-hp");
@@ -8797,57 +8997,58 @@ function updateProfileStatsFromArmy() {
 }
 
 
+
 function initAttackArmyPanel() {
   if (document.getElementById("attack-army-panel")) return;
 
-  const panel = document.createElement("div");
-  panel.id = "attack-army-panel";
-  panel.className = "game-page-panel";
-  panel.style.position = "fixed";
-  panel.style.top = "50%";
-  panel.style.left = "50%";
-  panel.style.transform = "translate(-50%, -50%)";
-  panel.style.width = "80%";
-  panel.style.maxWidth = "400px";
-  panel.style.background = "#020617";
-  panel.style.border = "2px solid #facc15";
-  panel.style.borderRadius = "16px";
-  panel.style.padding = "12px";
-  panel.style.zIndex = "9999";
-  panel.style.color = "#e5e7eb";
-  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
-  panel.style.display = "none";
+const panel = document.createElement("div");
+panel.id = "attack-army-panel";
+panel.className = "game-page-panel";
+panel.style.position = "fixed";
+panel.style.top = "80px";
+panel.style.left = "10px";
+panel.style.right = "10px";
+panel.style.bottom = "150px";
+panel.style.width = "auto";
+panel.style.maxWidth = "100%";
+panel.style.transform = "none";
+panel.style.background = "#0f172a";
+panel.style.border = "2px solid #facc15";
+panel.style.borderRadius = "16px";
+panel.style.padding = "14px";
+panel.style.zIndex = "9999";
+panel.style.color = "#e5e7eb";
+panel.style.boxShadow = "0 10px 40px rgba(0,0,0,0.8)";
+panel.style.overflowY = "scroll";
+panel.style.WebkitOverflowScrolling = "touch";
 
-  const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.justifyContent = "space-between";
-  header.style.alignItems = "center";
-  header.style.marginBottom = "8px";
+panel.style.display = "none";
 
-  const title = document.createElement("div");
-  title.textContent = "مبنى جيش الهجوم";
-  title.style.fontWeight = "bold";
-  title.style.fontSize = "18px";
 
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "✖";
-  closeBtn.style.background = "transparent";
-  closeBtn.style.border = "none";
-  closeBtn.style.color = "#e5e7eb";
-  closeBtn.style.fontSize = "18px";
-  closeBtn.style.cursor = "pointer";
-  closeBtn.onclick = () => {
-    panel.style.display = "none";
-  };
+ const header = document.createElement("div");
+header.style.cssText = "display:flex;flex-direction:column;align-items:center;margin-bottom:12px;position:relative;";
 
-  header.appendChild(title);
-  header.appendChild(closeBtn);
-  panel.appendChild(header);
+// اسم المبنى في المنتصف
+const title = document.createElement("div");
+title.textContent = "برج الهجوم";
+title.style.cssText = "font-weight:bold;font-size:17px;color:#e5e7eb;text-align:center;margin-bottom:6px;";
 
-  const tabsRow = document.createElement("div");
-  tabsRow.style.display = "flex";
-  tabsRow.style.marginBottom = "10px";
-  tabsRow.style.borderBottom = "1px solid #374151";
+// زر الإغلاق على اليمين
+const closeBtn = document.createElement("button");
+closeBtn.textContent = "✖";
+closeBtn.style.cssText = "position:absolute;top:0;right:0;background:transparent;border:none;color:#9ca3af;font-size:18px;cursor:pointer;";
+closeBtn.onclick = () => { panel.style.display = "none"; };
+
+header.appendChild(closeBtn);
+header.appendChild(title);
+panel.appendChild(header);
+
+
+const tabsRow = document.createElement("div");
+tabsRow.style.display = "flex";
+tabsRow.style.marginBottom = "10px";
+tabsRow.style.borderBottom = "1px solid #374151";
+
 
   function makeTabButton(key, label) {
     const btn = document.createElement("button");
@@ -8864,12 +9065,14 @@ function initAttackArmyPanel() {
     return btn;
   }
 
-  const infoTabBtn = makeTabButton("info", "التدريب");
-  const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+const infoTabBtn = makeTabButton("info", "تدريب");
+const upgradeTabBtn = makeTabButton("upgrade", "!");
+
+
   infoTabBtn.style.color = "#facc15";
 
-  tabsRow.appendChild(infoTabBtn);
-  tabsRow.appendChild(upgradeTabBtn);
+tabsRow.appendChild(upgradeTabBtn);
+tabsRow.appendChild(infoTabBtn);
   panel.appendChild(tabsRow);
 
 const infoTab = document.createElement("div");
@@ -8878,7 +9081,8 @@ infoTab.id = "attack-army-panel-info";
 infoTab.innerHTML = `
   <!-- الجزء الأول: الكروت + اسم الوحدة -->
   <div id="attack-army-cards-row"
-       style="display:flex; gap:8px; margin-bottom:6px; justify-content:space-between;"></div>
+       style="display:flex; gap:8px; margin-bottom:6px; justify-content:space-between; height:100px;"
+></div>
 
   <div id="attack-army-selected-name"
        style="font-weight:bold; text-align:center; margin-bottom:4px;"></div>
@@ -8888,8 +9092,9 @@ infoTab.innerHTML = `
        style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
 
   <!-- الجزء الثاني: تفاصيل التدريب -->
-  <div id="attack-army-detail"
-       style="display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:8px;"></div>
+ <div id="attack-army-detail"
+     style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;"></div>
+
 
   <!-- فاصل بين التدريب وجزء التسريع -->
   <div id="attack-separator-bottom"
@@ -8913,6 +9118,16 @@ infoTab.innerHTML = `
     <div id="attack-train-speedups-row"
          style="display:flex;flex-wrap:wrap;gap:6px;"></div>
   </div>
+  <div id="dragon-train-progress-wrapper" style="margin-top:4px; display:none;">
+  <div style="font-size:12px;color:#9ca3af;margin-bottom:4px;text-align:center;">جاري التدريب...</div>
+  <div style="width:100%;height:8px;background:rgba(148,163,184,0.2);border-radius:999px;overflow:hidden;">
+    <div id="dragon-train-progress-fill" style="width:0;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);"></div>
+  </div>
+  <div style="text-align:center;margin-top:4px;font-size:12px;color:#e5e7eb;">
+    <span id="dragon-train-remaining-time">0</span>
+  </div>
+</div>
+
 `;
 
 
@@ -8950,6 +9165,9 @@ function renderAttackArmyTraining() {
     card.style.border = "1px solid rgba(148,163,184,0.6)";
     card.style.borderRadius = "10px";
     card.style.padding = "4px";
+    card.style.display = "flex";
+card.style.flexDirection = "column";
+card.style.height = "100%";
     card.style.textAlign = "center";
     card.style.fontSize = "11px";
     card.style.cursor = "pointer";
@@ -8961,7 +9179,8 @@ function renderAttackArmyTraining() {
     }
 
     card.innerHTML = `
-      <div style="width:100%; height:40px; margin-bottom:4px; position:relative;">
+      <div style="width:100%; height:90px; position:relative;">
+
         <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
         ${isLocked ? `
           <div style="
@@ -8974,181 +9193,160 @@ function renderAttackArmyTraining() {
           </div>
         ` : ""}
       </div>
-      <div>${unit.name}</div>
     `;
 
-    card.onclick = () => {
-      Array.from(cardsRow.children).forEach(c => c.style.outline = "none");
-      card.style.outline = "2px solid #facc15";
+card.onclick = () => {
+  Array.from(cardsRow.children).forEach(c => c.style.outline = "none");
+  card.style.outline = "2px solid #facc15";
+  selectedNameEl.textContent = "";
 
-      selectedNameEl.textContent = unit.name;
 
-      const currentCount =
-        (trainedArmy[currentHero] && trainedArmy[currentHero][unit.key]) || 0;
+  detailEl.innerHTML = "";
 
-    detailEl.innerHTML = `
-  <div style="width:80px; height:80px; flex-shrink:0;">
-    <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
-  </div>
-  <div style="font-size:13px; line-height:1.6;">
-    <div>الهجوم: ${unit.atk}</div>
-    <div>الصحة: ${unit.hp}</div>
-    <div style="margin-top:4px;">
-      عدد الجنود الحالي من هذا النوع:
-      <span id="unit-count-text">${currentCount}</span>
-    </div>
+  const unitNameEl = document.createElement("div");
+  unitNameEl.style.cssText = "font-weight:bold;font-size:15px;margin-bottom:8px;color:#facc15;";
+  unitNameEl.textContent = unit.name;
+  detailEl.appendChild(unitNameEl);
 
-    ${isLocked ? `
-      <div style="color:#f97316; margin-top:6px;">
-        هذه الوحدة مقفولة. تحتاج مبنى جيش الهجوم لفل ${unit.levelRequired} لفتح التدريب.
-      </div>
-    ` : `
-      <!-- سطر التكلفة الجديد -->
-      <div id="attack-train-cost" style="margin-top:6px; font-size:12px; color:#e5e7eb;">
-        <!-- يمتلئ بالكود بعد حساب التكلفة -->
-      </div>
-
-      <div id="attack-train-info" style="margin-top:6px; font-size:12px; color:#e5e7eb;">
-        <!-- يمتلئ بالمعلومات بعد حساب الدفعة -->
-      </div>
-      <button id="train-button"
-              style="margin-top:8px; padding:6px 12px; border:none; border-radius:999px;
-                     background:#22c55e; color:#0b1120; font-weight:bold; cursor:pointer; font-size:12px;">
-        بدء تدريب دفعة
-      </button>
-    `}
+const unitRow = document.createElement("div");
+unitRow.style.cssText = "display:flex;flex-direction:column;align-items:center;margin-bottom:12px;gap:0;";
+unitRow.innerHTML = `
+  <img src="${unit.img}" style="width:220px;height:220px;object-fit:contain;border-radius:14px;margin-bottom:12px;">
+  <div style="width:100%;height:1px;background:rgba(148,163,184,0.3);margin-bottom:12px;"></div>
+  <div style="width:100%;font-size:13px;display:flex;flex-direction:column;gap:6px;">
+    <div>⚔️ الهجوم: <span style="color:#f97316;font-weight:bold;">${unit.atk}</span></div>
+    <div>💚 الصحة: <span style="color:#22c55e;font-weight:bold;">${unit.hp}</span></div>
+    <div>📦 مدرب: <span style="color:#60a5fa;font-weight:bold;">${(trainedArmy[currentHero] && trainedArmy[currentHero][unit.key]) || 0}</span></div>
+    <div style="font-size:11px;color:#9ca3af;">مطلوب مستوى: ${unit.levelRequired}</div>
   </div>
 `;
 
 
-      if (!isLocked) {
-        const trainBtn = detailEl.querySelector("#train-button");
-        const countSpan = detailEl.querySelector("#unit-count-text");
-        const infoEl = detailEl.querySelector("#attack-train-info");
-        const costEl = detailEl.querySelector("#attack-train-cost");
+  detailEl.appendChild(unitRow);
 
-        if (trainBtn && countSpan && infoEl && costEl) {
-          // حساب معلومات الدفعة لعرضها
-          const heroKey = currentHero;
-          const attackLevel = buildingLevels.attackTower || 1;
-          const capacity = getAttackArmyCapacity(attackLevel);
-          const totalBefore = getTotalArmyCountForHero(heroKey);
-          const trainAmount = getAttackTrainBatchSize(attackLevel);
-          const trainTimeSeconds = getAttackTrainTime(unit, trainAmount, attackLevel);
-// نحسب التكلفة للدفعة الحالية
-const costNow = getAttackTrainCost(trainAmount, unit);
-const enoughGold = resources.gold >= costNow.gold;
-const enoughFood = resources.food >= costNow.food;
+  if (isLocked) {
+    const lockedBtns = document.createElement("div");
+    lockedBtns.style.cssText = "display:flex;gap:8px;margin-top:8px;";
+    lockedBtns.innerHTML = `
+      <button disabled style="flex:1;padding:10px 0;border:none;border-radius:999px;background:#374151;color:#6b7280;font-size:11px;cursor:not-allowed;">ارقِ المبنى للمستوى ${unit.levelRequired}</button>
+      <button disabled style="flex:1;padding:10px 0;border:none;border-radius:999px;background:#374151;color:#6b7280;font-size:11px;cursor:not-allowed;">💎 ارقِ للمستوى ${unit.levelRequired}</button>
+    `;
+    detailEl.appendChild(lockedBtns);
+  } else {
+    const attackLevel = buildingLevels.attackTower || 1;
+    const capacity = getAttackArmyCapacity(attackLevel);
+    const totalNow = getTotalArmyCountForHero(currentHero);
+    const maxTrain = Math.max(1, capacity - totalNow);
 
-if (!enoughGold || !enoughFood) {
-  alert("الموارد لا تكفي لتدريب هذه الدفعة من الجنود.");
-  return;
-}
+    const sliderLabel = document.createElement("div");
+    sliderLabel.style.cssText = "display:flex;justify-content:space-between;font-size:12px;color:#9ca3af;margin-bottom:4px;";
+    sliderLabel.innerHTML = `<span>عدد الجنود</span><span id="atk-slider-val">1</span>`;
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = "1";
+    slider.max = String(maxTrain);
+    slider.value = "1";
+    slider.style.cssText = "width:100%;accent-color:#facc15;cursor:pointer;margin-bottom:10px;";
+    detailEl.appendChild(sliderLabel);
+    detailEl.appendChild(slider);
 
-// خصم الموارد
-resources.gold -= costNow.gold;
-resources.food -= costNow.food;
-saveGameState();
+    const resourcesEl = document.createElement("div");
+    resourcesEl.style.cssText = "font-size:12px;background:rgba(15,23,42,0.8);border-radius:10px;padding:8px 10px;margin-bottom:10px;display:flex;justify-content:space-between;";
+    detailEl.appendChild(resourcesEl);
 
-// حساب التكلفة
-const cost = getAttackTrainCost(trainAmount, unit);
-const hasGold = resources.gold >= cost.gold;
-const hasFood = resources.food >= cost.food;
+    const btnsRow = document.createElement("div");
+    btnsRow.style.cssText = "display:flex;gap:8px;";
+    const trainTimedBtn = document.createElement("button");
+    trainTimedBtn.style.cssText = "flex:1;padding:10px 0;border:none;border-radius:999px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#0b1120;font-weight:bold;font-size:12px;cursor:pointer;line-height:1.5;";
+    const trainInstantBtn = document.createElement("button");
+    trainInstantBtn.style.cssText = "flex:1;padding:10px 0;border:none;border-radius:999px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-weight:bold;font-size:12px;cursor:pointer;line-height:1.5;";
+    btnsRow.appendChild(trainTimedBtn);
+    btnsRow.appendChild(trainInstantBtn);
+    detailEl.appendChild(btnsRow);
 
-// عرض التكلفة فوق الزر
-costEl.innerHTML = `
-  تكلفة:
-  <span style="color:${hasGold ? "#e5e7eb" : "#ef4444"}">ذهب ${cost.gold.toLocaleString()}</span> -
-  <span style="color:${hasFood ? "#e5e7eb" : "#ef4444"}">لحم ${cost.food.toLocaleString()}</span>
-`;
+    function updateUI() {
+      const amount = parseInt(slider.value);
+      document.getElementById("atk-slider-val").textContent = amount;
+      const cost = getAttackTrainCost(amount, unit);
+      const timeSeconds = getAttackTrainTime(unit, amount, attackLevel);
+      const gemCost = Math.max(1, Math.ceil(timeSeconds / 30));
+      const hasGold = resources.gold >= cost.gold;
+      const hasFood = resources.food >= cost.food;
 
-          infoEl.textContent =
-            `دفعة تدريب: ${trainAmount} جندي، الوقت المطلوب: ${formatDuration(trainTimeSeconds)}. ` +
-            `السعة الحالية: ${totalBefore}/${capacity}.`;
+      resourcesEl.innerHTML = `
+        <span>🪙 ذهب: <span style="color:${hasGold ? "#facc15" : "#ef4444"};font-weight:bold;">${cost.gold.toLocaleString()}</span></span>
+        <span>🍖 طعام: <span style="color:${hasFood ? "#22c55e" : "#ef4444"};font-weight:bold;">${cost.food.toLocaleString()}</span></span>
+      `;
 
-   trainBtn.onclick = () => {
-  console.log("DEBUG click train", {
-    attackTrainingInProgress,
-    attackTrainingRemainingTime,
-    attackTrainingFinishAt,
-  });
+      if (attackTrainingInProgress) {
+        trainTimedBtn.disabled = true;
+        trainTimedBtn.style.background = "#374151";
+        trainTimedBtn.style.color = "#6b7280";
+        trainTimedBtn.innerHTML = "⏱ جاري التدريب";
+        trainInstantBtn.disabled = true;
+        trainInstantBtn.style.background = "#374151";
+        trainInstantBtn.style.color = "#6b7280";
+        trainInstantBtn.innerHTML = "⚡ جاري التدريب";
+        return;
+      }
 
-  // لو فيه تدريب فعلي شغّال (وقت > 0 و finishAt موجود)
-  if (
-    attackTrainingInProgress === true &&
-    attackTrainingRemainingTime > 0 &&
-    attackTrainingFinishAt
-  ) {
-    alert("يوجد تدريب آخر قيد التنفيذ حالياً. انتظر انتهاءه أو استخدم التسريعات.");
-    return;
+      trainTimedBtn.disabled = false;
+      trainTimedBtn.style.background = "linear-gradient(135deg,#0ea5e9,#38bdf8)";
+      trainTimedBtn.style.color = "#0b1120";
+      trainTimedBtn.innerHTML = `⏱ تدريب بوقت<br><span style="font-size:10px;font-weight:normal;">${formatDuration(timeSeconds)}</span>`;
+      trainInstantBtn.disabled = false;
+      trainInstantBtn.style.background = "linear-gradient(135deg,#7c3aed,#a855f7)";
+      trainInstantBtn.style.color = "#fff";
+      trainInstantBtn.innerHTML = `⚡ تدريب فوري<br><span style="font-size:10px;font-weight:normal;">💎 ${gemCost}</span>`;
+
+      trainTimedBtn.onclick = () => {
+        if (attackTrainingInProgress) { alert("يوجد تدريب قيد التنفيذ."); return; }
+        const amt = parseInt(slider.value);
+        const c = getAttackTrainCost(amt, unit);
+        if (resources.gold < c.gold || resources.food < c.food) { alert("الموارد لا تكفي."); return; }
+        if (totalNow + amt > capacity) { alert("السعة ممتلئة."); return; }
+        resources.gold -= c.gold;
+        resources.food -= c.food;
+        attackTrainingInProgress = true;
+        attackTrainingTotalTime = getAttackTrainTime(unit, amt, attackLevel);
+        attackTrainingRemainingTime = attackTrainingTotalTime;
+        attackTrainingFinishAt = Date.now() + attackTrainingTotalTime * 1000;
+        currentTrainingHeroKey = currentHero;
+        currentTrainingUnitKey = unit.key;
+        currentTrainingAmount = amt;
+        saveGameState();
+        startAttackTrainingTimer();
+        if (typeof updateTopBar === "function") updateTopBar();
+        updateUI();
+      };
+
+      trainInstantBtn.onclick = () => {
+        const amt = parseInt(slider.value);
+        const c = getAttackTrainCost(amt, unit);
+        const t = getAttackTrainTime(unit, amt, attackLevel);
+        const gems = Math.max(1, Math.ceil(t / 30));
+        if (resources.gem < gems) { alert(`تحتاج ${gems} جواهر.`); return; }
+        if (resources.gold < c.gold || resources.food < c.food) { alert("الموارد لا تكفي."); return; }
+        if (totalNow + amt > capacity) { alert("السعة ممتلئة."); return; }
+        resources.gold -= c.gold;
+        resources.food -= c.food;
+        resources.gem -= gems;
+        if (!trainedArmy[currentHero]) trainedArmy[currentHero] = {};
+        trainedArmy[currentHero][unit.key] = (trainedArmy[currentHero][unit.key] || 0) + amt;
+        localStorage.setItem("raidex_trainedArmy_v1", JSON.stringify(trainedArmy));
+        saveGameState();
+        if (typeof updateTopBar === "function") updateTopBar();
+        if (typeof updateArmyProfileView === "function") updateArmyProfileView();
+        if (typeof updateProfileStatsFromArmy === "function") updateProfileStatsFromArmy();
+        updateUI();
+      };
+    }
+
+    slider.oninput = updateUI;
+    updateUI();
   }
-
-  // لو الفلاغ true لكن مفيش وقت أو finishAt => نصلّح الحالة
-  if (
-    attackTrainingInProgress === true &&
-    (attackTrainingRemainingTime <= 0 || !attackTrainingFinishAt)
-  ) {
-    console.log("FIX stale training state -> resetting");
-    attackTrainingInProgress = false;
-    attackTrainingRemainingTime = 0;
-    attackTrainingTotalTime = 0;
-    attackTrainingFinishAt = null;
-    currentTrainingHeroKey = null;
-    currentTrainingUnitKey = null;
-    currentTrainingAmount = 0;
-  }
-
-  const heroKey = currentHero;
-  const attackLevel = buildingLevels.attackTower || 1;
-  const capacity = getAttackArmyCapacity(attackLevel);
-  const totalBefore = getTotalArmyCountForHero(heroKey);
-  const trainAmount = getAttackTrainBatchSize(attackLevel);
-  const trainTimeSeconds = getAttackTrainTime(unit, trainAmount, attackLevel);
-
-  console.log("DEBUG train values", {
-    heroKey,
-    attackLevel,
-    capacity,
-    totalBefore,
-    trainAmount,
-    trainTimeSeconds,
-  });
-
-  if (totalBefore + trainAmount > capacity) {
-    alert("لا يمكنك تدريب المزيد، سعة مبنى جيش الهجوم ممتلئة.");
-    return;
-  }
-const costNow = getAttackTrainCost(trainAmount, unit);
-const enoughGold = resources.gold >= costNow.gold;
-const enoughFood = resources.food >= costNow.food;
-
-if (!enoughGold || !enoughFood) {
-  alert("الموارد لا تكفي لتدريب هذه الدفعة من الجنود.");
-  return;
-}
-
-resources.gold -= costNow.gold;
-resources.food -= costNow.food;
-saveGameState();
-
-  attackTrainingInProgress = true;
-  attackTrainingTotalTime = trainTimeSeconds;
-  attackTrainingRemainingTime = trainTimeSeconds;
-  attackTrainingFinishAt = Date.now() + trainTimeSeconds * 1000;
-  currentTrainingHeroKey = heroKey;
-  currentTrainingUnitKey = unit.key;
-  currentTrainingAmount = trainAmount;
-
-  saveGameState();
-  startAttackTrainingTimer();
-
-  infoEl.textContent =
-    `جاري تدريب: ${trainAmount} جندي. الوقت المتبقي: ${formatDuration(trainTimeSeconds)}.`;
 };
 
-        }
-      }
-    };
 
     if (index === 0) {
       setTimeout(() => card.onclick(), 0);
@@ -9175,6 +9373,27 @@ document.body.appendChild(panel);
     }
   }
 }
+function renderDragonTrainProgressUI() {
+  const progressWrapper = document.getElementById("dragon-train-progress-wrapper");
+  const remainingTimeEl = document.getElementById("dragon-train-remaining-time");
+  const progressFill = document.getElementById("dragon-train-progress-fill");
+
+  if (!progressWrapper || !remainingTimeEl || !progressFill) return;
+
+  if (!dragonTrainingInProgress) {
+    progressWrapper.style.display = "none";
+    return;
+  }
+
+  progressWrapper.style.display = "block";
+  if (typeof formatDuration === "function") {
+    remainingTimeEl.textContent = formatDuration(dragonTrainingRemainingTime);
+  }
+  const total = dragonTrainingTotalTime || 1;
+  const ratio = Math.max(0, Math.min(1, (total - dragonTrainingRemainingTime) / total));
+  progressFill.style.width = (ratio * 100) + "%";
+}
+
 function initDragonArmyPanel() {
   if (document.getElementById("dragon-army-panel")) return;
 
@@ -9182,238 +9401,38 @@ function initDragonArmyPanel() {
   panel.id = "dragon-army-panel";
   panel.className = "game-page-panel";
   panel.style.position = "fixed";
-  panel.style.top = "50%";
-  panel.style.left = "50%";
-  panel.style.transform = "translate(-50%, -50%)";
-  panel.style.width = "80%";
-  panel.style.maxWidth = "400px";
-  panel.style.background = "#020617";
+  panel.style.top = "80px";
+  panel.style.left = "10px";
+  panel.style.right = "10px";
+  panel.style.bottom = "150px";
+  panel.style.width = "auto";
+  panel.style.maxWidth = "100%";
+  panel.style.transform = "none";
+  panel.style.background = "#0f172a";
   panel.style.border = "2px solid #facc15";
   panel.style.borderRadius = "16px";
-  panel.style.padding = "12px";
+  panel.style.padding = "14px";
   panel.style.zIndex = "9999";
   panel.style.color = "#e5e7eb";
-  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
+  panel.style.boxShadow = "0 10px 40px rgba(0,0,0,0.8)";
+  panel.style.overflowY = "scroll";
+  panel.style.WebkitOverflowScrolling = "touch";
   panel.style.display = "none";
 
-  // Header
   const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.justifyContent = "space-between";
-  header.style.alignItems = "center";
-  header.style.marginBottom = "8px";
+  header.style.cssText = "display:flex;flex-direction:column;align-items:center;margin-bottom:12px;position:relative;";
 
   const title = document.createElement("div");
   title.textContent = "برج التنانين";
-  title.style.fontWeight = "bold";
-  title.style.fontSize = "18px";
+  title.style.cssText = "font-weight:bold;font-size:17px;color:#e5e7eb;text-align:center;margin-bottom:6px;";
 
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "✖";
-  closeBtn.style.background = "transparent";
-  closeBtn.style.border = "none";
-  closeBtn.style.color = "#e5e7eb";
-  closeBtn.style.fontSize = "18px";
-  closeBtn.style.cursor = "pointer";
-  closeBtn.onclick = () => {
-    panel.style.display = "none";
-  };
+  closeBtn.style.cssText = "position:absolute;top:0;right:0;background:transparent;border:none;color:#9ca3af;font-size:18px;cursor:pointer;";
+  closeBtn.onclick = () => { panel.style.display = "none"; };
 
-  header.appendChild(title);
   header.appendChild(closeBtn);
-  panel.appendChild(header);
-
-  // جسم البانل (نفس تقسيمة الهجوم بس IDs مختلفة)
-  const infoTab = document.createElement("div");
-  infoTab.id = "dragon-army-panel-info";
-  infoTab.innerHTML = `
-    <div id="dragon-army-cards-row"
-         style="display:flex; gap:8px; margin-bottom:6px; justify-content:space-between;"></div>
-
-    <div id="dragon-army-selected-name"
-         style="font-weight:bold; text-align:center; margin-bottom:4px;"></div>
-
-    <div style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
-
-    <div id="dragon-army-detail"
-         style="display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:8px;"></div>
-  `;
-
-  panel.appendChild(infoTab);
-  document.body.appendChild(panel);
-
-  const cardsRow = infoTab.querySelector("#dragon-army-cards-row");
-  const selectedNameEl = infoTab.querySelector("#dragon-army-selected-name");
-  const detailEl = infoTab.querySelector("#dragon-army-detail");
-
-  function renderDragonArmyTraining() {
-    const heroKey = currentHero || "elephant";
-    const armyList = DRAGON_ARMIES[heroKey] || [];
-    const towerLevel = buildingLevels.dragonTower || 1;
-
-    cardsRow.innerHTML = "";
-    selectedNameEl.textContent = "";
-    detailEl.innerHTML = "";
-
-    if (!armyList.length) {
-      selectedNameEl.textContent = "لا توجد وحدات تنانين لهذا البطل.";
-      return;
-    }
-
-    armyList.forEach((unit, index) => {
-      const isLocked = towerLevel < unit.levelRequired;
-
-      const card = document.createElement("div");
-      card.style.flex = "1";
-      card.style.background = "rgba(15,23,42,0.9)";
-      card.style.border = "1px solid rgba(148,163,184,0.6)";
-      card.style.borderRadius = "10px";
-      card.style.padding = "4px";
-      card.style.textAlign = "center";
-      card.style.fontSize = "11px";
-      card.style.cursor = isLocked ? "default" : "pointer";
-      card.style.position = "relative";
-      card.style.transition = "0.2s";
-      if (isLocked) card.style.opacity = "0.5";
-
-      card.innerHTML = `
-        <div style="width:100%; height:40px; margin-bottom:4px; position:relative;">
-          <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
-          ${
-            isLocked
-              ? `<div style="
-                  position:absolute; inset:0;
-                  display:flex; align-items:center; justify-content:center;
-                  background:rgba(0,0,0,0.4);
-                  font-size:14px; font-weight:bold; color:#facc15;
-                ">
-                  🔒 Lv.${unit.levelRequired}
-                </div>`
-              : ""
-          }
-        </div>
-        <div>${unit.name}</div>
-      `;
-
-      if (!isLocked) {
-        card.onclick = () => {
-          Array.from(cardsRow.children).forEach(c => (c.style.outline = "none"));
-          card.style.outline = "2px solid #facc15";
-
-          const currentCount =
-            (trainedDragonArmy[heroKey] && trainedDragonArmy[heroKey][unit.key]) || 0;
-
-          selectedNameEl.textContent = unit.name;
-          detailEl.innerHTML = `
-            <div style="width:80px; height:80px; flex-shrink:0;">
-              <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
-            </div>
-            <div style="font-size:13px; line-height:1.6;">
-              <div>الهجوم: ${unit.atk}</div>
-              <div>الصحة: ${unit.hp}</div>
-              <div style="margin-top:4px;">
-                عدد التنانين الحالي:
-                <span id="dragon-unit-count-text">${currentCount}</span>
-              </div>
-              <button id="dragon-train-button"
-                      style="margin-top:8px; padding:6px 12px; border:none; border-radius:999px;
-                             background:#22c55e; color:#0b1120; font-weight:bold; cursor:pointer; font-size:12px;">
-                تدريب تنين
-              </button>
-            </div>
-          `;
-
-          const trainBtn = detailEl.querySelector("#dragon-train-button");
-          const countSpan = detailEl.querySelector("#dragon-unit-count-text");
-
-          if (trainBtn && countSpan) {
-            trainBtn.onclick = () => {
-              // مؤقتاً: تدريب 1 تنين بتكلفة ثابتة
-              const costGold = 10000;
-              const costFood = 20000;
-
-              if (resources.gold < costGold || resources.food < costFood) {
-                alert("الموارد لا تكفي لتدريب هذا التنين.");
-                return;
-              }
-
-              resources.gold -= costGold;
-              resources.food -= costFood;
-
-              const heroArmy = trainedDragonArmy[heroKey];
-              heroArmy[unit.key] = (heroArmy[unit.key] || 0) + 1;
-              countSpan.textContent = heroArmy[unit.key];
-
-              localStorage.setItem(
-                "raidex_dragon_army_v1",
-                JSON.stringify(trainedDragonArmy)
-              );
-              if (typeof saveGameState === "function") saveGameState();
-              if (typeof updateTopBar === "function") updateTopBar();
-              if (typeof updateArmyProfileView === "function") updateArmyProfileView();
-              if (typeof updateProfileStatsFromArmy === "function") updateProfileStatsFromArmy();
-            };
-          }
-        };
-
-        if (index === 0) {
-          setTimeout(() => card.onclick(), 0);
-        }
-      }
-
-      cardsRow.appendChild(card);
-    });
-  }
-
-  renderDragonArmyTraining();
-}
-
-
-function initHealthArmyPanel() {
-  if (document.getElementById("health-army-panel")) return;
-
-  const panel = document.createElement("div");
-  panel.id = "health-army-panel";
-  panel.className = "game-page-panel";
-  panel.style.position = "fixed";
-  panel.style.top = "50%";
-  panel.style.left = "50%";
-  panel.style.transform = "translate(-50%, -50%)";
-  panel.style.width = "80%";
-  panel.style.maxWidth = "400px";
-  panel.style.background = "#020617";
-  panel.style.border = "2px solid #facc15";
-  panel.style.borderRadius = "16px";
-  panel.style.padding = "12px";
-  panel.style.zIndex = "9999";
-  panel.style.color = "#e5e7eb";
-  panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.7)";
-  panel.style.display = "none";
-
-  const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.justifyContent = "space-between";
-  header.style.alignItems = "center";
-  header.style.marginBottom = "8px";
-
-  const title = document.createElement("div");
-  title.textContent = "مبنى جيش الصحة";
-  title.style.fontWeight = "bold";
-  title.style.fontSize = "18px";
-
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "✖";
-  closeBtn.style.background = "transparent";
-  closeBtn.style.border = "none";
-  closeBtn.style.color = "#e5e7eb";
-  closeBtn.style.fontSize = "18px";
-  closeBtn.style.cursor = "pointer";
-  closeBtn.onclick = () => {
-    panel.style.display = "none";
-  };
-
   header.appendChild(title);
-  header.appendChild(closeBtn);
   panel.appendChild(header);
 
   const tabsRow = document.createElement("div");
@@ -9436,61 +9455,242 @@ function initHealthArmyPanel() {
     return btn;
   }
 
-  const infoTabBtn = makeTabButton("info", "التدريب");
-const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
+  const infoTabBtn = makeTabButton("info", "تدريب");
+  const upgradeTabBtn = makeTabButton("upgrade", "!");
   infoTabBtn.style.color = "#facc15";
 
-  tabsRow.appendChild(infoTabBtn);
   tabsRow.appendChild(upgradeTabBtn);
+  tabsRow.appendChild(infoTabBtn);
   panel.appendChild(tabsRow);
 
-  const infoTab = document.createElement("div");
-  infoTab.id = "health-army-panel-info";
+const infoTab = document.createElement("div");
+infoTab.id = "dragon-army-panel-info";
+infoTab.innerHTML = `
+  <div id="dragon-army-cards-row" style="display:flex; gap:8px; justify-content:space-between; min-height:90px;"></div>
+  <div id="dragon-army-selected-name" style="font-weight:bold; text-align:center; margin-bottom:4px;"></div>
+  <div style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
+  <div id="dragon-army-detail" style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;"></div>
+  <div style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
+  <div id="dragon-train-progress-wrapper" style="margin-top:4px; display:none;">
+    <div style="font-size:12px;color:#9ca3af;margin-bottom:4px;text-align:center;">جاري التدريب...</div>
+    <div style="width:100%;height:8px;background:rgba(148,163,184,0.2);border-radius:999px;overflow:hidden;">
+      <div id="dragon-train-progress-fill" style="width:0;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);"></div>
+    </div>
+    <div style="text-align:center;margin-top:4px;font-size:12px;color:#e5e7eb;">
+      <span id="dragon-train-remaining-time">0</span>
+    </div>
+  </div>
+`;
+
+
+
 
   const upgradeTab = document.createElement("div");
-  upgradeTab.id = "health-army-panel-upgrade";
+  upgradeTab.id = "dragon-army-panel-upgrade";
   upgradeTab.style.display = "none";
-
-  infoTab.innerHTML = `
-    <div id="health-army-cards-row"
-         style="display:flex; gap:8px; margin-bottom:6px; justify-content:space-between;"></div>
-
-    <div id="health-army-selected-name"
-         style="font-weight:bold; text-align:center; margin-bottom:4px;"></div>
-
-    <div id="health-separator-top"
-         style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
-
-    <div id="health-army-detail"
-         style="display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:8px;"></div>
-
-    <div id="health-separator-bottom"
-         style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
-
-    <div id="health-train-progress-wrapper"
-         style="margin-top:4px; display:none;">
-      <div style="width:100%;height:8px;background:rgba(148,163,184,0.4);border-radius:999px;overflow:hidden;">
-        <div id="health-train-progress-fill"
-             style="width:0;height:100%;background:#22c55e;"></div>
-      </div>
-      <div style="margin-top:4px;font-size:12px;text-align:center;color:#e5e7eb;">
-        <span id="health-train-remaining-time">0 ثانية</span>
-      </div>
-    </div>
-
-    <div id="health-train-speedups"
-         style="margin-top:6px;display:none;font-size:11px;color:#e5e7eb;">
-      <div style="margin-bottom:4px;">تسريع التدريب:</div>
-      <div id="health-train-speedups-row"
-           style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    </div>
-  `;
-
-  upgradeTab.textContent = "هنا قسم الترقية لمبنى جيش الصحة (هنظبطه بعدين).";
+  upgradeTab.textContent = "هنا قسم الترقية لبرج التنانين (هنظبطه بعدين).";
 
   panel.appendChild(infoTab);
   panel.appendChild(upgradeTab);
 
+  const cardsRow = infoTab.querySelector("#dragon-army-cards-row");
+  const selectedNameEl = infoTab.querySelector("#dragon-army-selected-name");
+  const detailEl = infoTab.querySelector("#dragon-army-detail");
+
+  function renderDragonTraining() {
+    const heroKey = currentHero || "elephant";
+    const armyList = DRAGON_ARMIES[heroKey] || [];
+    const towerLevel = buildingLevels.dragonTower || 1;
+
+    cardsRow.innerHTML = "";
+    selectedNameEl.textContent = "";
+    detailEl.innerHTML = "";
+
+    if (!armyList.length) {
+      selectedNameEl.textContent = "لا توجد وحدات تنانين لهذا البطل.";
+      return;
+    }
+
+    armyList.forEach((unit, index) => {
+      const isLocked = towerLevel < unit.levelRequired;
+
+    const card = document.createElement("div");
+card.style.flex = "1";
+card.style.background = "rgba(15,23,42,0.9)";
+card.style.border = "1px solid rgba(148,163,184,0.6)";
+card.style.borderRadius = "10px";
+card.style.textAlign = "center";
+card.style.fontSize = "11px";
+card.style.cursor = "pointer";
+card.style.transition = "0.2s";
+card.style.position = "relative";
+card.style.display = "flex";
+card.style.flexDirection = "column";
+card.style.height = "100%";
+
+
+      if (isLocked) card.style.opacity = "0.5";
+
+      card.innerHTML = `
+        <div style="width:100%; height:90px; position:relative;">
+          <img src="${unit.img}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+          ${isLocked ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);font-size:14px;font-weight:bold;color:#facc15;">🔒 Lv.${unit.levelRequired}</div>` : ""}
+        </div>
+      `;
+
+      card.onclick = () => {
+        Array.from(cardsRow.children).forEach(c => c.style.outline = "none");
+        card.style.outline = "2px solid #facc15";
+        selectedNameEl.textContent = "";
+        detailEl.innerHTML = "";
+
+        const unitNameEl = document.createElement("div");
+        unitNameEl.style.cssText = "font-weight:bold;font-size:15px;margin-bottom:8px;color:#facc15;";
+        unitNameEl.textContent = unit.name;
+        detailEl.appendChild(unitNameEl);
+
+        const unitRow = document.createElement("div");
+        unitRow.style.cssText = "display:flex;flex-direction:column;align-items:center;margin-bottom:12px;gap:0;";
+        unitRow.innerHTML = `
+          <img src="${unit.img}" style="width:220px;height:220px;object-fit:contain;border-radius:14px;margin-bottom:12px;">
+          <div style="width:100%;height:1px;background:rgba(148,163,184,0.3);margin-bottom:12px;"></div>
+          <div style="width:100%;font-size:13px;display:flex;flex-direction:column;gap:6px;">
+            <div>⚔️ الهجوم: <span style="color:#f97316;font-weight:bold;">${unit.atk}</span></div>
+            <div>💚 الصحة: <span style="color:#22c55e;font-weight:bold;">${unit.hp}</span></div>
+            <div>📦 مدرب: <span style="color:#60a5fa;font-weight:bold;">${(trainedDragonArmy[heroKey] && trainedDragonArmy[heroKey][unit.key]) || 0}</span></div>
+            <div style="font-size:11px;color:#9ca3af;">مطلوب مستوى: ${unit.levelRequired}</div>
+          </div>
+        `;
+        detailEl.appendChild(unitRow);
+
+        if (isLocked) {
+          const lockedBtns = document.createElement("div");
+          lockedBtns.style.cssText = "display:flex;gap:8px;margin-top:8px;";
+          lockedBtns.innerHTML = `
+            <button disabled style="flex:1;padding:10px 0;border:none;border-radius:999px;background:#374151;color:#6b7280;font-size:11px;cursor:not-allowed;">ارقِ المبنى للمستوى ${unit.levelRequired}</button>
+            <button disabled style="flex:1;padding:10px 0;border:none;border-radius:999px;background:#374151;color:#6b7280;font-size:11px;cursor:not-allowed;">💎 ارقِ للمستوى ${unit.levelRequired}</button>
+          `;
+          detailEl.appendChild(lockedBtns);
+        } else {
+          const totalNow = Object.values(trainedDragonArmy[heroKey] || {}).reduce((a, b) => a + b, 0);
+          const maxTrain = Math.max(1, 500 - totalNow);
+
+          const sliderLabel = document.createElement("div");
+          sliderLabel.style.cssText = "display:flex;justify-content:space-between;font-size:12px;color:#9ca3af;margin-bottom:4px;";
+          sliderLabel.innerHTML = `<span>عدد التنانين</span><span id="dragon-slider-val">1</span>`;
+          const slider = document.createElement("input");
+          slider.type = "range";
+          slider.min = "1";
+          slider.max = String(maxTrain);
+          slider.value = "1";
+          slider.style.cssText = "width:100%;accent-color:#facc15;cursor:pointer;margin-bottom:10px;";
+          detailEl.appendChild(sliderLabel);
+          detailEl.appendChild(slider);
+
+          const resourcesEl = document.createElement("div");
+          resourcesEl.style.cssText = "font-size:12px;background:rgba(15,23,42,0.8);border-radius:10px;padding:8px 10px;margin-bottom:10px;display:flex;justify-content:space-between;";
+          detailEl.appendChild(resourcesEl);
+
+          const btnsRow = document.createElement("div");
+          btnsRow.style.cssText = "display:flex;gap:8px;";
+          const trainTimedBtn = document.createElement("button");
+          trainTimedBtn.style.cssText = "flex:1;padding:10px 0;border:none;border-radius:999px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#0b1120;font-weight:bold;font-size:12px;cursor:pointer;line-height:1.5;";
+          const trainInstantBtn = document.createElement("button");
+          trainInstantBtn.style.cssText = "flex:1;padding:10px 0;border:none;border-radius:999px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-weight:bold;font-size:12px;cursor:pointer;line-height:1.5;";
+          btnsRow.appendChild(trainTimedBtn);
+          btnsRow.appendChild(trainInstantBtn);
+          detailEl.appendChild(btnsRow);
+
+          function updateUI() {
+            const amount = parseInt(slider.value);
+            const sv = document.getElementById("dragon-slider-val");
+            if (sv) sv.textContent = amount;
+
+            const costGold = 10000 * amount;
+            const costFood = 20000 * amount;
+            const timeSeconds = 60 * amount;
+            const gemCost = Math.max(1, Math.ceil(timeSeconds / 30));
+            const hasGold = resources.gold >= costGold;
+            const hasFood = resources.food >= costFood;
+
+            resourcesEl.innerHTML = `
+              <span>🪙 ذهب: <span style="color:${hasGold ? "#facc15" : "#ef4444"};font-weight:bold;">${costGold.toLocaleString()}</span></span>
+              <span>🍖 طعام: <span style="color:${hasFood ? "#22c55e" : "#ef4444"};font-weight:bold;">${costFood.toLocaleString()}</span></span>
+            `;
+if (dragonTrainingInProgress) {
+  trainTimedBtn.disabled = true;
+  trainTimedBtn.style.background = "#374151";
+  trainTimedBtn.style.color = "#6b7280";
+  trainTimedBtn.innerHTML = "⏱ جاري التدريب";
+  trainInstantBtn.disabled = true;
+  trainInstantBtn.style.background = "#374151";
+  trainInstantBtn.style.color = "#6b7280";
+  trainInstantBtn.innerHTML = "⚡ جاري التدريب";
+  return;
+}
+trainTimedBtn.disabled = false;
+trainTimedBtn.style.background = "linear-gradient(135deg,#0ea5e9,#38bdf8)";
+trainTimedBtn.style.color = "#0b1120";
+trainInstantBtn.disabled = false;
+trainInstantBtn.style.background = "linear-gradient(135deg,#7c3aed,#a855f7)";
+trainInstantBtn.style.color = "#fff";
+
+            trainTimedBtn.innerHTML = `⏱ تدريب بوقت<br><span style="font-size:10px;font-weight:normal;">${formatDuration(timeSeconds)}</span>`;
+            trainInstantBtn.innerHTML = `⚡ تدريب فوري<br><span style="font-size:10px;font-weight:normal;">💎 ${gemCost}</span>`;
+
+           trainTimedBtn.onclick = () => {
+  if (dragonTrainingInProgress) { alert("يوجد تدريب قيد التنفيذ."); return; }
+  const amt = parseInt(slider.value);
+  if (resources.gold < 10000 * amt || resources.food < 20000 * amt) { alert("الموارد لا تكفي."); return; }
+  resources.gold -= 10000 * amt;
+  resources.food -= 20000 * amt;
+  dragonTrainingInProgress = true;
+  dragonTrainingTotalTime = 60 * amt;
+  dragonTrainingRemainingTime = dragonTrainingTotalTime;
+  dragonTrainingFinishAt = Date.now() + dragonTrainingTotalTime * 1000;
+  currentDragonTrainingHeroKey = heroKey;
+  currentDragonTrainingUnitKey = unit.key;
+  currentDragonTrainingAmount = amt;
+  saveGameState();
+  startDragonTrainingTimer();
+  if (typeof updateTopBar === "function") updateTopBar();
+  updateUI();
+};
+
+
+            trainInstantBtn.onclick = () => {
+              const amt = parseInt(slider.value);
+              const gems = Math.max(1, Math.ceil(60 * amt / 30));
+              if (resources.gem < gems) { alert(`تحتاج ${gems} جواهر.`); return; }
+              if (resources.gold < 10000 * amt || resources.food < 20000 * amt) { alert("الموارد لا تكفي."); return; }
+              resources.gold -= 10000 * amt;
+              resources.food -= 20000 * amt;
+              resources.gem -= gems;  
+              if (!trainedDragonArmy[heroKey]) trainedDragonArmy[heroKey] = {};
+              trainedDragonArmy[heroKey][unit.key] = (trainedDragonArmy[heroKey][unit.key] || 0) + amt;
+              localStorage.setItem("raidex_dragon_army_v1", JSON.stringify(trainedDragonArmy));
+              saveGameState();
+              if (typeof updateTopBar === "function") updateTopBar();
+              if (typeof updateArmyProfileView === "function") updateArmyProfileView();
+              if (typeof updateProfileStatsFromArmy === "function") updateProfileStatsFromArmy();
+              updateUI();
+            };
+          }
+
+          slider.oninput = updateUI;
+          updateUI();
+        }
+      };
+
+      if (index === 0) {
+        setTimeout(() => card.onclick(), 0);
+      }
+
+      cardsRow.appendChild(card);
+    });
+  }
+
+  renderDragonTraining();
   document.body.appendChild(panel);
 
   function switchTab(key) {
@@ -9506,238 +9706,321 @@ const upgradeTabBtn = makeTabButton("upgrade", "الترقية");
       upgradeTabBtn.style.color = "#facc15";
     }
   }
-    renderHealthArmyTraining();
 }
-function renderHealthArmyTraining() {
-  const panel = document.getElementById("health-army-panel");
-  if (!panel) return;
-
-  const cardsRow = panel.querySelector("#health-army-cards-row");
-  const selectedNameEl = panel.querySelector("#health-army-selected-name");
-  const detailEl = panel.querySelector("#health-army-detail");
-
-  if (!cardsRow || !selectedNameEl || !detailEl) return;
-
-  cardsRow.innerHTML = "";
-  selectedNameEl.textContent = "";
-  detailEl.innerHTML = "";
-
-  const heroKey = currentHero || "elephant";
-  const heroUnits = HERO_HEALTH_ARMIES[heroKey] || [];
-  const healthBuildingLevel = buildingLevels.defenseTower || 1;
-  if (heroUnits.length === 0) return;
-
-  let selectedUnit = null;
-
-  heroUnits.forEach((unit, index) => {
-    const isLocked = healthBuildingLevel < unit.levelRequired;
-
-const card = document.createElement("div");
-card.style.flex = "1";
-card.style.background = "rgba(15,23,42,0.95)";
-card.style.borderRadius = "10px";
-card.style.padding = "6px 4px";
-card.style.textAlign = "center";
-card.style.border = "1px solid rgba(148,163,184,0.6)";
-card.style.fontSize = "11px";
-card.style.position = "relative";
-card.style.cursor = isLocked ? "default" : "pointer";
-card.style.opacity = isLocked ? "0.5" : "1";
-
-const imgWrapper = document.createElement("div");
-imgWrapper.style.width = "100%";
-imgWrapper.style.height = "40px";
-imgWrapper.style.marginBottom = "4px";
-imgWrapper.style.position = "relative";
-
-const img = document.createElement("img");
-img.src = unit.img;
-img.style.width = "100%";
-img.style.height = "100%";
-img.style.objectFit = "cover";
-img.style.borderRadius = "8px";
-
-imgWrapper.appendChild(img);
-
-const nameEl = document.createElement("div");
-nameEl.textContent = name;
-nameEl.style.cursor = "pointer";
-nameEl.onclick = () => {
-  // نبحث عن اللاعب بالاسم
-  fetch(API_BASE + "/players")
-    .then(r => r.json())
-    .then(players => {
-      const found = players.find(p => p.telegramName === name);
-      if (found) showPlayerProfile(found.telegramId, name);
-    });
-};
 
 
-card.appendChild(imgWrapper);
-card.appendChild(nameEl);
+function initHealthArmyPanel() {
+  if (document.getElementById("health-army-panel")) return;
 
-if (isLocked) {
-  const lock = document.createElement("div");
-  lock.textContent = `🔒 Lv.${unit.levelRequired}`;
-  lock.style.position = "absolute";
-  lock.style.inset = "0";
-  lock.style.display = "flex";
-  lock.style.alignItems = "center";
-  lock.style.justifyContent = "center";
-  lock.style.background = "rgba(0,0,0,0.4)";
-  lock.style.fontSize = "14px";
-  lock.style.fontWeight = "bold";
-  lock.style.color = "#facc15";
-  lock.style.borderRadius = "10px";
-  card.appendChild(lock);
-} else {
-  card.onclick = () => {
-    Array.from(cardsRow.children).forEach(c => {
-      c.style.outline = "none";
-    });
-    card.style.outline = "2px solid #facc15";
-    selectedUnit = unit;
-    renderSelectedHealthUnit(selectedUnit, selectedNameEl, detailEl);
-  };
+  const panel = document.createElement("div");
+  panel.id = "health-army-panel";
+  panel.className = "game-page-panel";
+  panel.style.position = "fixed";
+  panel.style.top = "80px";
+  panel.style.left = "10px";
+  panel.style.right = "10px";
+  panel.style.bottom = "150px";
+  panel.style.width = "auto";
+  panel.style.maxWidth = "100%";
+  panel.style.transform = "none";
+  panel.style.background = "#0f172a";
+  panel.style.border = "2px solid #facc15";
+  panel.style.borderRadius = "16px";
+  panel.style.padding = "14px";
+  panel.style.zIndex = "9999";
+  panel.style.color = "#e5e7eb";
+  panel.style.boxShadow = "0 10px 40px rgba(0,0,0,0.8)";
+  panel.style.overflowY = "scroll";
+  panel.style.WebkitOverflowScrolling = "touch";
+  panel.style.display = "none";
 
-  if (!selectedUnit && index === 0) {
-    selectedUnit = unit;
-    setTimeout(() => card.onclick(), 0);
+  const header = document.createElement("div");
+  header.style.cssText = "display:flex;flex-direction:column;align-items:center;margin-bottom:12px;position:relative;";
+
+  const title = document.createElement("div");
+  title.textContent = "برج الدفاع";
+  title.style.cssText = "font-weight:bold;font-size:17px;color:#e5e7eb;text-align:center;margin-bottom:6px;";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.cssText = "position:absolute;top:0;right:0;background:transparent;border:none;color:#9ca3af;font-size:18px;cursor:pointer;";
+  closeBtn.onclick = () => { panel.style.display = "none"; };
+
+  header.appendChild(closeBtn);
+  header.appendChild(title);
+  panel.appendChild(header);
+
+  const tabsRow = document.createElement("div");
+  tabsRow.style.display = "flex";
+  tabsRow.style.marginBottom = "10px";
+  tabsRow.style.borderBottom = "1px solid #374151";
+
+  function makeTabButton(key, label) {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.tab = key;
+    btn.style.flex = "1";
+    btn.style.padding = "6px 0";
+    btn.style.border = "none";
+    btn.style.background = "transparent";
+    btn.style.color = "#9ca3af";
+    btn.style.cursor = "pointer";
+    btn.style.fontWeight = "bold";
+    btn.onclick = () => switchTab(key);
+    return btn;
   }
-}
-    cardsRow.appendChild(card);
-  });
-}
 
-function renderSelectedHealthUnit(selectedUnit, selectedNameEl, detailEl) {
-  if (!selectedUnit) return;
+  const infoTabBtn = makeTabButton("info", "تدريب");
+  const upgradeTabBtn = makeTabButton("upgrade", "!");
+  infoTabBtn.style.color = "#facc15";
 
-  selectedNameEl.textContent = selectedUnit.name;
-  detailEl.innerHTML = "";
+  tabsRow.appendChild(upgradeTabBtn);
+  tabsRow.appendChild(infoTabBtn);
+  panel.appendChild(tabsRow);
 
-  const box = document.createElement("div");
-  box.style.display = "flex";
-  box.style.alignItems = "center";
-  box.style.gap = "10px";
+ const infoTab = document.createElement("div");
+infoTab.id = "health-army-panel-info";
+infoTab.innerHTML = `
+  <div id="health-army-cards-row" style="display:flex; gap:8px; justify-content:space-between; min-height:90px;"></div>
+  <div id="health-army-selected-name" style="font-weight:bold; text-align:center; margin-bottom:4px;"></div>
+  <div style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
+  <div id="health-army-detail" style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;"></div>
+  <div style="height:1px; background:rgba(148,163,184,0.4); margin:6px 0 8px 0;"></div>
+  <div id="health-train-progress-wrapper" style="margin-top:4px; display:none;">
+    <div style="width:100%;height:8px;background:rgba(148,163,184,0.4);border-radius:999px;overflow:hidden;">
+      <div id="health-train-progress-fill" style="width:0;height:100%;background:#22c55e;"></div>
+    </div>
+    <div style="margin-top:4px;font-size:12px;text-align:center;color:#e5e7eb;">
+      <span id="health-train-remaining-time">0 ثانية</span>
+    </div>
+  </div>
+  <div id="health-train-speedups" style="margin-top:6px;display:none;font-size:11px;color:#e5e7eb;">
+    <div style="margin-bottom:4px;">تسريع التدريب:</div>
+    <div id="health-train-speedups-row" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+  </div>
+`;
 
-  const imgBig = document.createElement("div");
-  imgBig.style.width = "48px";
-  imgBig.style.height = "48px";
-  imgBig.style.borderRadius = "12px";
-  imgBig.style.background = "rgba(31,41,55,0.9)";
-  imgBig.style.border = "1px solid rgba(148,163,184,0.8)";
-  imgBig.style.backgroundSize = "cover";
-  imgBig.style.backgroundPosition = "center";
-  imgBig.style.backgroundImage = `url(${selectedUnit.img})`;
 
-  const rightCol = document.createElement("div");
-  rightCol.style.display = "flex";
-  rightCol.style.flexDirection = "column";
-  rightCol.style.gap = "4px";
-  rightCol.style.fontSize = "12px";
+  const upgradeTab = document.createElement("div");
+  upgradeTab.id = "health-army-panel-upgrade";
+  upgradeTab.style.display = "none";
+  upgradeTab.textContent = "هنا قسم الترقية لمبنى جيش الصحة (هنظبطه بعدين).";
 
-  const heroKey = currentHero || "elephant";
-  const heroHealthData = trainedHealthArmy[heroKey] || {};
-  const currentCount = heroHealthData[selectedUnit.key] || 0;
+  panel.appendChild(infoTab);
+  panel.appendChild(upgradeTab);
 
-  const statsLine = document.createElement("div");
-  statsLine.innerHTML = `
-    <div>الهجوم: ${selectedUnit.atk}</div>
-    <div>الصحة: ${selectedUnit.hp}</div>
-  `;
+  const cardsRow = infoTab.querySelector("#health-army-cards-row");
+  const selectedNameEl = infoTab.querySelector("#health-army-selected-name");
+  const detailEl = infoTab.querySelector("#health-army-detail");
 
-  const countLine = document.createElement("div");
-  countLine.textContent = `العدد الحالي: ${currentCount}`;
+  function renderHealthTraining() {
+    const armyList = HERO_HEALTH_ARMIES[currentHero] || [];
+    const healthBuildingLevel = buildingLevels.defenseTower || 1;
 
-  const trainRow = document.createElement("div");
-  trainRow.style.display = "flex";
-  trainRow.style.alignItems = "center";
-  trainRow.style.gap = "6px";
-  trainRow.style.marginTop = "4px";
+    cardsRow.innerHTML = "";
+    selectedNameEl.textContent = "";
+    detailEl.innerHTML = "";
 
-  const amountInput = document.createElement("input");
-  amountInput.type = "number";
-  amountInput.min = "1";
-  amountInput.value = "10";
-  amountInput.style.width = "60px";
-  amountInput.style.padding = "2px 4px";
-  amountInput.style.borderRadius = "6px";
-  amountInput.style.border = "1px solid rgba(148,163,184,0.8)";
-  amountInput.style.background = "rgba(15,23,42,0.9)";
-  amountInput.style.color = "#e5e7eb";
-  amountInput.style.fontSize = "12px";
-
-  const trainBtn = document.createElement("button");
-  trainBtn.textContent = "تدريب صحة";
-  trainBtn.style.padding = "4px 8px";
-  trainBtn.style.border = "none";
-  trainBtn.style.borderRadius = "8px";
-  trainBtn.style.background = "#22c55e";
-  trainBtn.style.color = "#0b1120";
-  trainBtn.style.fontSize = "12px";
-  trainBtn.style.cursor = "pointer";
-
-  trainBtn.onclick = () => {
-    const amount = parseInt(amountInput.value, 10) || 0;
-    if (amount <= 0) {
-      alert("من فضلك أدخل عدد صحيح للتدريب.");
+    if (!armyList.length) {
+      selectedNameEl.textContent = "لا توجد وحدات متاحة لهذه الشخصية حالياً.";
       return;
     }
 
-    if (healthTrainingInProgress === true && healthTrainingRemainingTime === 0 && !healthTrainingFinishAt) {
-      healthTrainingInProgress = false;
-      healthTrainingRemainingTime = 0;
-      healthTrainingTotalTime = 0;
-      healthTrainingFinishAt = null;
-      currentHealthTrainingHeroKey = null;
-      currentHealthTrainingUnitKey = null;
-      currentHealthTrainingAmount = 0;
+    armyList.forEach((unit, index) => {
+      const isLocked = healthBuildingLevel < unit.levelRequired;
+
+   const card = document.createElement("div");
+card.style.flex = "1";
+card.style.background = "rgba(15,23,42,0.9)";
+card.style.border = "1px solid rgba(148,163,184,0.6)";
+card.style.borderRadius = "10px";
+card.style.padding = "4px";
+card.style.textAlign = "center";
+card.style.fontSize = "11px";
+card.style.cursor = "pointer";
+card.style.transition = "0.2s";
+card.style.position = "relative";
+if (isLocked) card.style.opacity = "0.5";
+
+
+  card.innerHTML = `
+  <div style="width:100%; height:110px; position:relative; overflow:hidden;">
+    <img src="${unit.img}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
+    ${isLocked ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);font-size:14px;font-weight:bold;color:#facc15;">🔒 Lv.${unit.levelRequired}</div>` : ""}
+  </div>
+`;
+
+
+      card.onclick = () => {
+        Array.from(cardsRow.children).forEach(c => c.style.outline = "none");
+        card.style.outline = "2px solid #facc15";
+        selectedNameEl.textContent = "";
+        detailEl.innerHTML = "";
+
+        const unitNameEl = document.createElement("div");
+        unitNameEl.style.cssText = "font-weight:bold;font-size:15px;margin-bottom:8px;color:#facc15;";
+        unitNameEl.textContent = unit.name;
+        detailEl.appendChild(unitNameEl);
+
+        const unitRow = document.createElement("div");
+        unitRow.style.cssText = "display:flex;flex-direction:column;align-items:center;margin-bottom:12px;gap:0;";
+        unitRow.innerHTML = `
+          <img src="${unit.img}" style="width:220px;height:220px;object-fit:contain;border-radius:14px;margin-bottom:12px;">
+          <div style="width:100%;height:1px;background:rgba(148,163,184,0.3);margin-bottom:12px;"></div>
+          <div style="width:100%;font-size:13px;display:flex;flex-direction:column;gap:6px;">
+            <div>⚔️ الهجوم: <span style="color:#f97316;font-weight:bold;">${unit.atk}</span></div>
+            <div>💚 الصحة: <span style="color:#22c55e;font-weight:bold;">${unit.hp}</span></div>
+            <div>📦 مدرب: <span style="color:#60a5fa;font-weight:bold;">${(trainedHealthArmy[currentHero] && trainedHealthArmy[currentHero][unit.key]) || 0}</span></div>
+            <div style="font-size:11px;color:#9ca3af;">مطلوب مستوى: ${unit.levelRequired}</div>
+          </div>
+        `;
+        detailEl.appendChild(unitRow);
+
+        if (isLocked) {
+          const lockedBtns = document.createElement("div");
+          lockedBtns.style.cssText = "display:flex;gap:8px;margin-top:8px;";
+          lockedBtns.innerHTML = `
+            <button disabled style="flex:1;padding:10px 0;border:none;border-radius:999px;background:#374151;color:#6b7280;font-size:11px;cursor:not-allowed;">ارقِ المبنى للمستوى ${unit.levelRequired}</button>
+            <button disabled style="flex:1;padding:10px 0;border:none;border-radius:999px;background:#374151;color:#6b7280;font-size:11px;cursor:not-allowed;">💎 ارقِ للمستوى ${unit.levelRequired}</button>
+          `;
+          detailEl.appendChild(lockedBtns);
+        } else {
+          const healthLevel = buildingLevels.defenseTower || 1;
+          const totalNow = Object.values(trainedHealthArmy[currentHero] || {}).reduce((a, b) => a + b, 0);
+          const maxTrain = Math.max(1, 1000 - totalNow);
+
+          const sliderLabel = document.createElement("div");
+          sliderLabel.style.cssText = "display:flex;justify-content:space-between;font-size:12px;color:#9ca3af;margin-bottom:4px;";
+          sliderLabel.innerHTML = `<span>عدد الجنود</span><span id="health-slider-val">1</span>`;
+          const slider = document.createElement("input");
+          slider.type = "range";
+          slider.min = "1";
+          slider.max = String(maxTrain);
+          slider.value = "1";
+          slider.style.cssText = "width:100%;accent-color:#facc15;cursor:pointer;margin-bottom:10px;";
+          detailEl.appendChild(sliderLabel);
+          detailEl.appendChild(slider);
+
+          const resourcesEl = document.createElement("div");
+          resourcesEl.style.cssText = "font-size:12px;background:rgba(15,23,42,0.8);border-radius:10px;padding:8px 10px;margin-bottom:10px;display:flex;justify-content:space-between;";
+          detailEl.appendChild(resourcesEl);
+
+          const btnsRow = document.createElement("div");
+          btnsRow.style.cssText = "display:flex;gap:8px;";
+          const trainTimedBtn = document.createElement("button");
+          trainTimedBtn.style.cssText = "flex:1;padding:10px 0;border:none;border-radius:999px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#0b1120;font-weight:bold;font-size:12px;cursor:pointer;line-height:1.5;";
+          const trainInstantBtn = document.createElement("button");
+          trainInstantBtn.style.cssText = "flex:1;padding:10px 0;border:none;border-radius:999px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-weight:bold;font-size:12px;cursor:pointer;line-height:1.5;";
+          btnsRow.appendChild(trainTimedBtn);
+          btnsRow.appendChild(trainInstantBtn);
+          detailEl.appendChild(btnsRow);
+
+          function updateUI() {
+            const amount = parseInt(slider.value);
+            const sv = document.getElementById("health-slider-val");
+            if (sv) sv.textContent = amount;
+            const cost = getHealthTrainCost(amount, unit);
+            const timeSeconds = getHealthTrainTime(unit, amount, healthLevel);
+            const gemCost = Math.max(1, Math.ceil(timeSeconds / 30));
+            const hasGold = resources.gold >= cost.gold;
+            const hasFood = resources.food >= cost.food;
+
+            resourcesEl.innerHTML = `
+              <span>🪙 ذهب: <span style="color:${hasGold ? "#facc15" : "#ef4444"};font-weight:bold;">${cost.gold.toLocaleString()}</span></span>
+              <span>🍖 طعام: <span style="color:${hasFood ? "#22c55e" : "#ef4444"};font-weight:bold;">${cost.food.toLocaleString()}</span></span>
+            `;
+
+            if (healthTrainingInProgress) {
+              trainTimedBtn.disabled = true;
+              trainTimedBtn.style.background = "#374151";
+              trainTimedBtn.style.color = "#6b7280";
+              trainTimedBtn.innerHTML = "⏱ جاري التدريب";
+              trainInstantBtn.disabled = true;
+              trainInstantBtn.style.background = "#374151";
+              trainInstantBtn.style.color = "#6b7280";
+              trainInstantBtn.innerHTML = "⚡ جاري التدريب";
+              return;
+            }
+
+            trainTimedBtn.disabled = false;
+            trainTimedBtn.style.background = "linear-gradient(135deg,#0ea5e9,#38bdf8)";
+            trainTimedBtn.style.color = "#0b1120";
+            trainTimedBtn.innerHTML = `⏱ تدريب بوقت<br><span style="font-size:10px;font-weight:normal;">${formatDuration(timeSeconds)}</span>`;
+            trainInstantBtn.disabled = false;
+            trainInstantBtn.style.background = "linear-gradient(135deg,#7c3aed,#a855f7)";
+            trainInstantBtn.style.color = "#fff";
+            trainInstantBtn.innerHTML = `⚡ تدريب فوري<br><span style="font-size:10px;font-weight:normal;">💎 ${gemCost}</span>`;
+
+            trainTimedBtn.onclick = () => {
+              if (healthTrainingInProgress) { alert("يوجد تدريب قيد التنفيذ."); return; }
+              const amt = parseInt(slider.value);
+              const c = getHealthTrainCost(amt, unit);
+              if (resources.gold < c.gold || resources.food < c.food) { alert("الموارد لا تكفي."); return; }
+              resources.gold -= c.gold;
+              resources.food -= c.food;
+              healthTrainingInProgress = true;
+              healthTrainingTotalTime = getHealthTrainTime(unit, amt, healthLevel);
+              healthTrainingRemainingTime = healthTrainingTotalTime;
+              healthTrainingFinishAt = Date.now() + healthTrainingTotalTime * 1000;
+              currentHealthTrainingHeroKey = currentHero;
+              currentHealthTrainingUnitKey = unit.key;
+              currentHealthTrainingAmount = amt;
+              saveGameState();
+              startHealthTrainingTimer();
+              if (typeof updateTopBar === "function") updateTopBar();
+              updateUI();
+            };
+
+            trainInstantBtn.onclick = () => {
+              const amt = parseInt(slider.value);
+              const c = getHealthTrainCost(amt, unit);
+              const t = getHealthTrainTime(unit, amt, healthLevel);
+              const gems = Math.max(1, Math.ceil(t / 30));
+              if (resources.gem < gems) { alert(`تحتاج ${gems} جواهر.`); return; }
+              if (resources.gold < c.gold || resources.food < c.food) { alert("الموارد لا تكفي."); return; }
+              resources.gold -= c.gold;
+              resources.food -= c.food;
+              resources.gem -= gems;
+              if (!trainedHealthArmy[currentHero]) trainedHealthArmy[currentHero] = {};
+              trainedHealthArmy[currentHero][unit.key] = (trainedHealthArmy[currentHero][unit.key] || 0) + amt;
+              localStorage.setItem("raidex_trainedHealthArmy_v1", JSON.stringify(trainedHealthArmy));
+              saveGameState();
+              if (typeof updateTopBar === "function") updateTopBar();
+              if (typeof updateArmyProfileView === "function") updateArmyProfileView();
+              if (typeof updateProfileStatsFromArmy === "function") updateProfileStatsFromArmy();
+              updateUI();
+            };
+          }
+
+          slider.oninput = updateUI;
+          updateUI();
+        }
+      };
+
+      if (index === 0) {
+        setTimeout(() => card.onclick(), 0);
+      }
+
+      cardsRow.appendChild(card);
+    });
+  }
+
+  renderHealthTraining();
+  document.body.appendChild(panel);
+
+  function switchTab(key) {
+    if (key === "info") {
+      infoTab.style.display = "block";
+      upgradeTab.style.display = "none";
+      infoTabBtn.style.color = "#facc15";
+      upgradeTabBtn.style.color = "#9ca3af";
+    } else {
+      infoTab.style.display = "none";
+      upgradeTab.style.display = "block";
+      infoTabBtn.style.color = "#9ca3af";
+      upgradeTabBtn.style.color = "#facc15";
     }
-
-    if (healthTrainingInProgress) {
-      alert("يوجد تدريب صحة جاري بالفعل. انتظر حتى ينتهي.");
-      return;
-    }
-
-    const heroKey2 = currentHero || "elephant";
-    const healthLevel = buildingLevels.defenseTower || 1;
-
-    const { gold, food } = getHealthTrainCost(amount, selectedUnit);
-
-    if (resources.gold < gold || resources.food < food) {
-      alert("الموارد غير كافية لتدريب هذه الدفعة من جنود الصحة.");
-      return;
-    }
-
-    resources.gold -= gold;
-    resources.food -= food;
-    if (typeof updateTopBar === "function") updateTopBar();
-
-    const totalTime = getHealthTrainTime(selectedUnit, amount, healthLevel);
-
-    healthTrainingInProgress = true;
-    healthTrainingTotalTime = totalTime;
-    healthTrainingRemainingTime = totalTime;
-    currentHealthTrainingHeroKey = heroKey2;
-    currentHealthTrainingUnitKey = selectedUnit.key;
-    currentHealthTrainingAmount = amount;
-    healthTrainingFinishAt = Date.now() + totalTime * 1000;
-
-    startHealthTrainingTimer();
-    saveGameState();
-    renderHealthTrainProgressUI();
-  };
-
-  trainRow.appendChild(amountInput);
-  trainRow.appendChild(trainBtn);
-
-  rightCol.appendChild(statsLine);
-  rightCol.appendChild(countLine);
-  rightCol.appendChild(trainRow);
-
-  box.appendChild(imgBig);
-  box.appendChild(rightCol);
-  detailEl.appendChild(box);
+  }
 }
 
 
@@ -10035,91 +10318,90 @@ function addTopBar() {
   avatarWrapper.style.flexDirection = "column";
   avatarWrapper.style.alignItems = "center";
   avatarWrapper.style.gap = "2px";
+  avatarWrapper.style.flexShrink = "0";
 
   const avatar = document.createElement("img");
   avatar.id = "player-avatar";
   avatar.src = currentHero + ".png";
   avatar.addEventListener("click", openProfile);
 
-  // سطر القوة تحت الصورة
   const powerLine = document.createElement("div");
   powerLine.id = "topbar-power";
-  powerLine.style.fontSize = "11px";
+  powerLine.style.fontSize = "9px";
   powerLine.style.color = "#facc15";
   powerLine.textContent = "Power: " + formatShortNumber(totalPower);
 
   avatarWrapper.appendChild(avatar);
   avatarWrapper.appendChild(powerLine);
 
-  // كبسولة عمال البناء (كبسولة كاملة)
+  // كبسولة عمال البناء
   const buildersCapsule = document.createElement("div");
   buildersCapsule.id = "builders-capsule";
   buildersCapsule.style.display = "flex";
   buildersCapsule.style.alignItems = "center";
-  buildersCapsule.style.gap = "4px";
- buildersCapsule.style.padding = "8px 12px";
+  buildersCapsule.style.gap = "2px";
+  buildersCapsule.style.padding = "4px 8px";
   buildersCapsule.style.borderRadius = "999px";
   buildersCapsule.style.background = "rgba(15,23,42,0.9)";
-buildersCapsule.style.fontSize = "16px";
+  buildersCapsule.style.fontSize = "12px";
   buildersCapsule.style.cursor = "pointer";
+  buildersCapsule.style.flexShrink = "0";
 
   const builderIcon = document.createElement("span");
   builderIcon.textContent = "👷";
-builderIcon.style.fontSize = "16px";
+  builderIcon.style.fontSize = "12px";
+
   const buildersCount = document.createElement("span");
   buildersCount.id = "builders-count";
-  // عدد العمال المتاحين / الإجمالي
   buildersCount.textContent = (maxBuilders - busyBuilders) + "/" + maxBuilders;
 
   buildersCapsule.appendChild(builderIcon);
   buildersCapsule.appendChild(buildersCount);
 
-  buildersCapsule.onclick = function () {
-    // TODO: openBuildersPanel();
-  };
+  buildersCapsule.onclick = function () {};
 
   // حاوية كبسولات الموارد
   const resourcesDiv = document.createElement("div");
   resourcesDiv.id = "resources";
   resourcesDiv.style.display = "flex";
-  resourcesDiv.style.gap = "4px";
+  resourcesDiv.style.gap = "3px";
+  resourcesDiv.style.flex = "1";
+  resourcesDiv.style.overflow = "hidden";
 
-  // دالة مساعدة لإنشاء كبسولة مورد
   function makeResourceCapsule(key, icon) {
     const cap = document.createElement("div");
     cap.className = "resource-cap";
     cap.style.display = "flex";
     cap.style.alignItems = "center";
-    cap.style.gap = "4px";
-    cap.style.padding = "8px 12px";
+    cap.style.gap = "2px";
+    cap.style.padding = "4px 6px";
     cap.style.borderRadius = "999px";
     cap.style.background = "rgba(15,23,42,0.9)";
-    cap.style.fontSize = "16px";
+    cap.style.fontSize = "11px";
     cap.style.cursor = "pointer";
+    cap.style.flex = "1";
+    cap.style.minWidth = "0";
+    cap.style.overflow = "hidden";
 
     const iconSpan = document.createElement("span");
     iconSpan.textContent = icon;
-iconSpan.style.fontSize = "16px";
+    iconSpan.style.fontSize = "11px";
+    iconSpan.style.flexShrink = "0";
 
     const valueSpan = document.createElement("span");
     valueSpan.id = "res-" + key;
     valueSpan.textContent = "0";
+    valueSpan.style.overflow = "hidden";
+    valueSpan.style.textOverflow = "ellipsis";
+    valueSpan.style.whiteSpace = "nowrap";
 
     const plusBtn = document.createElement("span");
     plusBtn.textContent = "+";
     plusBtn.style.fontWeight = "bold";
-    plusBtn.style.marginLeft = "2px";
+    plusBtn.style.flexShrink = "0";
 
-    // فتح السوق من الكبسولة كلها
-    cap.onclick = function () {
-      openResourceShop(key);
-    };
-
-    // وفتح السوق كمان من زر +
-    plusBtn.onclick = function (ev) {
-      ev.stopPropagation();
-      openResourceShop(key);
-    };
+    cap.onclick = function () { openResourceShop(key); };
+    plusBtn.onclick = function (ev) { ev.stopPropagation(); openResourceShop(key); };
 
     cap.appendChild(iconSpan);
     cap.appendChild(valueSpan);
@@ -10127,58 +10409,36 @@ iconSpan.style.fontSize = "16px";
     resourcesDiv.appendChild(cap);
   }
 
-  // إنشاء كبسولات: ذهب - خشب - لحم - جواهر
   makeResourceCapsule("gold", "🪙");
   makeResourceCapsule("wood", "🌲");
   makeResourceCapsule("food", "🍖");
   makeResourceCapsule("gem", "💎");
 
-  // زر المنيو
-  const menuBtn = document.createElement("span");
-  menuBtn.id = "menu-btn";
-  menuBtn.textContent = "☰";
-menuBtn.addEventListener("click", function () {
-  // TODO: افتح منيو بعدين
-});
-
-
-  // ترتيب التوب بار: بروفايل -> عمال -> موارد -> منيو
   topBar.appendChild(avatarWrapper);
   topBar.appendChild(buildersCapsule);
   topBar.appendChild(resourcesDiv);
-  topBar.appendChild(menuBtn);
 
   cityScreen.appendChild(topBar);
 
-  // تحديث الأرقام دوريًا
   function updateTopBarInner() {
     const goldEl = document.getElementById("res-gold");
     if (goldEl) goldEl.textContent = formatNumberShort(resources.gold);
-
     const woodEl = document.getElementById("res-wood");
     if (woodEl) woodEl.textContent = formatNumberShort(resources.wood);
-
     const foodEl = document.getElementById("res-food");
     if (foodEl) foodEl.textContent = formatNumberShort(resources.food);
-
     const gemEl = document.getElementById("res-gem");
     if (gemEl) gemEl.textContent = formatNumberShort(resources.gem);
-
     const buildersEl = document.getElementById("builders-count");
-    if (buildersEl) {
-      const freeBuilders = maxBuilders - busyBuilders;
-      buildersEl.textContent = freeBuilders + "/" + maxBuilders;
-    }
-
+    if (buildersEl) buildersEl.textContent = (maxBuilders - busyBuilders) + "/" + maxBuilders;
     const powerEl = document.getElementById("topbar-power");
-    if (powerEl) {
-      powerEl.textContent = "Power: " + formatShortNumber(totalPower);
-    }
+    if (powerEl) powerEl.textContent = "Power: " + formatShortNumber(totalPower);
   }
 
   updateTopBarInner();
   setInterval(updateTopBarInner, 2000);
 }
+
 
 
      /* --- Bottom Bar --- */
@@ -15447,6 +15707,119 @@ function playAgainArenaBattle() {
     ← Back to Arena
   </button>
 
+<div id="army-unit-popup" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  z-index:99999;
+  align-items:center;
+  justify-content:center;
+">
+  <div style="
+    width:92%;
+    max-width:460px;
+    background:#fef9c3;
+    border-radius:18px;
+    padding:0;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 18px 40px rgba(0,0,0,0.9);
+    color:#1f2933;
+    min-height:380px;
+    display:flex;
+    flex-direction:column;
+  ">
+
+    <!-- شريط العنوان -->
+    <div style="
+      padding:10px 14px;
+      background:rgba(255,255,255,0.9);
+      text-align:center;
+      font-weight:700;
+      font-size:18px;
+      border-bottom:1px solid rgba(148,163,184,0.4);
+      position:relative;
+      flex-shrink:0;
+    ">
+      <span id="army-unit-popup-title">اسم الوحدة</span>
+      <button id="army-unit-popup-close" style="
+        position:absolute;
+        top:6px;
+        right:8px;
+        background:transparent;
+        border:none;
+        color:#6b7280;
+        font-size:18px;
+        cursor:pointer;
+      ">✕</button>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div style="
+      display:flex;
+      flex-direction:row;
+      flex:1;
+      min-height:320px;
+    ">
+     <!-- عمود الإحصائيات على اليسار -->
+<div style="
+  width:140px;
+  flex-shrink:0;
+  padding:14px 12px;
+  background:rgba(255,255,255,0.94);
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  justify-content:flex-start;
+">
+  <div id="army-unit-popup-name" ...>اسم الوحدة</div>
+  <div id="army-unit-popup-type" ...>النوع: هجوم</div>
+  
+  <!-- الخصائص -->
+  <div style="margin-top:8px; display:flex; flex-direction:column; gap:8px; font-size:13px; flex:1;">
+    <div>⚔️ <span>الهجوم</span> <span id="army-unit-atk">0</span></div>
+    <div>💚 <span>الصحة</span> <span id="army-unit-hp">0</span></div>
+    <div>📦 <span>العدد</span> <span id="army-unit-count">0</span></div>
+  </div>
+
+  <!-- المطلوب -->
+  <div id="army-unit-popup-extra" style="
+    font-size:10px;
+    color:#6b7280;
+    border-top:1px solid rgba(148,163,184,0.3);
+    padding-top:8px;
+    margin-top:auto;
+  ">مطلوب مستوى برج: 1</div>
+
+  <!-- زر التدريب جوه العمود -->
+  <button id="army-unit-popup-train-btn" style="
+    margin-top:6px;
+    width:100%;
+    padding:8px 0;
+    border:none;
+    border-radius:999px;
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    color:#0b1120;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(34,197,94,0.4);
+  ">⚔️ تدريب</button>
 </div>
+
+<!-- صورة كبيرة على اليمين -->
+<div id="army-unit-popup-img" style="
+  flex:1;
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center center;
+  background-color:#fef3c7;
+  align-self:stretch;
+"></div>
+    </div>
+  </div>
+</div>
+
   </body>
 </html>
