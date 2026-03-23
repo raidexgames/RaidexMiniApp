@@ -2650,62 +2650,64 @@
       </div>
     </div>
 
-    <!-- أزرار السُمِّن في شريط تحت -->
-    <div style="
-      margin-top:8px;
-      padding-top:8px;
-      border-top:1px solid rgba(31,41,55,0.9);
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    ">
-      <div style="display:flex;gap:6px;">
-        <button id="summon-1-btn"
-                style="
-                  flex:1;padding:8px 8px;border:none;border-radius:999px;
-                  background:rgba(15,23,42,0.95);
-                  color:#e5e7eb;font-weight:600;font-size:12px;
-                  cursor:pointer;border:1px solid rgba(75,85,99,0.9);
-                ">
-          Summon ×1
-        </button>
+   <!-- أزرار السُمِّن في شريط تحت -->
+<div style="
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid rgba(31,41,55,0.9);
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+">
+  <div style="display:flex;gap:6px;">
+    <button id="summon-1-btn"
+            onclick="performSummon('x1')"
+            style="
+              flex:1;padding:8px 8px;border:none;border-radius:999px;
+              background:rgba(15,23,42,0.95);
+              color:#e5e7eb;font-weight:600;font-size:12px;
+              cursor:pointer;border:1px solid rgba(75,85,99,0.9);
+            ">
+      Summon ×1
+    </button>
 
-        <button id="summon-10-btn"
-                style="
-                  flex:1;padding:8px 8px;border:none;border-radius:999px;
-                  background:linear-gradient(135deg,#4f46e5,#7c3aed);
-                  color:#f9fafb;font-weight:700;font-size:12px;
-                  cursor:pointer;box-shadow:0 0 12px rgba(129,140,248,0.8);
-                ">
-          Summon ×10
-        </button>
-      </div>
+    <button id="summon-10-btn"
+            onclick="performSummon('x10')"
+            style="
+              flex:1;padding:8px 8px;border:none;border-radius:999px;
+              background:linear-gradient(135deg,#4f46e5,#7c3aed);
+              color:#f9fafb;font-weight:700;font-size:12px;
+              cursor:pointer;box-shadow:0 0 12px rgba(129,140,248,0.8);
+            ">
+      Summon ×10
+    </button>
+  </div>
 
-      <div style="display:flex;gap:6px;">
-        <button id="summon-50-btn"
-                style="
-                  flex:1;padding:8px 8px;border:none;border-radius:999px;
-                  background:linear-gradient(135deg,#312e81,#4c1d95);
-                  color:#e5e7eb;font-weight:600;font-size:12px;
-                  cursor:pointer;border:1px solid rgba(129,140,248,0.6);
-                ">
-          Summon ×50
-        </button>
+  <div style="display:flex;gap:6px;">
+    <button id="summon-50-btn"
+            onclick="performSummon('x50')"
+            style="
+              flex:1;padding:8px 8px;border:none;border-radius:999px;
+              background:linear-gradient(135deg,#312e81,#4c1d95);
+              color:#e5e7eb;font-weight:600;font-size:12px;
+              cursor:pointer;border:1px solid rgba(129,140,248,0.6);
+            ">
+      Summon ×50
+    </button>
 
-        <button id="summon-ads-btn"
-                style="
-                  flex:1;padding:8px 8px;border:none;border-radius:999px;
-                  background:linear-gradient(135deg,#22c55e,#a3e635);
-                  color:#0b1120;font-weight:700;font-size:12px;
-                  cursor:pointer;box-shadow:0 0 12px rgba(34,197,94,0.8);
-                ">
-          Free (3× Daily)
-        </button>
-      </div>
-    </div>
+    <button id="summon-ads-btn"
+            style="
+              flex:1;padding:8px 8px;border:none;border-radius:999px;
+              background:linear-gradient(135deg,#22c55e,#a3e635);
+              color:#0b1120;font-weight:700;font-size:12px;
+              cursor:pointer;box-shadow:0 0 12px rgba(34,197,94,0.8);
+            ">
+      Free (3× Daily)
+    </button>
   </div>
 </div>
-
+</div>  <!-- نهاية page-content -->
+</div>  <!-- نهاية summon-shop-panel -->
 
 <!-- Tasks Page -->
 <div id="tasks-page" class="game-page-panel game-page-hidden">
@@ -2864,7 +2866,6 @@
     </button>
   </div>
 </div>
-
 <!-- Clan Panel بين الـ top-bar والـ bottom-bar -->
 <div id="clan-page" class="game-page-panel game-page-hidden">
   <div class="page-header">
@@ -3017,6 +3018,35 @@
     </div> <!-- نهاية clan-member-view -->
   </div> <!-- نهاية page-content -->
 </div> <!-- نهاية clan-page -->
+<div id="fight-page" class="game-page-panel game-page-hidden">
+  <div class="page-header" style="display:flex; align-items:center; justify-content:space-between;">
+    <span style="font-weight:bold; font-size:16px;">⚔️ Raid & Explore</span>
+    <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:#facc15;">
+      <span>⚡</span>
+      <span id="raid-stamina-text">20/20</span>
+      <button onclick="buyRaidStamina()" style="
+        padding:3px 8px; border:none; border-radius:999px;
+        background:rgba(250,204,21,0.2); color:#facc15;
+        font-size:11px; cursor:pointer; border:1px solid rgba(250,204,21,0.4);
+      ">+ شحن</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex; gap:6px; padding:8px 12px; border-bottom:1px solid rgba(148,163,184,0.2);">
+    <button id="raid-tab-unknown" onclick="switchRaidTab('unknown')" style="
+      flex:1; padding:6px 0; border:none; border-radius:999px;
+      background:#22c55e; color:#0b1120; font-weight:bold; font-size:12px; cursor:pointer;
+    ">🧭 أراضي مجهولة</button>
+    <button id="raid-tab-danger" onclick="switchRaidTab('danger')" style="
+      flex:1; padding:6px 0; border:none; border-radius:999px;
+      background:rgba(15,23,42,0.9); color:#e5e7eb; font-size:12px; cursor:pointer;
+    ">💀 مناطق الخطر</button>
+  </div>
+
+  <!-- Nodes List -->
+  <div id="raid-nodes-list" class="page-content"></div>
+</div>
 
 <!-- Castle Panel (ثابت بين الـ top-bar و bottom-bar) -->
 <div id="castle-panel" class="castle-hidden">
@@ -3305,6 +3335,31 @@ const RESOURCE_PACKS = [
   { amount: 5000000, costGem: 3500 },
   { amount: 15000000, costGem: 10000 },
 ];
+// === RAID SYSTEM ===
+const RAID_SECTIONS = {
+  unknown: { name: "🧭 أراضي مجهولة", color: "#22c55e" },
+  danger:  { name: "💀 مناطق الخطر",  color: "#ef4444" }
+};
+
+const RAID_NODES = [
+  { id: "ruins_1",   name: "أنقاض منسية",  img: "ruins.jpg",   section: "unknown", level: 1, enemyPower: 200,  loot: { gold: 1000, wood: 500,  food: 300  }, staminaCost: 3, riskChance: 0.1,  bonusChance: 0.2  },
+  { id: "storage_1", name: "مخزن مهجور",   img: "storage.jpg", section: "unknown", level: 2, enemyPower: 350,  loot: { gold: 800,  wood: 1200, food: 400  }, staminaCost: 3, riskChance: 0.15, bonusChance: 0.2  },
+  { id: "mine_1",    name: "منجم قديم",     img: "mine.jpg",    section: "unknown", level: 3, enemyPower: 500,  loot: { gold: 2500, wood: 300,  food: 200  }, staminaCost: 4, riskChance: 0.2,  bonusChance: 0.15 },
+  { id: "fort_1",    name: "حصن محطم",      img: "fort.jpg",    section: "danger",  level: 4, enemyPower: 800,  loot: { gold: 2000, wood: 1000, food: 800  }, staminaCost: 5, riskChance: 0.3,  bonusChance: 0.15 },
+  { id: "cave_1",    name: "كهف الظلام",    img: "cave.jpg",    section: "danger",  level: 5, enemyPower: 1200, loot: { gold: 3000, wood: 1500, food: 1200 }, staminaCost: 6, riskChance: 0.35, bonusChance: 0.1  },
+  { id: "dragon_1",  name: "وكر التنانين",  img: "dragon.jpg",  section: "danger",  level: 6, enemyPower: 2000, loot: { gold: 5000, wood: 2000, food: 2000 }, staminaCost: 8, riskChance: 0.4,  bonusChance: 0.1  }
+];
+
+
+const RAID_CONFIG = {
+  lootPerSoldier: 100,
+  staminaRefillCost: 50, // جواهر لإعادة شحن الطاقة
+  staminaRefillAmount: 10, // كمية الطاقة اللي بتشتريها
+  raidTimes: { 1: 5*60, 2: 10*60, 3: 20*60, 4: 40*60, 5: 60*60, 6: 120*60 }
+};
+
+let raidStamina = { current: 20, max: 20, lastRefill: Date.now() };
+let activeRaid = null; // الغارة الحالية لو فيه غارة شغالة
 
 
 
@@ -3312,6 +3367,370 @@ function closeResourceShop() {
   const panel = document.getElementById("resource-shop-panel");
   if (panel) panel.classList.add("hidden");
 }
+// === SUMMON SYSTEM ===
+const SUMMON_SOLDIER_POOL = {
+  elephant: [
+    { key: "eleatksoldier1",    type: "attack",  rarity: "common",    weight: 35  },
+    { key: "eleatksoldier2",    type: "attack",  rarity: "rare",      weight: 20  },
+    { key: "eleatksoldier3",    type: "attack",  rarity: "epic",      weight: 8   },
+    { key: "eleatksoldier4",    type: "attack",  rarity: "legendary", weight: 2   },
+    { key: "elehealthsoldier1", type: "health",  rarity: "common",    weight: 15  },
+    { key: "elehealthsoldier2", type: "health",  rarity: "rare",      weight: 10  },
+    { key: "elehealthsoldier3", type: "health",  rarity: "epic",      weight: 4   },
+    { key: "elehealthsoldier4", type: "health",  rarity: "legendary", weight: 1   },
+    { key: "eledragon1",        type: "dragon",  rarity: "common",    weight: 3   },
+    { key: "eledragon2",        type: "dragon",  rarity: "rare",      weight: 1.5 },
+    { key: "eledragon3",        type: "dragon",  rarity: "epic",      weight: 0.4 },
+    { key: "eledragon4",        type: "dragon",  rarity: "legendary", weight: 0.1 },
+  ],
+  tiger: [
+    { key: "tig_soldier_1",        type: "attack",  rarity: "common",    weight: 35  },
+    { key: "tig_soldier_2",        type: "attack",  rarity: "rare",      weight: 20  },
+    { key: "tig_soldier_3",        type: "attack",  rarity: "epic",      weight: 8   },
+    { key: "tig_soldier_4",        type: "attack",  rarity: "legendary", weight: 2   },
+    { key: "tig_health_soldier_1", type: "health",  rarity: "common",    weight: 15  },
+    { key: "tig_health_soldier_2", type: "health",  rarity: "rare",      weight: 10  },
+    { key: "tig_health_soldier_3", type: "health",  rarity: "epic",      weight: 4   },
+    { key: "tig_health_soldier_4", type: "health",  rarity: "legendary", weight: 1   },
+    { key: "tigdragon1",           type: "dragon",  rarity: "common",    weight: 3   },
+    { key: "tigdragon2",           type: "dragon",  rarity: "rare",      weight: 1.5 },
+    { key: "tigdragon3",           type: "dragon",  rarity: "epic",      weight: 0.4 },
+    { key: "tigdragon4",           type: "dragon",  rarity: "legendary", weight: 0.1 },
+  ],
+  kong: [
+    { key: "kongatksoldier1",    type: "attack",  rarity: "common",    weight: 35  },
+    { key: "kongatksoldier2",    type: "attack",  rarity: "rare",      weight: 20  },
+    { key: "kongatksoldier3",    type: "attack",  rarity: "epic",      weight: 8   },
+    { key: "kongatksoldier4",    type: "attack",  rarity: "legendary", weight: 2   },
+    { key: "konghealthsoldier1", type: "health",  rarity: "common",    weight: 15  },
+    { key: "konghealthsoldier2", type: "health",  rarity: "rare",      weight: 10  },
+    { key: "konghealthsoldier3", type: "health",  rarity: "epic",      weight: 4   },
+    { key: "konghealthsoldier4", type: "health",  rarity: "legendary", weight: 1   },
+    { key: "kongdragon1",        type: "dragon",  rarity: "common",    weight: 3   },
+    { key: "kongdragon2",        type: "dragon",  rarity: "rare",      weight: 1.5 },
+    { key: "kongdragon3",        type: "dragon",  rarity: "epic",      weight: 0.4 },
+    { key: "kongdragon4",        type: "dragon",  rarity: "legendary", weight: 0.1 },
+  ]
+};
+
+
+
+const SUMMON_COSTS = {
+  x1:   100,
+  x10:  900,
+  x50: 4000,
+};
+
+const SUMMON_CARDS_PER_PULL = {
+  x1:  10,
+  x10: 100,
+  x50: 500,
+};
+function performSummon(pullType) {
+  const cost = SUMMON_COSTS[pullType];
+  const cardsCount = SUMMON_CARDS_PER_PULL[pullType];
+
+  if (resources.gem < cost) {
+    alert(`تحتاج ${cost} جواهر للسحب.`);
+    return;
+  }
+
+  resources.gem -= cost;
+  if (typeof updateTopBar === "function") updateTopBar();
+
+  const heroKey = currentHero || "elephant";
+  const pool = SUMMON_SOLDIER_POOL[heroKey] || [];
+
+  if (!pool.length) {
+    alert("لا توجد وحدات متاحة للسحب.");
+    return;
+  }
+
+  // حساب إجمالي الأوزان
+  const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
+
+  // نتائج السحب
+  const results = {};
+
+  for (let i = 0; i < cardsCount; i++) {
+    let rand = Math.random() * totalWeight;
+    let chosen = pool[0];
+
+    for (const item of pool) {
+      rand -= item.weight;
+      if (rand <= 0) {
+        chosen = item;
+        break;
+      }
+    }
+
+    results[chosen.key] = (results[chosen.key] || 0) + 1;
+  }
+
+  // إضافة الجنود للمخزون
+  Object.entries(results).forEach(([unitKey, count]) => {
+    const unit = pool.find(u => u.key === unitKey);
+    if (!unit) return;
+
+    if (unit.type === "attack") {
+      if (!trainedArmy[heroKey]) trainedArmy[heroKey] = {};
+      trainedArmy[heroKey][unitKey] = (trainedArmy[heroKey][unitKey] || 0) + count;
+      localStorage.setItem("raidex_trainedArmy_v1", JSON.stringify(trainedArmy));
+    } else if (unit.type === "health") {
+      if (!trainedHealthArmy[heroKey]) trainedHealthArmy[heroKey] = {};
+      trainedHealthArmy[heroKey][unitKey] = (trainedHealthArmy[heroKey][unitKey] || 0) + count;
+      localStorage.setItem("raidex_trainedHealthArmy_v1", JSON.stringify(trainedHealthArmy));
+    } else if (unit.type === "dragon") {
+      if (!trainedDragonArmy[heroKey]) trainedDragonArmy[heroKey] = {};
+      trainedDragonArmy[heroKey][unitKey] = (trainedDragonArmy[heroKey][unitKey] || 0) + count;
+      localStorage.setItem("raidex_dragon_army_v1", JSON.stringify(trainedDragonArmy));
+    }
+  });
+
+  saveGameState();
+  if (typeof updateArmyProfileView === "function") updateArmyProfileView();
+  if (typeof updateProfileStatsFromArmy === "function") updateProfileStatsFromArmy();
+
+  showSummonResults(results, pool, cardsCount);
+}
+function showSummonResults(results, pool, totalCards) {
+  const existing = document.getElementById("summon-results-popup");
+  if (existing) existing.remove();
+
+  const heroKey = currentHero || "elephant";
+
+  // بناء قائمة الكروت مع تكرار كل جندي حسب عدده
+  const cardsList = [];
+  Object.entries(results).forEach(([unitKey, count]) => {
+    const poolUnit = pool.find(u => u.key === unitKey);
+    if (!poolUnit) return;
+
+    let fullUnit = null;
+    if (poolUnit.type === "attack") fullUnit = (HERO_ARMIES[heroKey] || []).find(u => u.key === unitKey);
+    else if (poolUnit.type === "health") fullUnit = (HERO_HEALTH_ARMIES[heroKey] || []).find(u => u.key === unitKey);
+    else if (poolUnit.type === "dragon") fullUnit = (DRAGON_ARMIES[heroKey] || []).find(u => u.key === unitKey);
+    if (!fullUnit) return;
+
+    for (let i = 0; i < count; i++) {
+      cardsList.push({ fullUnit, poolUnit });
+    }
+  });
+
+  // ألوان الـ rarity
+  const rarityColors = {
+    common: "#9ca3af",
+    rare: "#38bdf8",
+    epic: "#a855f7",
+    legendary: "#facc15"
+  };
+
+  // CSS animations
+  if (!document.getElementById("summon-anim-style")) {
+    const style = document.createElement("style");
+    style.id = "summon-anim-style";
+    style.textContent = `
+      @keyframes cardFlip {
+        0%   { transform: rotateY(90deg) scale(0.8); opacity:0; }
+        50%  { transform: rotateY(0deg) scale(1.1); }
+        100% { transform: rotateY(0deg) scale(1); opacity:1; }
+      }
+      @keyframes glowPulse {
+        0%, 100% { box-shadow: 0 0 10px var(--glow-color); }
+        50%       { box-shadow: 0 0 30px var(--glow-color), 0 0 60px var(--glow-color); }
+      }
+      .summon-card-reveal {
+        animation: cardFlip 0.5s ease-out forwards;
+      }
+      .summon-card-glow {
+        animation: glowPulse 1.5s infinite;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // الـ popup
+  const popup = document.createElement("div");
+  popup.id = "summon-results-popup";
+  popup.style.cssText = `
+    position:fixed; inset:0; background:rgba(0,0,0,0.92);
+    z-index:99999; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
+  `;
+
+  // هيدر + SKIP
+  const header = document.createElement("div");
+  header.style.cssText = "display:flex;justify-content:space-between;align-items:center;width:90%;max-width:420px;";
+  header.innerHTML = `
+    <div style="font-weight:bold;font-size:16px;color:#facc15;">✨ Summon Results</div>
+  `;
+
+  const skipBtn = document.createElement("button");
+  skipBtn.textContent = "SKIP ⏭";
+  skipBtn.style.cssText = `
+    padding:6px 14px; border:1px solid rgba(148,163,184,0.5);
+    border-radius:999px; background:rgba(15,23,42,0.9);
+    color:#e5e7eb; font-size:12px; font-weight:bold; cursor:pointer;
+  `;
+
+  header.appendChild(skipBtn);
+  popup.appendChild(header);
+
+  // منطقة العرض
+  const displayArea = document.createElement("div");
+  displayArea.style.cssText = `
+    width:90%; max-width:420px;
+    display:flex; align-items:center; justify-content:center;
+    min-height:200px;
+  `;
+  popup.appendChild(displayArea);
+
+  // عداد
+  const counter = document.createElement("div");
+  counter.style.cssText = "color:#9ca3af;font-size:13px;";
+  counter.textContent = `1 / ${cardsList.length}`;
+  popup.appendChild(counter);
+
+  // زر التالي
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "التالي ›";
+  nextBtn.style.cssText = `
+    padding:10px 30px; border:none; border-radius:999px;
+    background:linear-gradient(135deg,#facc15,#f97316);
+    color:#0b1120; font-weight:bold; font-size:14px; cursor:pointer;
+  `;
+  popup.appendChild(nextBtn);
+
+  document.body.appendChild(popup);
+
+  // منطقة تعرض الكارت
+  let currentIndex = 0;
+  let skipped = false;
+
+  function showCard(index) {
+    displayArea.innerHTML = "";
+    if (index >= cardsList.length) {
+      showFinalSummary();
+      return;
+    }
+
+    counter.textContent = `${index + 1} / ${cardsList.length}`;
+    const { fullUnit, poolUnit } = cardsList[index];
+    const color = rarityColors[poolUnit.rarity] || "#9ca3af";
+
+    const card = document.createElement("div");
+    card.className = "summon-card-reveal summon-card-glow";
+    card.style.cssText = `
+      --glow-color: ${color};
+      width:160px; height:220px;
+      background:radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(15,23,42,1));
+      border:2px solid ${color};
+      border-radius:16px;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:8px; padding:10px;
+      cursor:pointer;
+    `;
+
+    card.innerHTML = `
+      <div style="font-size:10px;color:${color};font-weight:bold;letter-spacing:2px;">
+        ${poolUnit.rarity.toUpperCase()}
+      </div>
+      <img src="${fullUnit.img}" style="width:100px;height:100px;object-fit:contain;border-radius:10px;">
+      <div style="font-size:12px;color:#e5e7eb;font-weight:bold;text-align:center;">${fullUnit.name}</div>
+      <div style="font-size:11px;color:#9ca3af;">⚔️ ${fullUnit.atk} &nbsp; 💚 ${fullUnit.hp}</div>
+    `;
+
+    card.onclick = () => {
+      if (typeof openArmyUnitPopup === "function") {
+        openArmyUnitPopup(fullUnit, 1, poolUnit.type, true);
+      }
+    };
+
+    displayArea.appendChild(card);
+
+    // لو آخر كارت غيّر النص
+    if (index === cardsList.length - 1) {
+      nextBtn.textContent = "عرض النتائج 🎉";
+    } else {
+      nextBtn.textContent = "التالي ›";
+    }
+  }
+
+  function showFinalSummary() {
+    displayArea.innerHTML = "";
+    counter.textContent = "";
+    nextBtn.style.display = "none";
+    skipBtn.style.display = "none";
+
+    const grid = document.createElement("div");
+    grid.style.cssText = "display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;";
+
+    Object.entries(results).forEach(([unitKey, count]) => {
+      const poolUnit = pool.find(u => u.key === unitKey);
+      if (!poolUnit) return;
+      let fullUnit = null;
+      if (poolUnit.type === "attack") fullUnit = (HERO_ARMIES[heroKey] || []).find(u => u.key === unitKey);
+      else if (poolUnit.type === "health") fullUnit = (HERO_HEALTH_ARMIES[heroKey] || []).find(u => u.key === unitKey);
+      else if (poolUnit.type === "dragon") fullUnit = (DRAGON_ARMIES[heroKey] || []).find(u => u.key === unitKey);
+      if (!fullUnit) return;
+
+      const color = rarityColors[poolUnit.rarity] || "#9ca3af";
+      const card = document.createElement("div");
+      card.style.cssText = `
+        background:rgba(15,23,42,0.9); border:2px solid ${color};
+        border-radius:12px; padding:6px; text-align:center;
+        position:relative; cursor:pointer;
+        box-shadow: 0 0 10px ${color}44;
+      `;
+      card.innerHTML = `
+        <img src="${fullUnit.img}" style="width:100%;height:60px;object-fit:cover;border-radius:8px;margin-bottom:4px;">
+        <div style="font-size:10px;color:#e5e7eb;">${fullUnit.name}</div>
+        <div style="font-size:9px;color:${color};font-weight:bold;">${poolUnit.rarity.toUpperCase()}</div>
+        <div style="position:absolute;top:-8px;right:-8px;
+                    background:${color};color:#0b1120;
+                    border-radius:999px;width:20px;height:20px;
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:11px;font-weight:bold;">
+          ${count}
+        </div>
+      `;
+      card.onclick = () => {
+        if (typeof openArmyUnitPopup === "function") {
+          openArmyUnitPopup(fullUnit, count, poolUnit.type, true);
+        }
+      };
+      grid.appendChild(card);
+    });
+
+    displayArea.appendChild(grid);
+    displayArea.style.flexWrap = "wrap";
+
+    const doneBtn = document.createElement("button");
+    doneBtn.textContent = "تم ✓";
+    doneBtn.style.cssText = `
+      width:90%; max-width:420px; padding:12px 0; border:none;
+      border-radius:999px; background:linear-gradient(135deg,#facc15,#f97316);
+      color:#0b1120; font-weight:bold; font-size:14px; cursor:pointer; margin-top:8px;
+    `;
+    doneBtn.onclick = () => popup.remove();
+    popup.appendChild(doneBtn);
+  }
+
+  nextBtn.onclick = () => {
+    currentIndex++;
+    showCard(currentIndex);
+  };
+
+  skipBtn.onclick = () => {
+    skipped = true;
+    showFinalSummary();
+  };
+
+  showCard(0);
+}
+
+
+
 function openSummonShop() {
   // اخفي كل البانلات التانية
   const panels = document.querySelectorAll(".game-page-panel");
@@ -8910,7 +9329,7 @@ function updateArmyProfileView() {
   });
 }
 
-function openArmyUnitPopup(unit, count, type) {
+function openArmyUnitPopup(unit, count, type, hideTrain = false) {
   const popup = document.getElementById("army-unit-popup");
   const titleEl = document.getElementById("army-unit-popup-title");
   const imgBox = document.getElementById("army-unit-popup-img");
@@ -8950,23 +9369,29 @@ function openArmyUnitPopup(unit, count, type) {
 // زر التدريب
 const trainBtn = document.getElementById("army-unit-popup-train-btn");
 if (trainBtn) {
-  trainBtn.onclick = () => {
-    popup.style.display = "none";
-    if (type === "attack") {
-      initAttackArmyPanel();
-      const p = document.getElementById("attack-army-panel");
-      if (p) p.style.display = "block";
-    } else if (type === "health") {
-      initHealthArmyPanel();
-      const p = document.getElementById("health-army-panel");
-      if (p) p.style.display = "block";
-    } else if (type === "dragon") {
-      initDragonArmyPanel();
-      const p = document.getElementById("dragon-army-panel");
-      if (p) p.style.display = "block";
-    }
-  };
+  if (hideTrain) {
+    trainBtn.style.display = "none";
+  } else {
+    trainBtn.style.display = "block";
+    trainBtn.onclick = () => {
+      popup.style.display = "none";
+      if (type === "attack") {
+        initAttackArmyPanel();
+        const p = document.getElementById("attack-army-panel");
+        if (p) p.style.display = "block";
+      } else if (type === "health") {
+        initHealthArmyPanel();
+        const p = document.getElementById("health-army-panel");
+        if (p) p.style.display = "block";
+      } else if (type === "dragon") {
+        initDragonArmyPanel();
+        const p = document.getElementById("dragon-army-panel");
+        if (p) p.style.display = "block";
+      }
+    };
+  }
 }
+
 
   popup.style.zIndex = "99999";
   popup.style.display = "flex";
@@ -10476,7 +10901,7 @@ function addTopBar() {
 
 
 
-     /* --- Bottom Bar --- */
+/* --- Bottom Bar --- */
 function addBottomBar() {
   if (document.getElementById("bottom-bar")) return;
   const bottomBar = document.createElement("div");
@@ -10501,19 +10926,21 @@ function addBottomBar() {
     div.innerHTML = `<span>${item.icon}</span>${item.name}`;
 
     if (item.name === "Task") {
-      div.id = "tasks-bar-item";            // ← سطر جديد
+      div.id = "tasks-bar-item";
       div.addEventListener("click", openTasksPage);
     } else if (item.name === "Clan") {
       div.addEventListener("click", openClanPage);
+    } else if (item.name === "Fight") {
+      div.id = "fight-bar-item";
+      div.addEventListener("click", openFightPage);
     }
 
     bottomBar.appendChild(div);
   });
 
-
-
   cityScreen.appendChild(bottomBar);
 }
+
 
       /* --- Tasks --- */
       function addProgressToTasksByType(type, amount) {
@@ -12077,7 +12504,10 @@ async function leaveClan() {
    ============================ */
 
 // 1) Helper: مدير صفحات بين الـ top-bar والـ bottom-bar
-const GAME_PAGE_IDS = ["tasks-page", "invites-page", "resource-shop-panel", "clan-page"];
+const GAME_PAGE_IDS = ["tasks-page", "invites-page", "resource-shop-panel", "clan-page", "fight-page"];
+
+
+
 
 function hideAllGamePages() {
   GAME_PAGE_IDS.forEach(id => {
@@ -12121,7 +12551,6 @@ function refreshSummonVisibility() {
   showSummonButton(!anyOpen);
 }
 setInterval(refreshSummonVisibility, 300);
-
 
 // === Tasks Page ===
 function openTasksPage() {
@@ -12819,6 +13248,158 @@ function closeClanPage() {
   clanPage.classList.add("game-page-hidden");
 }
 
+// === RAID UI ===
+let currentRaidTab = "unknown";
+
+function openFightPage() {
+  const fightPage = document.getElementById("fight-page");
+  if (!fightPage) return;
+  showGamePage("fight-page");
+  document.querySelectorAll(".bar-item").forEach(b => b.classList.remove("bar-item-active"));
+  const fightBtn = document.getElementById("fight-bar-item");
+  if (fightBtn) fightBtn.classList.add("bar-item-active");
+  updateRaidStaminaUI();
+  renderRaidNodes("unknown");
+}
+
+function updateRaidStaminaUI() {
+  const el = document.getElementById("raid-stamina-text");
+  if (el) el.textContent = raidStamina.current + "/" + raidStamina.max;
+}
+
+function switchRaidTab(tab) {
+  currentRaidTab = tab;
+  const unknown = document.getElementById("raid-tab-unknown");
+  const danger  = document.getElementById("raid-tab-danger");
+  if (tab === "unknown") {
+    unknown.style.background = "#22c55e";
+    unknown.style.color = "#0b1120";
+    unknown.style.fontWeight = "bold";
+    danger.style.background = "rgba(15,23,42,0.9)";
+    danger.style.color = "#e5e7eb";
+    danger.style.fontWeight = "normal";
+  } else {
+    danger.style.background = "#ef4444";
+    danger.style.color = "#0b1120";
+    danger.style.fontWeight = "bold";
+    unknown.style.background = "rgba(15,23,42,0.9)";
+    unknown.style.color = "#e5e7eb";
+    unknown.style.fontWeight = "normal";
+  }
+  renderRaidNodes(tab);
+}
+
+function renderRaidNodes(tab) {
+  const list = document.getElementById("raid-nodes-list");
+  if (!list) return;
+  list.innerHTML = "";
+
+  const nodes = RAID_NODES.filter(n => n.section === tab);
+  nodes.forEach(node => {
+    const playerPower = calculatePlayerPower();
+    const ratio = playerPower / node.enemyPower;
+    const winChance = Math.min(90, Math.max(10, Math.round(ratio * 50)));
+    const color = RAID_SECTIONS[tab].color;
+
+    const card = document.createElement("div");
+    card.style.cssText = `
+      position: relative;
+      height: 140px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      border: 1px solid rgba(148,163,184,0.2);
+    `;
+
+    card.innerHTML = `
+      <!-- صورة الخلفية -->
+      <div style="
+        position: absolute; inset: 0;
+        background-image: url('${node.img}');
+        background-size: cover;
+        background-position: center;
+      "></div>
+
+      <!-- overlay داكن -->
+      <div style="
+        position: absolute; inset: 0;
+        background: linear-gradient(to right, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.3) 100%);
+      "></div>
+
+      <!-- المحتوى -->
+      <div style="
+        position: absolute; inset: 0;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      ">
+        <!-- الاسم والليفل -->
+        <div>
+          <div style="font-weight:bold; font-size:16px; color:#f9fafb; text-shadow: 0 1px 4px rgba(0,0,0,0.8);">${node.name}</div>
+          <div style="font-size:11px; color:#cbd5e1; margin-top:2px;">ليفل ${node.level} &nbsp;•&nbsp; ⚡${node.staminaCost}</div>
+        </div>
+
+        <!-- الموارد والزر -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+          <div>
+            <div style="font-size:11px; color:#e5e7eb;">
+              🪙 ${node.loot.gold.toLocaleString()}
+              &nbsp; 🌲 ${node.loot.wood.toLocaleString()}
+              &nbsp; 🍖 ${node.loot.food.toLocaleString()}
+            </div>
+            <div style="font-size:11px; margin-top:4px; color:${winChance >= 50 ? '#22c55e' : '#ef4444'};">
+              نسبة الفوز: ${winChance}%
+            </div>
+          </div>
+          <button onclick="openRaidPopup('${node.id}')" style="
+            padding: 8px 16px;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(135deg, ${color}, ${color}99);
+            color: #0b1120;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            white-space: nowrap;
+          ">⚔️ هجوم</button>
+        </div>
+      </div>
+    `;
+
+    list.appendChild(card);
+  });
+}
+
+
+function calculatePlayerPower() {
+  const heroKey = currentHero || "elephant";
+  let power = 0;
+  const atk = trainedArmy?.[heroKey] || {};
+  const health = trainedHealthArmy?.[heroKey] || {};
+  const dragon = trainedDragonArmy?.[heroKey] || {};
+  Object.values(atk).forEach(v => power += v * 10);
+  Object.values(health).forEach(v => power += v * 5);
+  Object.values(dragon).forEach(v => power += v * 15);
+  return power || 100;
+}
+
+function buyRaidStamina() {
+  if (resources.gem < RAID_CONFIG.staminaRefillCost) {
+    alert(`محتاج ${RAID_CONFIG.staminaRefillCost} 💎`);
+    return;
+  }
+  resources.gem -= RAID_CONFIG.staminaRefillCost;
+  raidStamina.current = Math.min(raidStamina.max, raidStamina.current + RAID_CONFIG.staminaRefillAmount);
+  updateRaidStaminaUI();
+  saveGameState();
+  if (typeof updateTopBar === "function") updateTopBar();
+}
+
+
 
 // 2) تحسين متجر الموارد + توحيد مكانه بين البارين
 
@@ -12889,7 +13470,8 @@ function closeResourceShop() {
 }
 
 
-// 3) نربط bottom bar زر المهام لو مش مربوط
+
+// 3) نربط bottom bar buttons
 (function wireBottomBarButtons() {
   const bottomBar = document.getElementById("bottom-bar");
   if (!bottomBar) return;
@@ -12899,10 +13481,15 @@ function closeResourceShop() {
     const text = (item.textContent || "").trim().toLowerCase();
     if (text === "task" || text === "tasks") {
       item.onclick = openTasksPage;
+    } else if (text === "clan") {
+      item.onclick = openClanPage;
+    } else if (text === "fight") {
+      item.onclick = openFightPage;
     }
   });
 })();
 document.addEventListener("DOMContentLoaded", function () {
+
  // ===== Building Panel (open/close + زر الترقية) =====
   function openBuildingUpgradePanel() {
     const panel = document.getElementById("building-panel");
