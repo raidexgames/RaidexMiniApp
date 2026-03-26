@@ -200,9 +200,9 @@
 #building-bottom-actions {
   position: fixed;
   left: 50%;
-  bottom: 80px;
+  bottom: 72px;
   transform: translateX(-50%);
-  display: none;        /* بدل flex */
+  display: none;
   gap: 12px;
   z-index: 250;
 }
@@ -448,7 +448,10 @@
   color: #0b1120;
   font-weight: bold;
 }
-
+@keyframes buildingPulse {
+  0%, 100% { opacity: 0.5; transform: scaleY(0.9); }
+  50%       { opacity: 1;   transform: scaleY(1.1); }
+}
       /* Invite */
       #invite-btn {
         position: fixed;
@@ -3160,316 +3163,7 @@
 </div>
 
 
-<div id="castle-panel" class="castle-hidden">
-  <div id="castle-panel-inner" style="
-    position:fixed; top:80px; left:10px; right:10px; bottom:70px;
-    background:#020617; border:2px solid #facc15; border-radius:16px;
-    padding:12px; z-index:9999; color:#e5e7eb;
-    box-shadow:0 10px 30px rgba(0,0,0,0.7); overflow-y:auto;
-  ">
-
-    <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="width:28px;"></div>
-      <div style="font-weight:bold;font-size:18px;text-align:center;flex:1;">القلعة</div>
-      <button onclick="closeCastlePanel()" style="background:transparent;border:none;color:#e5e7eb;font-size:18px;cursor:pointer;">✖</button>
-    </div>
-
-    <!-- Tabs -->
-    <div style="display:flex;margin-bottom:8px;border-bottom:1px solid rgba(148,163,184,0.5);">
-      <div id="castle-tab-info-btn" onclick="switchCastleTab('info')"
-        style="flex:1;padding:6px 0;color:#facc15;font-weight:bold;font-size:13px;text-align:center;cursor:pointer;">
-        المعلومات
-      </div>
-      <button id="castle-tab-upgrade-btn" onclick="switchCastleTab('upgrade')"
-        style="flex:1;padding:6px 0;border:none;background:transparent;color:#9ca3af;font-weight:bold;cursor:pointer;font-size:13px;">
-        ⬆️ الترقية
-      </button>
-    </div>
-
-    <!-- Info Tab -->
-    <div id="castle-tab-info">
-      <div style="text-align:center;margin-bottom:8px;">
-        <img id="castle-panel-image" src="elephant_castle.png"
-          style="width:180px;height:180px;border-radius:18px;object-fit:cover;border:1px solid rgba(148,163,184,0.8);" />
-      </div>
-      <div style="border-top:1px solid rgba(148,163,184,0.5);margin:8px 0;"></div>
-      <div style="background:rgba(15,23,42,0.9);border-radius:10px;padding:10px;font-size:13px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <span style="color:#9ca3af;">مستوى القلعة</span>
-          <span id="castle-info-level" style="color:#facc15;font-weight:bold;">1</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <span style="color:#9ca3af;">قوة القلعة</span>
-          <span id="castle-info-power" style="color:#22c55e;font-weight:bold;">0</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:#9ca3af;">سعة التخزين</span>
-          <span id="castle-info-storage" style="color:#0ea5e9;font-weight:bold;">0</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Upgrade Tab -->
-    <div id="castle-tab-upgrade" style="display:none;font-size:13px;">
-
-      <!-- صورة القلعة -->
-      <div style="text-align:center;margin-bottom:10px;">
-        <img id="castle-upgrade-image" src="elephant_castle.png"
-          style="width:100px;height:100px;border-radius:16px;object-fit:cover;border:1px solid rgba(148,163,184,0.4);" />
-      </div>
-
-      <!-- الليفل -->
-      <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:10px;">
-        <div style="text-align:center;">
-          <div style="color:#9ca3af;font-size:11px;">الحالي</div>
-          <div id="castle-upgrade-current-level" style="color:#facc15;font-weight:bold;font-size:16px;">1</div>
-        </div>
-        <div style="color:#9ca3af;font-size:18px;">→</div>
-        <div style="text-align:center;">
-          <div style="color:#9ca3af;font-size:11px;">التالي</div>
-          <div id="castle-upgrade-next-level" style="color:#0ea5e9;font-weight:bold;font-size:16px;">2</div>
-        </div>
-      </div>
-
-      <!-- التكلفة -->
-      <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-          <img src="gold.png" style="width:16px;height:16px;object-fit:contain;"><br>
-          <span id="castle-upgrade-gold-cost" style="color:#facc15;font-size:11px;font-weight:bold;">0</span>
-        </div>
-        <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-          <img src="wood.png" style="width:16px;height:16px;object-fit:contain;"><br>
-          <span id="castle-upgrade-wood-cost" style="color:#22c55e;font-size:11px;font-weight:bold;">0</span>
-        </div>
-        <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-          <img src="food.png" style="width:16px;height:16px;object-fit:contain;"><br>
-          <span id="castle-upgrade-food-cost" style="color:#f97316;font-size:11px;font-weight:bold;">0</span>
-        </div>
-      </div>
-
-      <!-- الوقت -->
-      <div style="text-align:center;margin-bottom:10px;">
-        <div style="color:#9ca3af;font-size:11px;margin-bottom:2px;">⏱ وقت الترقية</div>
-        <div id="castle-upgrade-time" style="color:#e5e7eb;font-weight:bold;font-size:14px;">-</div>
-      </div>
-
-      <!-- المباني المطلوبة -->
-      <div id="castle-upgrade-required-buildings" style="margin-bottom:10px;"></div>
-
-      <!-- Progress bar -->
-      <div id="castle-upgrade-progress-wrapper" style="margin-bottom:8px;display:none;">
-        <div style="width:100%;height:8px;background:rgba(148,163,184,0.4);border-radius:999px;overflow:hidden;">
-          <div id="castle-upgrade-progress-fill" style="width:0%;height:100%;background:#0ea5e9;"></div>
-        </div>
-        <div style="margin-top:4px;font-size:12px;text-align:center;color:#e5e7eb;">
-          <span id="castle-upgrade-remaining-time">0</span>
-        </div>
-      </div>
-
-      <!-- زر الترقية -->
-      <button id="castle-start-upgrade-btn" onclick="startCastlePanelUpgrade()" style="
-        width:100%;padding:10px;border:none;border-radius:10px;
-        background:linear-gradient(135deg,#0ea5e9,#38bdf8);
-        color:#0b1120;font-weight:bold;font-size:14px;cursor:pointer;margin-top:4px;">
-        ⬆️ ترقية القلعة
-      </button>
-
-      <button id="castle-cancel-upgrade-btn" onclick="cancelCastlePanelUpgrade()" style="
-        width:100%;padding:6px;border:none;border-radius:10px;
-        background:#ef4444;color:#fff;font-weight:bold;cursor:pointer;
-        margin-top:4px;display:none;">
-        ❌ إلغاء الترقية
-      </button>
-
-    </div>
-
-  </div>
-</div>
-
-
-<div id="building-panel" class="hidden">
-  <div id="building-panel-inner"
-       style="
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 80%;
-        max-width: 400px;
-        background: #020617;
-        border: 2px solid #facc15;
-        border-radius: 16px;
-        padding: 12px;
-        z-index: 9999;
-        color: #e5e7eb;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      ">
-
-  <!-- Header -->
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-  <button id="building-info-btn" onclick="openBuildingInfoModal()"
-    style="background:rgba(14,165,233,0.2); border:1px solid #0ea5e9; color:#0ea5e9; 
-    border-radius:50%; width:28px; height:28px; font-size:14px; cursor:pointer; font-weight:bold;">
-    !
-  </button>
-  <div id="building-panel-title"
-       style="font-weight:bold; font-size:18px; text-align:center; flex:1;">
-  </div>
-  <button id="building-panel-close-btn"
-          style="background:transparent; border:none; color:#e5e7eb;
-                 font-size:18px; cursor:pointer; margin-left:8px;">
-    ✖
-  </button>
-</div>
-
-<!-- تاب الترقية فقط -->
-<div style="display:flex; margin-bottom:8px; border-bottom:1px solid rgba(148,163,184,0.5);">
-  <div id="building-tab-info-btn"
-       style="flex:1; padding:6px 0; color:#facc15; font-weight:bold; font-size:13px; text-align:center;">
-    المعلومات
-  </div>
-  <button id="building-tab-upgrade-btn"
-          style="flex:1; padding:6px 0; border:none; background:transparent;
-                 color:#9ca3af; font-weight:bold; cursor:pointer; font-size:13px;">
-    ⬆️ الترقية
-  </button>
-</div>
-
-<!-- تاب المعلومات -->
-<div id="building-tab-info">
-  <div style="text-align:center; margin-bottom:8px;">
-    <img id="building-panel-image" src="" alt=""
-         style="width:180px;height:180px;border-radius:18px;
-                object-fit:cover;border:1px solid rgba(148,163,184,0.8);" />
-  </div>
-  <div id="building-panel-desc"
-       style="margin-bottom:8px; font-size:13px; color:#9ca3af; text-align:center;">
-  </div>
-  <div style="border-top:1px solid rgba(148,163,184,0.5); margin:8px 0;"></div>
-  <div id="building-panel-extra-info" style="font-size:13px; text-align:center;"></div>
-</div>
-
-<button id="gold-mine-collect-btn"
-        style="margin-top:10px;width:100%;padding:8px 0;border:none;
-               border-radius:999px;background:#22c55e;color:#0b1120;
-               font-weight:bold;font-size:13px;cursor:pointer;display:none;">
-  جمع ذهب المنجم
-</button>
-
-<!-- تاب الترقية -->
-<div id="building-tab-upgrade" style="display:none; font-size:13px;">
-
-  <!-- صورة المبنى -->
-  <div style="text-align:center; margin-bottom:10px;">
-    <img id="building-upgrade-image" src="" alt=""
-         style="width:100px;height:100px;border-radius:16px;object-fit:cover;border:1px solid rgba(148,163,184,0.4);" />
-  </div>
-
-  <!-- الليفل: من → إلى -->
-  <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:10px;">
-    <div style="text-align:center;">
-      <div style="color:#9ca3af;font-size:11px;">الحالي</div>
-      <div id="building-upgrade-current-level" style="color:#facc15;font-weight:bold;font-size:16px;">1</div>
-    </div>
-    <div style="color:#9ca3af;font-size:18px;">→</div>
-    <div style="text-align:center;">
-      <div style="color:#9ca3af;font-size:11px;">التالي</div>
-      <div id="building-upgrade-next-level" style="color:#0ea5e9;font-weight:bold;font-size:16px;">2</div>
-    </div>
-  </div>
-
- <!-- القوة / السعة / التدريب -->
-  <div style="display:flex;gap:6px;margin-bottom:10px;">
-    <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-      <div id="building-upgrade-power-label" style="color:#9ca3af;font-size:10px;margin-bottom:4px;">⚔️ القوة</div>
-      <div style="font-size:11px;color:#e5e7eb;">
-        <span id="building-upgrade-power-current" style="color:#facc15;">-</span>
-        <span style="color:#9ca3af;"> → </span>
-        <span id="building-upgrade-power-next" style="color:#22c55e;">-</span>
-      </div>
-    </div>
-    <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-      <div id="building-upgrade-capacity-label" style="color:#9ca3af;font-size:10px;margin-bottom:4px;">🏠 السعة</div>
-      <div style="font-size:11px;color:#e5e7eb;">
-        <span id="building-upgrade-capacity-current" style="color:#facc15;">-</span>
-        <span style="color:#9ca3af;"> → </span>
-        <span id="building-upgrade-capacity-next" style="color:#22c55e;">-</span>
-      </div>
-    </div>
-    <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-      <div id="building-upgrade-train-label" style="color:#9ca3af;font-size:10px;margin-bottom:4px;">🎯 تدريب</div>
-      <div style="font-size:11px;color:#e5e7eb;">
-        <span id="building-upgrade-train-current" style="color:#facc15;">-</span>
-        <span style="color:#9ca3af;"> → </span>
-        <span id="building-upgrade-train-next" style="color:#22c55e;">-</span>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- المباني المطلوبة -->
-  <div id="building-upgrade-requirements" style="margin-bottom:10px;"></div>
-
-  <!-- التكلفة بالعرض -->
-  <div style="display:flex;gap:6px;margin-bottom:8px;">
-    <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-      <img src="gold.png" style="width:16px;height:16px;object-fit:contain;"><br>
-      <span id="building-upgrade-gold-cost" style="color:#facc15;font-size:11px;font-weight:bold;">0</span>
-    </div>
-    <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-      <img src="wood.png" style="width:16px;height:16px;object-fit:contain;"><br>
-      <span id="building-upgrade-wood-cost" style="color:#22c55e;font-size:11px;font-weight:bold;">0</span>
-    </div>
-    <div style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:8px;text-align:center;">
-      <img src="food.png" style="width:16px;height:16px;object-fit:contain;"><br>
-      <span id="building-upgrade-food-cost" style="color:#f97316;font-size:11px;font-weight:bold;">0</span>
-    </div>
-  </div>
-
-  <!-- الوقت في المنتصف -->
-  <div style="text-align:center;margin-bottom:10px;">
-    <div style="color:#9ca3af;font-size:11px;margin-bottom:2px;">⏱ وقت الترقية</div>
-    <div id="building-upgrade-time" style="color:#e5e7eb;font-weight:bold;font-size:14px;">-</div>
-  </div>
-
-  <!-- Progress bar -->
-  <div id="building-upgrade-progress-wrapper" style="margin-bottom:8px;display:none;">
-    <div style="width:100%;height:8px;background:rgba(148,163,184,0.4);border-radius:999px;overflow:hidden;">
-      <div id="building-upgrade-progress-fill" style="width:0%;height:100%;background:#0ea5e9;"></div>
-    </div>
-    <div style="margin-top:4px;font-size:12px;text-align:center;color:#e5e7eb;">
-      <span id="building-upgrade-remaining-time">0</span>
-    </div>
-  </div>
-
-  <!-- زر الترقية -->
-  <button id="building-panel-upgrade-btn"
-          style="width:100%;padding:10px;border:none;border-radius:10px;
-                 background:linear-gradient(135deg,#0ea5e9,#38bdf8);
-                 color:#0b1120;font-weight:bold;font-size:14px;cursor:pointer;margin-top:4px;">
-    ⬆️ ترقية المبنى
-  </button>
-
-  <button id="building-panel-cancel-upgrade-btn"
-          style="width:100%;padding:6px;border:none;border-radius:10px;
-                 background:#ef4444;color:#fff;font-weight:bold;cursor:pointer;
-                 margin-top:4px;display:none;">
-    ❌ إلغاء الترقية
-  </button>
-
-  <!-- تسريع بالجواهر -->
-  <div id="building-upgrade-speedups" style="margin-top:8px;font-size:11px;text-align:center;display:none;">
-    <div style="margin-bottom:4px;color:#9ca3af;">تسريع الترقية بالجواهر:</div>
-    <div id="building-speedups-row" style="display:flex;flex-direction:column;gap:6px;justify-content:center;"></div>
-  </div>
-
-</div>
-
-
-  </div> <!-- نهاية building-panel-inner -->
-</div> <!-- نهاية building-panel -->
-
+<script src="buildings.js"></script>
 <script>
 
 
@@ -3589,8 +3283,6 @@ function getAvailableArmy(heroKey, type) {
 
   return {};
 }
-
-
 
 // دالة تحسب عدد الجنود الكلي لنوع معين
 function getTotalUnitCount(heroKey, type) {
@@ -4973,64 +4665,66 @@ const GENERIC_BUILDING_CONFIG = {
 };
 
 function calcGenericUpgradeCost(buildingKey, level) {
-  if (buildingKey === 'attackTower') {
-    const row = getAttackArmyBuildingLevel(level - 1);
-    return { gold: row.gold, wood: row.wood, food: row.food };
+  if (buildingKey === "castle") {
+    return { gold: getCastleGoldCost(castleLevel), wood: getCastleWoodCost(castleLevel), food: getCastleFoodCost(castleLevel) };
   }
-  if (buildingKey === 'defenseTower') {
-    const row = getHealthArmyBuildingLevel(level - 1);
-    return { gold: row.gold, wood: row.wood, food: row.food };
-  }
-  if (buildingKey === 'dragonTower') {
-    const row = getDragonArmyBuildingLevel(level - 1);
-    return { gold: row.gold, wood: row.wood, food: row.food };
-  }
-  const cfg = GENERIC_BUILDING_CONFIG[buildingKey];
-  if (!cfg) return { gold: 0, wood: 0, food: 0 };
-  const factor = Math.pow(cfg.costFactor, level - 1);
-  return {
-    gold: Math.round(cfg.baseGold * factor),
-    wood: Math.round(cfg.baseWood * factor),
-    food: Math.round(cfg.baseFood * factor),
-  };
+  if (buildingKey === 'goldMine')    { const row = getGoldMineLevelData(level);    return { gold: row.gold||0, wood: row.wood||0, food: row.food||0 }; }
+  if (buildingKey === 'woodMine')    { const row = getWoodMineLevelData(level);    return { gold: row.gold||0, wood: row.wood||0, food: row.food||0 }; }
+  if (buildingKey === 'meatFarm')    { const row = getMeatFarmLevelData(level);    return { gold: row.gold||0, wood: row.wood||0, food: row.food||0 }; }
+  if (buildingKey === 'attackTower') { const row = getAttackArmyBuildingLevel(level-1); return { gold: row.gold, wood: row.wood, food: row.food }; }
+  if (buildingKey === 'defenseTower'){ const row = getHealthArmyBuildingLevel(level-1); return { gold: row.gold, wood: row.wood, food: row.food }; }
+  if (buildingKey === 'dragonTower') { const row = getDragonArmyBuildingLevel(level-1); return { gold: row.gold, wood: row.wood, food: row.food }; }
+  if (buildingKey === 'school')      { const row = getSchoolLevelData(level);      return { gold: row.gold, wood: row.wood, food: row.food }; }
+  if (buildingKey === 'market')      { const row = getMarketLevelData(level);      return { gold: row.gold, wood: row.wood, food: 0 }; }
+  if (buildingKey === 'heroesHall')  { const row = getHeroesHallLevelData(level);  return { gold: row.gold, wood: row.wood, food: row.food }; }
+  if (buildingKey === 'hospital')    { const row = getHospitalLevelData(level);    return { gold: row.gold, wood: row.wood, food: row.food }; }
+  if (buildingKey === 'booster')     { const row = getBoosterLevelData(level);     return { gold: 0, wood: 0, food: row.food }; }
+  if (buildingKey === 'prison')      { const row = getPrisonLevelData(level);      return { gold: 0, wood: row.wood, food: 0 }; }
+  if (buildingKey === 'hunterCamp')  { const row = getHunterCampLevelData(level);  return { gold: row.gold, wood: row.wood, food: row.food }; }
+  return { gold: 0, wood: 0, food: 0 };
 }
 
 function calcGenericUpgradeTime(buildingKey, level) {
-  if (buildingKey === 'attackTower') {
-    const row = getAttackArmyBuildingLevel(level - 1);
-    return row.time;
-  }
-  if (buildingKey === 'defenseTower') {
-    const row = getHealthArmyBuildingLevel(level - 1);
-    return row.time;
-  }
-  if (buildingKey === 'dragonTower') {
-    const row = getDragonArmyBuildingLevel(level - 1);
-    return row.time;
-  }
-  const cfg = GENERIC_BUILDING_CONFIG[buildingKey];
-  if (!cfg) return 0;
-  return Math.round(cfg.baseTime * Math.pow(cfg.timeFactor, level - 1));
+  if (buildingKey === "castle")      return getCastleUpgradeTime(castleLevel);
+  if (buildingKey === 'goldMine')    return getGoldMineLevelData(level).time || 0;
+  if (buildingKey === 'woodMine')    return getWoodMineLevelData(level).time || 0;
+  if (buildingKey === 'meatFarm')    return getMeatFarmLevelData(level).time || 0;
+  if (buildingKey === 'attackTower') return getAttackArmyBuildingLevel(level-1).time;
+  if (buildingKey === 'defenseTower')return getHealthArmyBuildingLevel(level-1).time;
+  if (buildingKey === 'dragonTower') return getDragonArmyBuildingLevel(level-1).time;
+  if (buildingKey === 'school')      return getSchoolLevelData(level).time;
+  if (buildingKey === 'market')      return getMarketLevelData(level).time;
+  if (buildingKey === 'heroesHall')  return getHeroesHallLevelData(level).time;
+  if (buildingKey === 'hospital')    return getHospitalLevelData(level).time;
+  if (buildingKey === 'booster')     return getBoosterLevelData(level).time;
+  if (buildingKey === 'prison')      return getPrisonLevelData(level).time;
+  if (buildingKey === 'hunterCamp')  return getHunterCampLevelData(level).time;
+  return 0;
 }
 
 function startGenericBuildingUpgrade(buildingKey) {
   const currentLevel = buildingLevels[buildingKey] || 1;
   const nextLevel    = currentLevel + 1;
 
-  // حساب التكلفة والوقت
   let cost    = calcGenericUpgradeCost(buildingKey, nextLevel);
   let timeSec = calcGenericUpgradeTime(buildingKey, nextLevel);
 
-  // التحقق من الموارد
   if (resources.gold < cost.gold) { alert(`تحتاج ${cost.gold.toLocaleString()} ذهب!`); return; }
   if (resources.wood < cost.wood) { alert(`تحتاج ${cost.wood.toLocaleString()} خشب!`); return; }
   if (resources.food < cost.food) { alert(`تحتاج ${cost.food.toLocaleString()} طعام!`); return; }
 
-  // التحقق من المباني المطلوبة
+  if (busyBuilders >= maxBuilders) {
+    alert("لا يوجد عمال متاحون!");
+    return;
+  }
+
   const row = (() => {
     if (buildingKey === 'attackTower')  return getAttackArmyBuildingLevel(nextLevel);
     if (buildingKey === 'defenseTower') return getHealthArmyBuildingLevel(nextLevel);
     if (buildingKey === 'dragonTower')  return getDragonArmyBuildingLevel(nextLevel);
+    if (buildingKey === 'goldMine')     return getGoldMineLevelData(nextLevel);
+    if (buildingKey === 'woodMine')     return getWoodMineLevelData(nextLevel);
+    if (buildingKey === 'meatFarm')     return getMeatFarmLevelData(nextLevel);
     return null;
   })();
 
@@ -5044,29 +4738,32 @@ function startGenericBuildingUpgrade(buildingKey) {
     }
   }
 
-  // خصم الموارد
   resources.gold -= cost.gold;
   resources.wood -= cost.wood;
   resources.food -= cost.food;
+  busyBuilders++;
 
-  // بدء الترقية
   const finishAt = Date.now() + timeSec * 1000;
   buildingUpgrades[buildingKey] = {
     inProgress:    true,
     finishAt:      finishAt,
     remainingTime: timeSec,
     totalTime:     timeSec,
-    nextLevel:     nextLevel
+    nextLevel:     nextLevel,
+    cost:          cost
   };
 
   saveGameState();
   if (typeof updateTopBar === "function") updateTopBar();
   if (typeof recalculatePower === "function") recalculatePower();
 
-  updateBuildingUpgradePanelForTimer(buildingKey);
-  updateCityBuildingUpgradeBar(buildingKey, buildingUpgrades[buildingKey]);
+  // تحديث البانل وإظهار التسريع
+  refreshBuildingPanel(buildingKey);
+  setTimeout(() => {
+    updateBuildingUpgradePanelForTimer(buildingKey);
+  }, 100);
 
-  // بدء التايمر
+  updateCityBuildingUpgradeBar(buildingKey, buildingUpgrades[buildingKey]);
   startBuildingUpgradeTimer(buildingKey);
 }
 
@@ -5087,7 +4784,7 @@ function startBuildingUpgradeTimer(buildingKey) {
     upgrade.remainingTime = remaining;
 
     updateCityBuildingUpgradeBar(buildingKey, upgrade);
-
+updateBuildingUpgradePanelForTimer(buildingKey);
     if (remaining <= 0) {
       clearInterval(window._buildingUpgradeTimers[buildingKey]);
       finishGenericBuildingUpgrade(buildingKey);
@@ -5120,23 +4817,6 @@ const MININGBUILDINGSINFO = {
   woodMine:    { name: "منجم الخشب",   image: "woodmine.png",   desc: "" },
   meatFarm:    { name: "مزرعة اللحم",  image: "meatfarm.png",   desc: "" },
 };
-
-function getBuildingImageByKey(key) {
-  if (key === 'castle')      return currentHero ? `${currentHero}_castle.png` : 'elephant_castle.png';
-  if (key === 'goldMine')    return 'goldmine.png';
-  if (key === 'woodMine')    return 'woodmine.png';
-  if (key === 'meatFarm')    return 'meatfarm.png';
-  if (key === 'school')      return 'school.png';
-  if (key === 'attackTower') return 'attack_tower.png';
-  if (key === 'defenseTower')return 'defense_tower.png';
-  if (key === 'heroesHall')  return 'heroes_hall.png';
-  if (key === 'market')      return 'market.png';
-  if (key === 'booster')     return 'booster_tower.png';
-  if (key === 'hospital')    return 'hospital.png';
-  if (key === 'dragonTower') return 'dragontower.png';
-  return '';
-}
-
 
 function fillGenericUpgradeTab(buildingKey) {
   const imgEl           = document.getElementById('building-upgrade-image');
@@ -5397,8 +5077,7 @@ function cancelBuildingUpgrade(buildingKey) {
 }
 
 function startBuildingUpgradeTimer() {
-    console.log("startBuildingUpgradeTimer CALLED, interval exists:", !!buildingUpgradeInterval);
-  // لو التايمر شغال بالفعل، ما نعملش واحد جديد
+  console.log("startBuildingUpgradeTimer CALLED, interval exists:", !!buildingUpgradeInterval);
   if (buildingUpgradeInterval) return;
 
   buildingUpgradeInterval = setInterval(function () {
@@ -5408,7 +5087,6 @@ function startBuildingUpgradeTimer() {
     for (const key in buildingUpgrades) {
       const upgrade = buildingUpgrades[key];
 
-      // لو مفيش ترقية نشطة للمبنى ده، اخفي البار السفلي وكمّل
       if (!upgrade || !upgrade.inProgress) {
         updateCityBuildingUpgradeBar(key, null);
         continue;
@@ -5416,86 +5094,66 @@ function startBuildingUpgradeTimer() {
 
       anyInProgress = true;
 
-      // حساب الوقت المتبقي بالثواني
       const remaining = Math.max(0, Math.floor((upgrade.finishAt - now) / 1000));
       upgrade.remainingTime = remaining;
 
-      // تحديث البار السفلي في المدينة
       updateCityBuildingUpgradeBar(key, upgrade);
 
-      // لو البانل المفتوح حالياً لنفس المبنى، حدّث الـ UI
+      // تحديث الوقت في البانل بس
       if (currentBuildingKey && currentBuildingKey === key) {
-        updateBuildingUpgradePanelForTimer(key);
+        const timeBox = document.querySelector(`#${key}-panel-upgrade-section .upgrade-timer`);
+        if (timeBox) {
+          timeBox.innerHTML = `⏱ ${formatDuration(remaining)}`;
+        }
       }
 
-      // لو خلص الوقت
       if (remaining <= 0) {
         upgrade.inProgress = false;
         upgrade.remainingTime = 0;
 
-        // آخر تحديث للبار (يوصل 100% وبعدين يختفي في الدورة الجاية)
         updateCityBuildingUpgradeBar(key, upgrade);
 
-        // رفع مستوى المبنى
         const currentLevel = buildingLevels[key] || 1;
         const nextLevel = currentLevel + 1;
         buildingLevels[key] = nextLevel;
 
         if (currentBuildingKey === key) {
-  fillGenericUpgradeTab(key);
-  updateBuildingInfoTab(key);
-  updateBuildingUpgradePanelForTimer(key);
-}
+          refreshBuildingPanel(key);
+        }
 
-updateCityBuildingUpgradeBar(key, null);
+        updateCityBuildingUpgradeBar(key, null);
 
-        // مهمة طوّر أي مبنى (تحسب كل المباني بما فيها المناجم)
         if (typeof addProgressToTasksByType === "function") {
           addProgressToTasksByType("upgrade_building", 1);
         }
 
-        // تحديث النص في البانل لو مفتوح
-        if (typeof buildingPanelExtra !== "undefined" && currentBuildingKey === key) {
-          if (key === "goldMine" || key === "woodMine" || key === "meatFarm") {
-            const newProd = calcMiningProductionPerHour(key, nextLevel);
-            buildingPanelExtra.textContent =
-              "Level " + nextLevel + " - " + newProd.toLocaleString() + "/hour";
-          } else {
-            buildingPanelExtra.textContent = "Level " + nextLevel;
-          }
+        const statusIdMap = {
+          goldMine: "gold-mine-status-box",
+          woodMine: "wood-mine-status-box",
+          meatFarm: "meat-farm-status-box",
+          school: "school-status-box",
+          attackTower: "attack-tower-status-box",
+          defenseTower: "defense-tower-status-box",
+          market: "market-status-box",
+          heroesHall: "heroes-hall-status-box",
+          booster: "booster-tower-status-box",
+          hospital: "hospital-status-box",
+        };
+        const statusId = statusIdMap[key];
+        if (statusId) {
+          const statusBox = document.getElementById(statusId);
+          if (statusBox) statusBox.textContent = "Lv." + nextLevel;
         }
 
-      const statusIdMap = {
-  goldMine: "gold-mine-status-box",
-  woodMine: "wood-mine-status-box",
-  meatFarm: "meat-farm-status-box",
-  school: "school-status-box",
-  attackTower: "attack-tower-status-box",
-  defenseTower: "defense-tower-status-box",
-  market: "market-status-box",
-  heroesHall: "heroes-hall-status-box",
-  booster: "booster-tower-status-box",
-  hospital: "hospital-status-box",
-};
-const statusId = statusIdMap[key];
-if (statusId) {
-  const statusBox = document.getElementById(statusId);
-  if (statusBox) statusBox.textContent = "Lv." + nextLevel;
-}
-
-
-        // تحرير بنّاء
         if (typeof busyBuilders !== "undefined") {
           busyBuilders = Math.max(0, busyBuilders - 1);
         }
 
-        // تحديث صفحة المهام بعد ما الترقية تخلص
         if (typeof recalcTasksNotification === "function") recalcTasksNotification();
         if (typeof renderTasksPage === "function") renderTasksPage();
       }
     }
 
-    // لو مفيش أي ترقية شغالة، وقف التايمر
     if (!anyInProgress) {
       clearInterval(buildingUpgradeInterval);
       buildingUpgradeInterval = null;
@@ -5506,172 +5164,64 @@ if (statusId) {
     }
   }, 1000);
 }
-
+function formatDurationText(seconds) {
+  if (seconds < 60) return `${seconds} ثانية`;
+  if (seconds < 3600) return `${Math.floor(seconds/60)} دقيقة`;
+  if (seconds < 86400) return `${Math.floor(seconds/3600)} ساعة`;
+  return `${Math.floor(seconds/86400)} يوم`;
+}
 
 function updateBuildingUpgradePanelForTimer(buildingKey) {
   const upgrade = buildingUpgrades[buildingKey];
-
-  const panelTimeEl = document.getElementById("building-upgrade-remaining-time");
-  const progressWrapper = document.getElementById("building-upgrade-progress-wrapper");
-  const progressFill = document.getElementById("building-upgrade-progress-fill");
-
-  // عناصر التسريع الجديدة
-  const speedupsWrapper = document.getElementById("building-upgrade-speedups");
-  const speedupsRow = document.getElementById("building-speedups-row");
-
-  // مفيش ترقية شغالة للمبنى ده
-  if (!upgrade || !upgrade.inProgress) {
-    if (progressWrapper) progressWrapper.style.display = "none";
-    if (panelTimeEl) panelTimeEl.textContent = "";
-
-    // إخفاء / تنظيف أزرار التسريع
-    if (speedupsWrapper) speedupsWrapper.style.display = "none";
-    if (speedupsRow) speedupsRow.innerHTML = "";
-
-    // تحديث البار اللي فوق المبنى في المدينة
-    updateCityBuildingUpgradeBar(buildingKey, upgrade);
-    return;
-  }
-
-  // في ترقية شغالة
-  if (progressWrapper) progressWrapper.style.display = "block";
-
-  if (panelTimeEl) {
-    panelTimeEl.textContent = formatDuration(upgrade.remainingTime);
-  }
-
-  if (progressFill) {
-    const ratio = upgrade.totalTime > 0
-      ? (upgrade.totalTime - upgrade.remainingTime) / upgrade.totalTime
-      : 0;
-    const percent = Math.max(0, Math.min(100, ratio * 100));
-    progressFill.style.width = percent + "%";
-  }
-
-  // بناء كروت التسريع الجزئي
-  if (speedupsWrapper && speedupsRow) {
-    // نفضّي أي كروت قديمة
-    speedupsRow.innerHTML = "";
-
-    if (upgrade.remainingTime <= 0) {
-      speedupsWrapper.style.display = "none";
-    } else {
-      speedupsWrapper.style.display = "block";
-
-      BUILDING_SPEEDUPS.forEach(cfg => {
-        if (upgrade.remainingTime <= 0) return;
-// لو نوع التسريع أكبر من الوقت المتبقي، متظهرهوش
-        if (cfg.seconds > upgrade.remainingTime) return;
-        const gemCost = getSpeedupPartialGemCost(cfg.seconds, upgrade.remainingTime);
-
-        // الكارت الخارجي
-        const card = document.createElement("div");
-        card.style.display = "flex";
-        card.style.alignItems = "center";
-        card.style.justifyContent = "space-between";
-        card.style.gap = "8px";
-        card.style.padding = "6px 8px";
-        card.style.background = "rgba(15,23,42,0.9)";
-        card.style.borderRadius = "10px";
-        card.style.border = "1px solid rgba(148,163,184,0.5)";
-
-        // أيقونة الساعة الرملية (يمين)
-        const iconBox = document.createElement("div");
-        iconBox.style.width = "32px";
-        iconBox.style.height = "32px";
-        iconBox.style.borderRadius = "8px";
-        iconBox.style.border = "1px solid rgba(148,163,184,0.5)";
-        iconBox.style.display = "flex";
-        iconBox.style.alignItems = "center";
-        iconBox.style.justifyContent = "center";
-        iconBox.style.background = "rgba(15,23,42,0.95)";
-        iconBox.style.fontSize = "18px";
-        iconBox.textContent = "⏳";
-
-        // النص في المنتصف
-        const textBox = document.createElement("div");
-        textBox.style.flex = "1";
-        textBox.style.textAlign = "right";
-        textBox.style.fontSize = "11px";
-        textBox.style.color = "#e5e7eb";
-
-        const mainLine = document.createElement("div");
-        mainLine.style.fontWeight = "bold";
-        mainLine.textContent = `تسريع لمدة ${formatDuration(cfg.seconds)}`;
-
-        const subLine = document.createElement("div");
-        subLine.style.fontSize = "10px";
-        subLine.style.color = "#9ca3af";
-        subLine.textContent = `يقلل وقت الترقية بمقدار ${formatDuration(cfg.seconds)}`;
-
-        textBox.appendChild(mainLine);
-        textBox.appendChild(subLine);
-
-        // زر الشراء (يسار)
-        const btn = document.createElement("button");
-        btn.style.padding = "6px 10px";
-        btn.style.border = "none";
-        btn.style.borderRadius = "999px";
-        btn.style.fontSize = "11px";
-        btn.style.cursor = "pointer";
-        btn.style.background = "#facc15";
-        btn.style.color = "#111827";
-        btn.style.fontWeight = "bold";
-        btn.textContent = `شراء واستخدام (${gemCost}💎)`;
-
-        btn.onclick = function () {
-          handleBuildingSpeedupPartial(buildingKey, cfg.seconds, gemCost);
-        };
-
-        // ربط العناصر
-        card.appendChild(iconBox);
-        card.appendChild(textBox);
-        card.appendChild(btn);
-        speedupsRow.appendChild(card);
-      });
-    }
-  }
-
-  // تحديث البار اللي فوق المبنى في المدينة
   updateCityBuildingUpgradeBar(buildingKey, upgrade);
-}
 
-
-
-
-function openMiningBuildingPanel(buildingKey) {
-  console.log("openMiningBuildingPanel CALLED with", buildingKey);
-
-  currentMiningBuildingKey = buildingKey;
-  const config = MININGBUILDINGSCONFIG[buildingKey];
-  const info   = MININGBUILDINGSINFO[buildingKey];
-
-  if (!info) {
-    console.warn("missing info for", buildingKey, info);
-    return;
-  }
-  const currentLevel = buildingLevels[buildingKey] || 1;
-  let currentProd = 0;
-
-  if (buildingKey === "goldMine" || buildingKey === "woodMine" || buildingKey === "meatFarm") {
-    currentProd = calcMiningProductionPerHour(buildingKey, currentLevel);
-  } else {
-    currentProd = 0;
+  const timeBox = document.querySelector(`#${buildingKey}-panel-upgrade-section .upgrade-timer`);
+  if (timeBox && upgrade && upgrade.inProgress) {
+    timeBox.innerHTML = `⏱ ${formatDuration(upgrade.remainingTime)}`;
   }
 
-  buildingPanelTitle.textContent = info.name;
-  buildingPanelImage.src = info.image;
-  buildingPanelImage.alt = info.name;
-  buildingPanelDesc.textContent = info.desc;
+  const upgradeSection = document.getElementById(`${buildingKey}-panel-upgrade-section`);
+  if (!upgradeSection || !upgrade || !upgrade.inProgress) return;
 
-  window.currentMiningBuildingKey = buildingKey;
-  updateGoldMineUI();
+  const oldSpeedups = upgradeSection.querySelectorAll(".speedup-card");
+  oldSpeedups.forEach(c => c.remove());
 
-  fillGenericUpgradeTab(buildingKey);
-  switchBuildingPanelTab("info");
-  buildingPanel.classList.remove("hidden"); // نرجعها زي ما كانت
+  if (upgrade.remainingTime > 0) {
+    const title = document.createElement("div");
+    title.className = "speedup-card";
+    title.style.cssText = "font-size:11px; color:#9ca3af; text-align:center;";
+    title.textContent = "تسريع الترقية:";
+    upgradeSection.appendChild(title);
+
+    BUILDING_SPEEDUPS.forEach(cfg => {
+      // اظهر الـ speedup حتى لو أكبر من الوقت المتبقي - هيتطبق الجزء المتبقي بس
+      const effectiveSeconds = Math.min(cfg.seconds, upgrade.remainingTime);
+      if (effectiveSeconds <= 0) return;
+      const gemCost = getSpeedupPartialGemCost(effectiveSeconds, upgrade.remainingTime);
+
+    const card = document.createElement("div");
+card.className = "speedup-card";
+card.style.cssText = `
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; padding:8px 10px;
+  background:rgba(15,23,42,0.9);
+  border-radius:10px; border:1px solid rgba(250,204,21,0.2);
+`;
+card.innerHTML = `
+  <div style="flex:1; font-size:12px; color:#e5e7eb; font-weight:bold;">
+    تسريع البناء ${formatDurationText(effectiveSeconds)}
+  </div>
+  <button onclick="handleBuildingSpeedupPartial('${buildingKey}', ${effectiveSeconds}, ${gemCost})"
+    style="padding:6px 12px; border:none; border-radius:999px;
+    background:#facc15; color:#111827; font-size:12px; font-weight:bold; cursor:pointer;
+    display:flex; align-items:center; gap:4px;">
+    <img src="gem.png" style="width:14px;height:14px;"> ${gemCost}
+  </button>
+`;
+upgradeSection.appendChild(card);
+});
 }
-
+}
 
 
 function fillMiningUpgradeTab(buildingKey) {
@@ -5797,136 +5347,6 @@ if (statusId) {
 
   saveGameState();
 }
-function openBuildingInfoModal() {
-  const key = currentBuildingKey;
-  if (!key) return;
-
-  const isMine = ["goldMine", "woodMine", "meatFarm"].includes(key);
- const isArmyBuilding = ["attackTower", "defenseTower", "dragonTower"].includes(key);
-if (!isMine && !isArmyBuilding) return;
-
-
-  const currentLevel = buildingLevels[key] || 1;
-  const color = key === "goldMine" ? "#facc15" : key === "woodMine" ? "#4ade80" : key === "meatFarm" ? "#f97316" : "#ef4444";
-  const buildingName = getBuildingNameByKey(key);
-
-  let headers = "";
-  let rows = "";
-
-  if (isArmyBuilding) {
-    headers = `
-      <tr style="color:#e5e7eb;">
-        <th style="padding:8px;text-align:center;">Lv</th>
-        <th style="padding:8px;text-align:center;">السعة</th>
-        <th style="padding:8px;text-align:center;">القوة</th>
-        <th style="padding:8px;text-align:center;">تدريب</th>
-        <th style="padding:8px;text-align:center;">التكلفة</th>
-        <th style="padding:8px;text-align:center;">الوقت</th>
-        <th style="padding:8px;text-align:center;">متطلبات</th>
-      </tr>
-    `;
-
-    const buildingData = key === 'attackTower' ? ATTACK_ARMY_BUILDING_LEVELS :
-                     key === 'defenseTower' ? HEALTH_ARMY_BUILDING_LEVELS :
-                     DRAGON_ARMY_BUILDING_LEVELS;
-
-buildingData.forEach(cfg => {
-      const isCurrentLevel = cfg.level === currentLevel;
-      const costStr = `
-        <img src="gold.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.gold >= 1000000 ? (cfg.gold/1000000).toFixed(1)+'M' : cfg.gold >= 1000 ? (cfg.gold/1000).toFixed(0)+'K' : cfg.gold}
-        <img src="wood.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.wood >= 1000000 ? (cfg.wood/1000000).toFixed(1)+'M' : cfg.wood >= 1000 ? (cfg.wood/1000).toFixed(0)+'K' : cfg.wood}
-        <img src="food.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.food >= 1000000 ? (cfg.food/1000000).toFixed(1)+'M' : cfg.food >= 1000 ? (cfg.food/1000).toFixed(0)+'K' : cfg.food}
-      `;
-
-  const reqStr = Object.entries(cfg.req || {}).map(([k, v]) => 
-  `${getBuildingNameByKey(k)} ${v}`
-).join(' + ');
-
-
-
-      rows += `
-        <tr style="${isCurrentLevel ? 'background:rgba(239,68,68,0.15);' : 'border-bottom:1px solid rgba(55,65,81,0.5);'}">
-          <td style="padding:5px 8px;text-align:center;color:${isCurrentLevel ? '#ef4444' : '#e5e7eb'};font-weight:${isCurrentLevel ? 'bold' : 'normal'};">
-            ${isCurrentLevel ? '▶ ' : ''}${cfg.level}
-          </td>
-          <td style="padding:5px 8px;text-align:center;color:#38bdf8;">${cfg.capacity.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;color:#a78bfa;">${cfg.power.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;color:#22c55e;">${cfg.train.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;color:#e5e7eb;font-size:11px;">${costStr}</td>
-          <td style="padding:5px 8px;text-align:center;color:#f97316;">${formatDuration(cfg.time)}</td>
-          <td style="padding:5px 8px;text-align:center;color:#e5e7eb;font-size:11px;">${reqStr}</td>
-        </tr>
-      `;
-    });
-  } else {
-    headers = `
-      <tr style="color:#e5e7eb;">
-        <th style="padding:8px;text-align:center;">Lv</th>
-        <th style="padding:8px;text-align:center;">إنتاج/ساعة</th>
-        <th style="padding:8px;text-align:center;">تخزين</th>
-        <th style="padding:8px;text-align:center;">قوة</th>
-        <th style="padding:8px;text-align:center;">تكلفة الترقية</th>
-        <th style="padding:8px;text-align:center;">الوقت</th>
-        <th style="padding:8px;text-align:center;">متطلبات</th>
-      </tr>
-    `;
-
-    const mineData = key === 'goldMine' ? GOLD_MINE_LEVELS :
-                     key === 'woodMine' ? WOOD_MINE_LEVELS :
-                     MEAT_FARM_LEVELS;
-
-    mineData.forEach(cfg => {
-      const isCurrentLevel = cfg.level === currentLevel;
-      const costStr = cfg.level < 50 ? `
-        <img src="gold.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.gold >= 1000000 ? (cfg.gold/1000000).toFixed(1)+'M' : cfg.gold >= 1000 ? (cfg.gold/1000).toFixed(0)+'K' : cfg.gold}
-        <img src="wood.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.wood >= 1000000 ? (cfg.wood/1000000).toFixed(1)+'M' : cfg.wood >= 1000 ? (cfg.wood/1000).toFixed(0)+'K' : cfg.wood}
-        <img src="food.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.food >= 1000000 ? (cfg.food/1000000).toFixed(1)+'M' : cfg.food >= 1000 ? (cfg.food/1000).toFixed(0)+'K' : cfg.food}
-      ` : "MAX";
-
-      const reqStr = Object.entries(cfg.req || {}).map(([k, v]) =>
-        `${getBuildingNameByKey(k)} ${v}`
-      ).join(' + ');
-
-      rows += `
-        <tr style="${isCurrentLevel ? 'background:rgba(250,204,21,0.15);' : 'border-bottom:1px solid rgba(55,65,81,0.5);'}">
-          <td style="padding:5px 8px;text-align:center;color:${isCurrentLevel ? '#facc15' : '#e5e7eb'};font-weight:${isCurrentLevel ? 'bold' : 'normal'};">
-            ${isCurrentLevel ? '▶ ' : ''}${cfg.level}
-          </td>
-          <td style="padding:5px 8px;text-align:center;color:${color};">${cfg.production.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;color:#38bdf8;">${cfg.storage.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;color:#a78bfa;">${cfg.power.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;color:#e5e7eb;font-size:11px;">${costStr}</td>
-          <td style="padding:5px 8px;text-align:center;color:#f97316;">${formatDuration(cfg.time)}</td>
-          <td style="padding:5px 8px;text-align:center;color:#e5e7eb;font-size:11px;">${reqStr}</td>
-        </tr>
-      `;
-    });
-  }
-  const modal = document.createElement("div");
-  modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;";
-  modal.innerHTML = `
-    <div style="background:#111827;border:2px solid ${color};border-radius:16px;width:calc(100% - 20px);max-height:85vh;margin:auto;
-display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.8);">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #374151;flex-shrink:0;">
-        <span style="font-weight:bold;font-size:16px;color:${color};">ⓘ ${buildingName} - المستويات</span>
-        <button onclick="this.closest('[style*=inset]').remove()"style="background:none;border:none;color:#e5e7eb;font-size:20px;cursor:pointer;">✕</button>
-      </div>
-      <div style="overflow-y:auto;flex:1;">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;">
-          <thead style="position:sticky;top:0;background:#1f2937;">${headers}</thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <div style="padding:8px 16px;border-top:1px solid #374151;font-size:11px;color:#e5e7eb;text-align:center;flex-shrink:0;">
-        المستوى الحالي: <span style="color:${color};font-weight:bold;">${currentLevel}</span>
-      </div>
-    </div>
-  `;
-  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-  document.body.appendChild(modal);
-}
-
-
 
 function updateBuildingInfoTab(buildingKey) {
   if (!buildingPanelExtra) return;
@@ -6029,76 +5449,6 @@ function updateBuildingInfoTab(buildingKey) {
   infoHTML += `</div>`;
   buildingPanelExtra.innerHTML = infoHTML;
 }
-
-
-function updateGoldMineUI() {
-  const goldStored = Math.floor(miningStored.goldMine || 0);
-  const goldLevel = buildingLevels.goldMine || 1;
-  const goldPerHour = calcMiningProductionPerHour("goldMine", goldLevel);
-  const goldCap = getCastleStorageCapacity(goldLevel) * GOLD_MINE_CAPACITY_FACTOR;
-
-  const woodStored = Math.floor(miningStored.woodMine || 0);
-  const woodLevel = buildingLevels.woodMine || 1;
-  const woodPerHour = calcMiningProductionPerHour("woodMine", woodLevel);
-  const woodCap = getCastleStorageCapacity(woodLevel) * GOLD_MINE_CAPACITY_FACTOR;
-
-  const meatStored = Math.floor(miningStored.meatFarm || 0);
-  const meatLevel = buildingLevels.meatFarm || 1;
-  const meatPerHour = calcMiningProductionPerHour("meatFarm", meatLevel);
-  const meatCap = getCastleStorageCapacity(meatLevel) * GOLD_MINE_CAPACITY_FACTOR;
-
-  // إيموجي منجم الذهب
-  const goldHint = document.getElementById("gold-mine-collect-hint");
-  if (goldHint) {
-    const now = Date.now();
-    const sinceLastCollect = now - (window.lastGoldMineCollectAt || 0);
-    goldHint.style.display = goldStored > 0 ? "block" : "none";
-  }
-
-  // إيموجي منجم الخشب
-  const woodHint = document.getElementById("wood-mine-collect-hint");
-  if (woodHint) {
-    woodHint.style.display = woodStored > 0 ? "block" : "none";
-  }
-
-  // إيموجي مزرعة اللحم
-  const meatHint = document.getElementById("meat-farm-collect-hint");
-  if (meatHint) {
-    meatHint.style.display = meatStored > 0 ? "block" : "none";
-  }
-
-  if (!buildingPanelExtra) return;
-
-  const currentMine = window.currentMiningBuildingKey || "goldMine";
-  let stored, level, perHour, cap, color, resourceName;
-
-  if (currentMine === "woodMine") {
-    stored = woodStored; level = woodLevel; perHour = woodPerHour;
-    cap = woodCap; color = "#4ade80"; resourceName = "خشب";
-  } else if (currentMine === "meatFarm") {
-    stored = meatStored; level = meatLevel; perHour = meatPerHour;
-    cap = meatCap; color = "#f97316"; resourceName = "لحم";
-  } else {
-    stored = goldStored; level = goldLevel; perHour = goldPerHour;
-    cap = goldCap; color = "#facc15"; resourceName = "ذهب";
-  }
-
-  const percent = cap > 0 ? Math.max(0, Math.min(100, (stored / cap) * 100)) : 0;
-
-  buildingPanelExtra.innerHTML = `
-    <div style="margin-bottom:6px;">المستوى الحالي: <b>${level}</b></div>
-    <div style="margin-bottom:6px;">الإنتاج في الساعة: <span style="color:${color};">${perHour.toLocaleString()}</span> ${resourceName}</div>
-    <div style="margin-bottom:6px;">السعة القصوى: <span style="color:#38bdf8;">${cap.toLocaleString()}</span> ${resourceName}</div>
-    <div style="margin-bottom:4px;">المخزون الحالي: <span style="color:#22c55e;">${stored.toLocaleString()}</span> ${resourceName}</div>
-    <div style="margin-top:4px;">
-      <div style="height:10px; border-radius:999px; background:rgba(15,23,42,0.8); overflow:hidden;">
-        <div style="height:100%; width:${percent}%; background:${color}; transition:width 0.3s;"></div>
-      </div>
-      <div style="font-size:11px; color:#9ca3af; margin-top:3px;">${percent.toFixed(0)}% ممتلئ</div>
-    </div>
-  `;
-}
-
 
 
 // === Daily Tasks Track ===
@@ -6650,26 +6000,401 @@ const ATTACK_TOWER_CONFIG = [
   { level:50, capacity:60000, power:500000, batch:3500, gold:185000000,   wood:74000000,   food:37000000,   timeSec:864000, castleReq:50, schoolReq:0  },
 ];
 
-
-// إعدادات المباني: شروط الفتح ونوع المبنى
-const BUILDINGS_CONFIG = {
-  0:  { id: "castle-building", key: "castle",       name: "القلعة",        unlockLevel: 1 },
-  1:  { id: "building-1",      key: "goldMine",     name: "منجم الذهب",    unlockLevel: 2 },
-  2:  { id: "building-2",      key: "woodMine",     name: "منجم الخشب",    unlockLevel: 2 },
-  3:  { id: "building-3",      key: "school",       name: "المدرسة",       unlockLevel: 3 },
-  4:  { id: "building-4",      key: "attackTower",  name: "برج الهجوم",    unlockLevel: 5 },
-  5:  { id: "building-5",      key: "defenseTower", name: "برج الدفاع",    unlockLevel: 7 },
-  6:  { id: "building-6",      key: "meatFarm",     name: "مزرعة اللحم",   unlockLevel: 2 },
-  7:  { id: "building-7",      key: "heroesHall",   name: "قاعة الأبطال",  unlockLevel: 4 },
-  8:  { id: "building-8",      key: "market",       name: "السوق",         unlockLevel: 6 },
-  9:  { id: "building-9",      key: "booster",      name: "برج البوست",    unlockLevel: 8 },
-  10: { id: "building-10",     key: "hospital",     name: "المستشفى",      unlockLevel: 10 },
-  11: { id: "building-11",     key: "dragonTower",  name: "برج التنانين",  unlockLevel: 6 },
-};
-
-
 // حالة فتح المباني (true/false لكل building key)
 let unlockedBuildings = {};
+const SCHOOL_LEVELS = [
+  { level:1,  power:1000,   capacity:10,   gold:500,       wood:300,       food:200,       time:30,      req:{castle:4}  },
+  { level:2,  power:2000,   capacity:20,   gold:1200,      wood:700,       food:500,       time:60,      req:{castle:4}  },
+  { level:3,  power:3500,   capacity:35,   gold:2500,      wood:1500,      food:1000,      time:120,     req:{castle:4}  },
+  { level:4,  power:5500,   capacity:55,   gold:5000,      wood:3000,      food:2000,      time:240,     req:{castle:4}  },
+  { level:5,  power:8000,   capacity:80,   gold:9000,      wood:5500,      food:3500,      time:480,     req:{castle:5}  },
+  { level:6,  power:11000,  capacity:110,  gold:16000,     wood:9500,      food:6000,      time:900,     req:{castle:6}  },
+  { level:7,  power:15000,  capacity:145,  gold:27000,     wood:16000,     food:10000,     time:1800,    req:{castle:7}  },
+  { level:8,  power:20000,  capacity:185,  gold:45000,     wood:27000,     food:17000,     time:3600,    req:{castle:8}  },
+  { level:9,  power:26000,  capacity:230,  gold:75000,     wood:45000,     food:28000,     time:7200,    req:{castle:9}  },
+  { level:10, power:33000,  capacity:280,  gold:120000,    wood:72000,     food:45000,     time:10800,   req:{castle:10} },
+  { level:11, power:41000,  capacity:335,  gold:190000,    wood:114000,    food:71000,     time:14400,   req:{castle:11} },
+  { level:12, power:50000,  capacity:395,  gold:300000,    wood:180000,    food:112000,    time:21600,   req:{castle:12} },
+  { level:13, power:60000,  capacity:460,  gold:470000,    wood:282000,    food:176000,    time:28800,   req:{castle:13} },
+  { level:14, power:71000,  capacity:530,  gold:730000,    wood:438000,    food:273000,    time:36000,   req:{castle:14} },
+  { level:15, power:83000,  capacity:605,  gold:1100000,   wood:660000,    food:412000,    time:43200,   req:{castle:15} },
+  { level:16, power:96000,  capacity:685,  gold:1650000,   wood:990000,    food:618000,    time:50400,   req:{castle:16} },
+  { level:17, power:110000, capacity:770,  gold:2400000,   wood:1440000,   food:900000,    time:57600,   req:{castle:17} },
+  { level:18, power:125000, capacity:860,  gold:3500000,   wood:2100000,   food:1312000,   time:64800,   req:{castle:18} },
+  { level:19, power:141000, capacity:955,  gold:5000000,   wood:3000000,   food:1875000,   time:72000,   req:{castle:19} },
+  { level:20, power:158000, capacity:1055, gold:7000000,   wood:4200000,   food:2625000,   time:86400,   req:{castle:20} },
+  { level:21, power:176000, capacity:1160, gold:9500000,   wood:5700000,   food:3562000,   time:97200,   req:{castle:21} },
+  { level:22, power:195000, capacity:1270, gold:13000000,  wood:7800000,   food:4875000,   time:108000,  req:{castle:22} },
+  { level:23, power:215000, capacity:1385, gold:17000000,  wood:10200000,  food:6375000,   time:118800,  req:{castle:23} },
+  { level:24, power:236000, capacity:1505, gold:22000000,  wood:13200000,  food:8250000,   time:129600,  req:{castle:24} },
+  { level:25, power:258000, capacity:1630, gold:28000000,  wood:16800000,  food:10500000,  time:172800,  req:{castle:25} },
+  { level:26, power:281000, capacity:1760, gold:35000000,  wood:21000000,  food:13125000,  time:194400,  req:{castle:26} },
+  { level:27, power:305000, capacity:1895, gold:43000000,  wood:25800000,  food:16125000,  time:216000,  req:{castle:27} },
+  { level:28, power:330000, capacity:2000, gold:52000000,  wood:31200000,  food:19500000,  time:259200,  req:{castle:28} },
+  { level:29, power:356000, capacity:2000, gold:62000000,  wood:37200000,  food:23250000,  time:280800,  req:{castle:29} },
+  { level:30, power:383000, capacity:2000, gold:73000000,  wood:43800000,  food:27375000,  time:345600,  req:{castle:30} },
+  { level:31, power:411000, capacity:2000, gold:85000000,  wood:51000000,  food:31875000,  time:388800,  req:{castle:31} },
+  { level:32, power:440000, capacity:2000, gold:98000000,  wood:58800000,  food:36750000,  time:432000,  req:{castle:32} },
+  { level:33, power:450000, capacity:2000, gold:110000000, wood:66000000,  food:41250000,  time:475200,  req:{castle:33} },
+  { level:34, power:460000, capacity:2000, gold:120000000, wood:72000000,  food:45000000,  time:518400,  req:{castle:34} },
+  { level:35, power:468000, capacity:2000, gold:128000000, wood:76800000,  food:48000000,  time:561600,  req:{castle:35} },
+  { level:36, power:474000, capacity:2000, gold:134000000, wood:80400000,  food:50250000,  time:604800,  req:{castle:36} },
+  { level:37, power:479000, capacity:2000, gold:138000000, wood:82800000,  food:51750000,  time:633600,  req:{castle:37} },
+  { level:38, power:483000, capacity:2000, gold:141000000, wood:84600000,  food:52875000,  time:662400,  req:{castle:38} },
+  { level:39, power:486000, capacity:2000, gold:144000000, wood:86400000,  food:54000000,  time:691200,  req:{castle:39} },
+  { level:40, power:489000, capacity:2000, gold:146000000, wood:87600000,  food:54750000,  time:720000,  req:{castle:40} },
+  { level:41, power:491000, capacity:2000, gold:147000000, wood:88200000,  food:55125000,  time:748800,  req:{castle:41} },
+  { level:42, power:493000, capacity:2000, gold:148000000, wood:88800000,  food:55500000,  time:777600,  req:{castle:42} },
+  { level:43, power:495000, capacity:2000, gold:149000000, wood:89400000,  food:55875000,  time:806400,  req:{castle:43} },
+  { level:44, power:497000, capacity:2000, gold:149500000, wood:89700000,  food:56062000,  time:835200,  req:{castle:44} },
+  { level:45, power:498000, capacity:2000, gold:150000000, wood:90000000,  food:56250000,  time:864000,  req:{castle:45} },
+  { level:46, power:499000, capacity:2000, gold:150000000, wood:90000000,  food:56250000,  time:864000,  req:{castle:46} },
+  { level:47, power:499500, capacity:2000, gold:150000000, wood:90000000,  food:56250000,  time:864000,  req:{castle:47} },
+  { level:48, power:499700, capacity:2000, gold:150000000, wood:90000000,  food:56250000,  time:864000,  req:{castle:48} },
+  { level:49, power:499900, capacity:2000, gold:150000000, wood:90000000,  food:56250000,  time:864000,  req:{castle:49} },
+  { level:50, power:500000, capacity:2000, gold:150000000, wood:90000000,  food:56250000,  time:864000,  req:{castle:50} },
+];
+
+function getSchoolLevelData(level) {
+  return SCHOOL_LEVELS.find(l => l.level === level) || SCHOOL_LEVELS[0];
+}
+const MARKET_LEVELS = [
+  { level:1,  power:300,   slots:1,  purchases:1,  gold:400,       wood:600,       time:30,      req:{castle:4}  },
+  { level:2,  power:600,   slots:1,  purchases:1,  gold:900,       wood:1400,      time:60,      req:{castle:4}  },
+  { level:3,  power:1000,  slots:1,  purchases:1,  gold:2000,      wood:3000,      time:120,     req:{castle:4}  },
+  { level:4,  power:1500,  slots:1,  purchases:1,  gold:4000,      wood:6000,      time:240,     req:{castle:4}  },
+  { level:5,  power:2200,  slots:2,  purchases:2,  gold:7500,      wood:11000,     time:480,     req:{castle:5}  },
+  { level:6,  power:3000,  slots:2,  purchases:2,  gold:13000,     wood:19500,     time:900,     req:{castle:6}  },
+  { level:7,  power:4000,  slots:2,  purchases:2,  gold:22000,     wood:33000,     time:1800,    req:{castle:7}  },
+  { level:8,  power:5200,  slots:2,  purchases:2,  gold:37000,     wood:55000,     time:3600,    req:{castle:8}  },
+  { level:9,  power:6600,  slots:2,  purchases:2,  gold:60000,     wood:90000,     time:7200,    req:{castle:9}  },
+  { level:10, power:8200,  slots:3,  purchases:3,  gold:95000,     wood:143000,    time:10800,   req:{castle:10} },
+  { level:11, power:10000, slots:3,  purchases:3,  gold:150000,    wood:225000,    time:14400,   req:{castle:11} },
+  { level:12, power:12000, slots:3,  purchases:3,  gold:230000,    wood:345000,    time:21600,   req:{castle:12} },
+  { level:13, power:14200, slots:3,  purchases:3,  gold:355000,    wood:532000,    time:28800,   req:{castle:13} },
+  { level:14, power:16600, slots:3,  purchases:3,  gold:540000,    wood:810000,    time:36000,   req:{castle:14} },
+  { level:15, power:19200, slots:4,  purchases:4,  gold:800000,    wood:1200000,   time:43200,   req:{castle:15} },
+  { level:16, power:22000, slots:4,  purchases:4,  gold:1200000,   wood:1800000,   time:50400,   req:{castle:16} },
+  { level:17, power:25000, slots:4,  purchases:4,  gold:1700000,   wood:2600000,   time:57600,   req:{castle:17} },
+  { level:18, power:28200, slots:4,  purchases:4,  gold:2500000,   wood:3750000,   time:64800,   req:{castle:18} },
+  { level:19, power:31600, slots:4,  purchases:4,  gold:3500000,   wood:5250000,   time:72000,   req:{castle:19} },
+  { level:20, power:35200, slots:5,  purchases:5,  gold:5000000,   wood:7500000,   time:86400,   req:{castle:20} },
+  { level:21, power:39000, slots:5,  purchases:5,  gold:7000000,   wood:10500000,  time:97200,   req:{castle:21} },
+  { level:22, power:43000, slots:5,  purchases:5,  gold:9500000,   wood:14250000,  time:108000,  req:{castle:22} },
+  { level:23, power:47200, slots:5,  purchases:5,  gold:13000000,  wood:19500000,  time:118800,  req:{castle:23} },
+  { level:24, power:51600, slots:5,  purchases:5,  gold:17000000,  wood:25500000,  time:129600,  req:{castle:24} },
+  { level:25, power:56200, slots:6,  purchases:6,  gold:22000000,  wood:33000000,  time:172800,  req:{castle:25} },
+  { level:26, power:61000, slots:6,  purchases:6,  gold:28000000,  wood:42000000,  time:194400,  req:{castle:26} },
+  { level:27, power:66000, slots:6,  purchases:6,  gold:35000000,  wood:52500000,  time:216000,  req:{castle:27} },
+  { level:28, power:71200, slots:6,  purchases:6,  gold:43000000,  wood:64500000,  time:259200,  req:{castle:28} },
+  { level:29, power:76600, slots:6,  purchases:6,  gold:52000000,  wood:78000000,  time:280800,  req:{castle:29} },
+  { level:30, power:82200, slots:7,  purchases:7,  gold:62000000,  wood:93000000,  time:345600,  req:{castle:30} },
+  { level:31, power:88000, slots:7,  purchases:7,  gold:73000000,  wood:109500000, time:388800,  req:{castle:31} },
+  { level:32, power:94000, slots:7,  purchases:7,  gold:85000000,  wood:127500000, time:432000,  req:{castle:32} },
+  { level:33, power:100200,slots:7,  purchases:7,  gold:96000000,  wood:144000000, time:475200,  req:{castle:33} },
+  { level:34, power:106600,slots:7,  purchases:7,  gold:107000000, wood:160500000, time:518400,  req:{castle:34} },
+  { level:35, power:113200,slots:8,  purchases:8,  gold:116000000, wood:174000000, time:561600,  req:{castle:35} },
+  { level:36, power:120000,slots:8,  purchases:8,  gold:123000000, wood:184500000, time:604800,  req:{castle:36} },
+  { level:37, power:127000,slots:8,  purchases:8,  gold:128000000, wood:192000000, time:633600,  req:{castle:37} },
+  { level:38, power:134000,slots:8,  purchases:8,  gold:133000000, wood:199500000, time:662400,  req:{castle:38} },
+  { level:39, power:141200,slots:8,  purchases:8,  gold:137000000, wood:205500000, time:691200,  req:{castle:39} },
+  { level:40, power:148600,slots:9,  purchases:9,  gold:140000000, wood:210000000, time:720000,  req:{castle:40} },
+  { level:41, power:154000,slots:9,  purchases:9,  gold:143000000, wood:214500000, time:748800,  req:{castle:41} },
+  { level:42, power:158000,slots:9,  purchases:9,  gold:145000000, wood:217500000, time:777600,  req:{castle:42} },
+  { level:43, power:161000,slots:9,  purchases:9,  gold:147000000, wood:220500000, time:806400,  req:{castle:43} },
+  { level:44, power:143000,slots:9,  purchases:9,  gold:148000000, wood:222000000, time:835200,  req:{castle:44} },
+  { level:45, power:146000,slots:10, purchases:10, gold:149000000, wood:223500000, time:864000,  req:{castle:45} },
+  { level:46, power:148000,slots:10, purchases:10, gold:149500000, wood:224250000, time:864000,  req:{castle:46} },
+  { level:47, power:149000,slots:10, purchases:10, gold:150000000, wood:225000000, time:864000,  req:{castle:47} },
+  { level:48, power:149500,slots:10, purchases:10, gold:150000000, wood:225000000, time:864000,  req:{castle:48} },
+  { level:49, power:149800,slots:10, purchases:10, gold:150000000, wood:225000000, time:864000,  req:{castle:49} },
+  { level:50, power:150000,slots:10, purchases:10, gold:150000000, wood:225000000, time:864000,  req:{castle:50} },
+];
+
+function getMarketLevelData(level) {
+  return MARKET_LEVELS.find(l => l.level === level) || MARKET_LEVELS[0];
+}
+
+const HEROES_HALL_LEVELS = [
+  { level:1,  power:800,   heroSlots:1,  gold:600,       wood:400,       food:800,       time:30,      req:{castle:5}  },
+  { level:2,  power:1600,  heroSlots:1,  gold:1400,      wood:900,       food:1800,      time:60,      req:{castle:5}  },
+  { level:3,  power:2600,  heroSlots:1,  gold:3000,      wood:2000,      food:4000,      time:120,     req:{castle:5}  },
+  { level:4,  power:3800,  heroSlots:1,  gold:6000,      wood:4000,      food:8000,      time:240,     req:{castle:5}  },
+  { level:5,  power:5200,  heroSlots:2,  gold:11000,     wood:7000,      food:14000,     time:480,     req:{castle:6}  },
+  { level:6,  power:6800,  heroSlots:2,  gold:18000,     wood:12000,     food:24000,     time:900,     req:{castle:7}  },
+  { level:7,  power:8600,  heroSlots:2,  gold:30000,     wood:20000,     food:40000,     time:1800,    req:{castle:8}  },
+  { level:8,  power:10600, heroSlots:2,  gold:50000,     wood:33000,     food:66000,     time:3600,    req:{castle:9}  },
+  { level:9,  power:12800, heroSlots:2,  gold:80000,     wood:53000,     food:106000,    time:7200,    req:{castle:10} },
+  { level:10, power:15200, heroSlots:3,  gold:125000,    wood:83000,     food:166000,    time:10800,   req:{castle:11} },
+  { level:11, power:17800, heroSlots:3,  gold:195000,    wood:130000,    food:260000,    time:14400,   req:{castle:12} },
+  { level:12, power:20600, heroSlots:3,  gold:300000,    wood:200000,    food:400000,    time:21600,   req:{castle:13} },
+  { level:13, power:23600, heroSlots:3,  gold:460000,    wood:307000,    food:614000,    time:28800,   req:{castle:14} },
+  { level:14, power:26800, heroSlots:3,  gold:700000,    wood:467000,    food:934000,    time:36000,   req:{castle:15} },
+  { level:15, power:30200, heroSlots:4,  gold:1050000,   wood:700000,    food:1400000,   time:43200,   req:{castle:16} },
+  { level:16, power:33800, heroSlots:4,  gold:1550000,   wood:1033000,   food:2066000,   time:50400,   req:{castle:17} },
+  { level:17, power:37600, heroSlots:4,  gold:2300000,   wood:1533000,   food:3066000,   time:57600,   req:{castle:18} },
+  { level:18, power:41600, heroSlots:4,  gold:3300000,   wood:2200000,   food:4400000,   time:64800,   req:{castle:19} },
+  { level:19, power:45800, heroSlots:4,  gold:4800000,   wood:3200000,   food:6400000,   time:72000,   req:{castle:20} },
+  { level:20, power:50200, heroSlots:5,  gold:6800000,   wood:4533000,   food:9066000,   time:86400,   req:{castle:21} },
+  { level:21, power:55000, heroSlots:5,  gold:9500000,   wood:6333000,   food:12666000,  time:97200,   req:{castle:22} },
+  { level:22, power:60000, heroSlots:5,  gold:13000000,  wood:8667000,   food:17334000,  time:108000,  req:{castle:23} },
+  { level:23, power:65200, heroSlots:5,  gold:17500000,  wood:11667000,  food:23334000,  time:118800,  req:{castle:24} },
+  { level:24, power:70600, heroSlots:5,  gold:23000000,  wood:15333000,  food:30666000,  time:129600,  req:{castle:25} },
+  { level:25, power:76200, heroSlots:6,  gold:30000000,  wood:20000000,  food:40000000,  time:172800,  req:{castle:26} },
+  { level:26, power:200000,heroSlots:6,  gold:38000000,  wood:25333000,  food:50666000,  time:194400,  req:{castle:27} },
+  { level:27, power:220000,heroSlots:6,  gold:47000000,  wood:31333000,  food:62666000,  time:216000,  req:{castle:28} },
+  { level:28, power:240000,heroSlots:6,  gold:57000000,  wood:38000000,  food:76000000,  time:259200,  req:{castle:29} },
+  { level:29, power:260000,heroSlots:6,  gold:68000000,  wood:45333000,  food:90666000,  time:280800,  req:{castle:30} },
+  { level:30, power:280000,heroSlots:7,  gold:80000000,  wood:53333000,  food:106666000, time:345600,  req:{castle:31} },
+  { level:31, power:300000,heroSlots:7,  gold:92000000,  wood:61333000,  food:122666000, time:388800,  req:{castle:32} },
+  { level:32, power:315000,heroSlots:7,  gold:103000000, wood:68667000,  food:137334000, time:432000,  req:{castle:33} },
+  { level:33, power:328000,heroSlots:7,  gold:113000000, wood:75333000,  food:150666000, time:475200,  req:{castle:34} },
+  { level:34, power:340000,heroSlots:7,  gold:121000000, wood:80667000,  food:161334000, time:518400,  req:{castle:35} },
+  { level:35, power:351000,heroSlots:8,  gold:128000000, wood:85333000,  food:170666000, time:561600,  req:{castle:36} },
+  { level:36, power:361000,heroSlots:8,  gold:134000000, wood:89333000,  food:178666000, time:604800,  req:{castle:37} },
+  { level:37, power:370000,heroSlots:8,  gold:139000000, wood:92667000,  food:185334000, time:633600,  req:{castle:38} },
+  { level:38, power:378000,heroSlots:8,  gold:143000000, wood:95333000,  food:190666000, time:662400,  req:{castle:39} },
+  { level:39, power:385000,heroSlots:8,  gold:146000000, wood:97333000,  food:194666000, time:691200,  req:{castle:40} },
+  { level:40, power:391000,heroSlots:9,  gold:149000000, wood:99333000,  food:198666000, time:720000,  req:{castle:41} },
+  { level:41, power:396000,heroSlots:9,  gold:151000000, wood:100667000, food:201334000, time:748800,  req:{castle:42} },
+  { level:42, power:400000,heroSlots:9,  gold:153000000, wood:102000000, food:204000000, time:777600,  req:{castle:43} },
+  { level:43, power:403000,heroSlots:9,  gold:155000000, wood:103333000, food:206666000, time:806400,  req:{castle:44} },
+  { level:44, power:406000,heroSlots:9,  gold:157000000, wood:104667000, food:209334000, time:835200,  req:{castle:45} },
+  { level:45, power:408000,heroSlots:10, gold:159000000, wood:106000000, food:212000000, time:864000,  req:{castle:46} },
+  { level:46, power:410000,heroSlots:10, gold:160000000, wood:106667000, food:213334000, time:864000,  req:{castle:47} },
+  { level:47, power:411000,heroSlots:10, gold:161000000, wood:107333000, food:214666000, time:864000,  req:{castle:48} },
+  { level:48, power:412000,heroSlots:10, gold:162000000, wood:108000000, food:216000000, time:864000,  req:{castle:49} },
+  { level:49, power:413000,heroSlots:10, gold:163000000, wood:108667000, food:217334000, time:864000,  req:{castle:50} },
+  { level:50, power:400000,heroSlots:10, gold:163000000, wood:109000000, food:218000000, time:864000,  req:{castle:50} },
+];
+
+function getHeroesHallLevelData(level) {
+  return HEROES_HALL_LEVELS.find(l => l.level === level) || HEROES_HALL_LEVELS[0];
+}
+const HOSPITAL_LEVELS = [
+  { level:1,  power:600,   capacity:500,   atkLossReduction:1,  defLossReduction:1,  healTimeReduction:1,  gold:700,       wood:400,       food:300,       time:30,      req:{castle:5}  },
+  { level:2,  power:1200,  capacity:1000,  atkLossReduction:2,  defLossReduction:2,  healTimeReduction:2,  gold:1600,      wood:900,       food:700,       time:60,      req:{castle:5}  },
+  { level:3,  power:2000,  capacity:1800,  atkLossReduction:3,  defLossReduction:3,  healTimeReduction:3,  gold:3400,      wood:1900,      food:1400,      time:120,     req:{castle:5}  },
+  { level:4,  power:3000,  capacity:2800,  atkLossReduction:4,  defLossReduction:4,  healTimeReduction:4,  gold:6800,      wood:3800,      food:2900,      time:240,     req:{castle:5}  },
+  { level:5,  power:4200,  capacity:4000,  atkLossReduction:5,  defLossReduction:5,  healTimeReduction:5,  gold:12000,     wood:6800,      food:5100,      time:480,     req:{castle:6}  },
+  { level:6,  power:5600,  capacity:5500,  atkLossReduction:7,  defLossReduction:7,  healTimeReduction:6,  gold:21000,     wood:11800,     food:8800,      time:900,     req:{castle:7}  },
+  { level:7,  power:7200,  capacity:7500,  atkLossReduction:9,  defLossReduction:9,  healTimeReduction:7,  gold:35000,     wood:19600,     food:14700,     time:1800,    req:{castle:8}  },
+  { level:8,  power:9000,  capacity:10000, atkLossReduction:11, defLossReduction:12, healTimeReduction:8,  gold:57000,     wood:32000,     food:24000,     time:3600,    req:{castle:9}  },
+  { level:9,  power:11000, capacity:13000, atkLossReduction:13, defLossReduction:15, healTimeReduction:9,  gold:90000,     wood:50600,     food:37900,     time:7200,    req:{castle:10} },
+  { level:10, power:13200, capacity:16500, atkLossReduction:15, defLossReduction:18, healTimeReduction:10, gold:140000,    wood:78700,     food:59000,     time:10800,   req:{castle:11} },
+  { level:11, power:15600, capacity:20500, atkLossReduction:17, defLossReduction:21, healTimeReduction:11, gold:215000,    wood:120800,    food:90600,     time:14400,   req:{castle:12} },
+  { level:12, power:18200, capacity:25000, atkLossReduction:19, defLossReduction:24, healTimeReduction:12, gold:325000,    wood:182600,    food:136900,    time:21600,   req:{castle:13} },
+  { level:13, power:21000, capacity:30000, atkLossReduction:21, defLossReduction:27, healTimeReduction:13, gold:490000,    wood:275200,    food:206400,    time:28800,   req:{castle:14} },
+  { level:14, power:24000, capacity:35500, atkLossReduction:23, defLossReduction:30, healTimeReduction:14, gold:720000,    wood:404400,    food:303300,    time:36000,   req:{castle:15} },
+  { level:15, power:27200, capacity:41500, atkLossReduction:25, defLossReduction:33, healTimeReduction:15, gold:1050000,   wood:589700,    food:442200,    time:43200,   req:{castle:16} },
+  { level:16, power:30600, capacity:48000, atkLossReduction:27, defLossReduction:36, healTimeReduction:16, gold:1500000,   wood:843000,    food:632200,    time:50400,   req:{castle:17} },
+  { level:17, power:34200, capacity:50000, atkLossReduction:29, defLossReduction:39, healTimeReduction:17, gold:2150000,   wood:1208400,   food:906300,    time:57600,   req:{castle:18} },
+  { level:18, power:38000, capacity:50000, atkLossReduction:31, defLossReduction:42, healTimeReduction:18, gold:3050000,   wood:1714100,   food:1285500,   time:64800,   req:{castle:19} },
+  { level:19, power:42000, capacity:50000, atkLossReduction:33, defLossReduction:45, healTimeReduction:19, gold:4300000,   wood:2416600,   food:1812400,   time:72000,   req:{castle:20} },
+  { level:20, power:46200, capacity:50000, atkLossReduction:35, defLossReduction:48, healTimeReduction:20, gold:6000000,   wood:3372000,   food:2529000,   time:86400,   req:{castle:21} },
+  { level:21, power:50600, capacity:50000, atkLossReduction:37, defLossReduction:51, healTimeReduction:21, gold:8300000,   wood:4664600,   food:3498400,   time:97200,   req:{castle:22} },
+  { level:22, power:55200, capacity:50000, atkLossReduction:39, defLossReduction:54, healTimeReduction:22, gold:11300000,  wood:6350600,   food:4762900,   time:108000,  req:{castle:23} },
+  { level:23, power:60000, capacity:50000, atkLossReduction:41, defLossReduction:57, healTimeReduction:23, gold:15200000,  wood:8542400,   food:6406800,   time:118800,  req:{castle:24} },
+  { level:24, power:65000, capacity:50000, atkLossReduction:43, defLossReduction:60, healTimeReduction:24, gold:20000000,  wood:11240000,  food:8430000,   time:129600,  req:{castle:25} },
+  { level:25, power:70200, capacity:50000, atkLossReduction:45, defLossReduction:63, healTimeReduction:25, gold:26000000,  wood:14612000,  food:10959000,  time:172800,  req:{castle:26} },
+  { level:26, power:180000,capacity:50000, atkLossReduction:47, defLossReduction:66, healTimeReduction:26, gold:33000000,  wood:18546000,  food:13909500,  time:194400,  req:{castle:27} },
+  { level:27, power:195000,capacity:50000, atkLossReduction:49, defLossReduction:69, healTimeReduction:27, gold:41000000,  wood:23042000,  food:17281500,  time:216000,  req:{castle:28} },
+  { level:28, power:210000,capacity:50000, atkLossReduction:51, defLossReduction:72, healTimeReduction:28, gold:50000000,  wood:28100000,  food:21075000,  time:259200,  req:{castle:29} },
+  { level:29, power:225000,capacity:50000, atkLossReduction:53, defLossReduction:75, healTimeReduction:29, gold:60000000,  wood:33720000,  food:25290000,  time:280800,  req:{castle:30} },
+  { level:30, power:240000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:30, gold:71000000,  wood:39914000,  food:29935500,  time:345600,  req:{castle:31} },
+  { level:31, power:252000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:31, gold:82000000,  wood:46084000,  food:34563000,  time:388800,  req:{castle:32} },
+  { level:32, power:263000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:32, gold:93000000,  wood:52278000,  food:39208500,  time:432000,  req:{castle:33} },
+  { level:33, power:273000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:33, gold:103000000, wood:57898000,  food:43423500,  time:475200,  req:{castle:34} },
+  { level:34, power:282000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:34, gold:112000000, wood:62944000,  food:47208000,  time:518400,  req:{castle:35} },
+  { level:35, power:290000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:35, gold:119000000, wood:66878000,  food:50158500,  time:561600,  req:{castle:36} },
+  { level:36, power:295000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:36, gold:125000000, wood:70250000,  food:52687500,  time:604800,  req:{castle:37} },
+  { level:37, power:297000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:37, gold:130000000, wood:73060000,  food:54795000,  time:633600,  req:{castle:38} },
+  { level:38, power:298000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:38, gold:134000000, wood:75308000,  food:56481000,  time:662400,  req:{castle:39} },
+  { level:39, power:299000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:39, gold:137000000, wood:77014000,  food:57760500,  time:691200,  req:{castle:40} },
+  { level:40, power:299500,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:40, gold:140000000, wood:78680000,  food:59010000,  time:720000,  req:{castle:41} },
+  { level:41, power:299700,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:41, gold:143000000, wood:80378000,  food:60283500,  time:748800,  req:{castle:42} },
+  { level:42, power:299800,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:42, gold:145000000, wood:81490000,  food:61117500,  time:777600,  req:{castle:43} },
+  { level:43, power:299900,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:43, gold:147000000, wood:82614000,  food:61960500,  time:806400,  req:{castle:44} },
+  { level:44, power:299950,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:44, gold:148000000, wood:83176000,  food:62382000,  time:835200,  req:{castle:45} },
+  { level:45, power:299980,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:45, gold:149000000, wood:83738000,  food:62803500,  time:864000,  req:{castle:46} },
+  { level:46, power:299990,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:46, gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:47} },
+  { level:47, power:299995,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:47, gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:48} },
+  { level:48, power:299998,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:48, gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:49} },
+  { level:49, power:299999,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:49, gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:50} },
+  { level:50, power:300000,capacity:50000, atkLossReduction:55, defLossReduction:75, healTimeReduction:50, gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:50} },
+];
+
+function getHospitalLevelData(level) {
+  return HOSPITAL_LEVELS.find(l => l.level === level) || HOSPITAL_LEVELS[0];
+}
+const BOOSTER_LEVELS = [
+  { level:1,  power:500,   mineBoost:1.0, workerBoost:1.0, trainBoost:1.0, food:600,       time:30,      req:{castle:8}  },
+  { level:2,  power:1000,  mineBoost:1.04,workerBoost:1.02,trainBoost:1.02,food:1400,      time:60,      req:{castle:8}  },
+  { level:3,  power:1600,  mineBoost:1.08,workerBoost:1.04,trainBoost:1.04,food:3000,      time:120,     req:{castle:8}  },
+  { level:4,  power:2400,  mineBoost:1.12,workerBoost:1.06,trainBoost:1.06,food:6000,      time:240,     req:{castle:8}  },
+  { level:5,  power:3400,  mineBoost:1.16,workerBoost:1.08,trainBoost:1.08,food:11000,     time:480,     req:{castle:9}  },
+  { level:6,  power:4600,  mineBoost:1.20,workerBoost:1.10,trainBoost:1.10,food:19000,     time:900,     req:{castle:10} },
+  { level:7,  power:6000,  mineBoost:1.24,workerBoost:1.12,trainBoost:1.12,food:32000,     time:1800,    req:{castle:11} },
+  { level:8,  power:7600,  mineBoost:1.28,workerBoost:1.14,trainBoost:1.14,food:52000,     time:3600,    req:{castle:12} },
+  { level:9,  power:9400,  mineBoost:1.32,workerBoost:1.16,trainBoost:1.16,food:83000,     time:7200,    req:{castle:13} },
+  { level:10, power:11400, mineBoost:1.36,workerBoost:1.18,trainBoost:1.18,food:130000,    time:10800,   req:{castle:14} },
+  { level:11, power:13600, mineBoost:1.40,workerBoost:1.20,trainBoost:1.20,food:200000,    time:14400,   req:{castle:15} },
+  { level:12, power:16000, mineBoost:1.44,workerBoost:1.22,trainBoost:1.22,food:300000,    time:21600,   req:{castle:16} },
+  { level:13, power:18600, mineBoost:1.48,workerBoost:1.24,trainBoost:1.24,food:450000,    time:28800,   req:{castle:17} },
+  { level:14, power:21400, mineBoost:1.52,workerBoost:1.26,trainBoost:1.26,food:670000,    time:36000,   req:{castle:18} },
+  { level:15, power:24400, mineBoost:1.56,workerBoost:1.28,trainBoost:1.28,food:980000,    time:43200,   req:{castle:19} },
+  { level:16, power:27600, mineBoost:1.60,workerBoost:1.30,trainBoost:1.30,food:1400000,   time:50400,   req:{castle:20} },
+  { level:17, power:31000, mineBoost:1.64,workerBoost:1.32,trainBoost:1.32,food:2000000,   time:57600,   req:{castle:21} },
+  { level:18, power:34600, mineBoost:1.68,workerBoost:1.34,trainBoost:1.34,food:2800000,   time:64800,   req:{castle:22} },
+  { level:19, power:38400, mineBoost:1.72,workerBoost:1.36,trainBoost:1.36,food:3900000,   time:72000,   req:{castle:23} },
+  { level:20, power:42400, mineBoost:1.76,workerBoost:1.38,trainBoost:1.38,food:5300000,   time:86400,   req:{castle:24} },
+  { level:21, power:46600, mineBoost:1.80,workerBoost:1.40,trainBoost:1.40,food:7200000,   time:97200,   req:{castle:25} },
+  { level:22, power:51000, mineBoost:1.84,workerBoost:1.42,trainBoost:1.42,food:9700000,   time:108000,  req:{castle:26} },
+  { level:23, power:55600, mineBoost:1.88,workerBoost:1.44,trainBoost:1.44,food:13000000,  time:118800,  req:{castle:27} },
+  { level:24, power:60400, mineBoost:1.92,workerBoost:1.46,trainBoost:1.46,food:17000000,  time:129600,  req:{castle:28} },
+  { level:25, power:65400, mineBoost:1.96,workerBoost:1.48,trainBoost:1.48,food:22000000,  time:172800,  req:{castle:29} },
+  { level:26, power:170000,mineBoost:2.00,workerBoost:1.50,trainBoost:1.50,food:28000000,  time:194400,  req:{castle:30} },
+  { level:27, power:180000,mineBoost:2.04,workerBoost:1.52,trainBoost:1.52,food:35000000,  time:216000,  req:{castle:31} },
+  { level:28, power:190000,mineBoost:2.08,workerBoost:1.54,trainBoost:1.54,food:43000000,  time:259200,  req:{castle:32} },
+  { level:29, power:200000,mineBoost:2.12,workerBoost:1.56,trainBoost:1.56,food:52000000,  time:280800,  req:{castle:33} },
+  { level:30, power:210000,mineBoost:2.16,workerBoost:1.58,trainBoost:1.58,food:62000000,  time:345600,  req:{castle:34} },
+  { level:31, power:218000,mineBoost:2.20,workerBoost:1.60,trainBoost:1.60,food:73000000,  time:388800,  req:{castle:35} },
+  { level:32, power:225000,mineBoost:2.24,workerBoost:1.62,trainBoost:1.62,food:85000000,  time:432000,  req:{castle:36} },
+  { level:33, power:231000,mineBoost:2.28,workerBoost:1.64,trainBoost:1.64,food:98000000,  time:475200,  req:{castle:37} },
+  { level:34, power:236000,mineBoost:2.32,workerBoost:1.66,trainBoost:1.66,food:112000000, time:518400,  req:{castle:38} },
+  { level:35, power:240000,mineBoost:2.36,workerBoost:1.68,trainBoost:1.68,food:127000000, time:561600,  req:{castle:39} },
+  { level:36, power:243000,mineBoost:2.40,workerBoost:1.70,trainBoost:1.70,food:143000000, time:604800,  req:{castle:40} },
+  { level:37, power:245000,mineBoost:2.44,workerBoost:1.72,trainBoost:1.72,food:160000000, time:633600,  req:{castle:41} },
+  { level:38, power:247000,mineBoost:2.48,workerBoost:1.74,trainBoost:1.74,food:178000000, time:662400,  req:{castle:42} },
+  { level:39, power:248500,mineBoost:2.52,workerBoost:1.76,trainBoost:1.76,food:197000000, time:691200,  req:{castle:43} },
+  { level:40, power:249000,mineBoost:2.56,workerBoost:1.78,trainBoost:1.78,food:217000000, time:720000,  req:{castle:44} },
+  { level:41, power:249200,mineBoost:2.60,workerBoost:1.80,trainBoost:1.80,food:238000000, time:748800,  req:{castle:45} },
+  { level:42, power:249400,mineBoost:2.64,workerBoost:1.82,trainBoost:1.82,food:255000000, time:777600,  req:{castle:46} },
+  { level:43, power:249600,mineBoost:2.68,workerBoost:1.84,trainBoost:1.84,food:268000000, time:806400,  req:{castle:47} },
+  { level:44, power:249700,mineBoost:2.72,workerBoost:1.86,trainBoost:1.86,food:279000000, time:835200,  req:{castle:48} },
+  { level:45, power:249800,mineBoost:2.76,workerBoost:1.88,trainBoost:1.88,food:288000000, time:864000,  req:{castle:49} },
+  { level:46, power:249850,mineBoost:2.80,workerBoost:1.90,trainBoost:1.90,food:293000000, time:864000,  req:{castle:50} },
+  { level:47, power:249900,mineBoost:2.84,workerBoost:1.92,trainBoost:1.92,food:296000000, time:864000,  req:{castle:50} },
+  { level:48, power:249950,mineBoost:2.88,workerBoost:1.94,trainBoost:1.94,food:298000000, time:864000,  req:{castle:50} },
+  { level:49, power:249980,mineBoost:2.94,workerBoost:1.97,trainBoost:1.97,food:299000000, time:864000,  req:{castle:50} },
+  { level:50, power:250000,mineBoost:3.0, workerBoost:2.0, trainBoost:2.0, food:300000000, time:864000,  req:{castle:50} },
+];
+
+function getBoosterLevelData(level) {
+  return BOOSTER_LEVELS.find(l => l.level === level) || BOOSTER_LEVELS[0];
+}
+const PRISON_LEVELS = [
+  { level:1,  power:800,   capacity:50,    wood:600,       time:30,      req:{castle:6}  },
+  { level:2,  power:1600,  capacity:120,   wood:1400,      time:60,      req:{castle:6}  },
+  { level:3,  power:2600,  capacity:210,   wood:3000,      time:120,     req:{castle:6}  },
+  { level:4,  power:3800,  capacity:320,   wood:6000,      time:240,     req:{castle:7}  },
+  { level:5,  power:5200,  capacity:450,   wood:11000,     time:480,     req:{castle:8}  },
+  { level:6,  power:6800,  capacity:600,   wood:18000,     time:900,     req:{castle:9}  },
+  { level:7,  power:8600,  capacity:770,   wood:30000,     time:1800,    req:{castle:10} },
+  { level:8,  power:10600, capacity:960,   wood:50000,     time:3600,    req:{castle:11} },
+  { level:9,  power:12800, capacity:1170,  wood:80000,     time:7200,    req:{castle:12} },
+  { level:10, power:15200, capacity:1400,  wood:125000,    time:10800,   req:{castle:13} },
+  { level:11, power:17800, capacity:1650,  wood:195000,    time:14400,   req:{castle:14} },
+  { level:12, power:20600, capacity:1920,  wood:300000,    time:21600,   req:{castle:15} },
+  { level:13, power:23600, capacity:2210,  wood:460000,    time:28800,   req:{castle:16} },
+  { level:14, power:26800, capacity:2520,  wood:700000,    time:36000,   req:{castle:17} },
+  { level:15, power:30200, capacity:2850,  wood:1050000,   time:43200,   req:{castle:18} },
+  { level:16, power:33800, capacity:3200,  wood:1550000,   time:50400,   req:{castle:19} },
+  { level:17, power:37600, capacity:3570,  wood:2300000,   time:57600,   req:{castle:20} },
+  { level:18, power:41600, capacity:3960,  wood:3300000,   time:64800,   req:{castle:21} },
+  { level:19, power:45800, capacity:4370,  wood:4800000,   time:72000,   req:{castle:22} },
+  { level:20, power:50200, capacity:4800,  wood:6800000,   time:86400,   req:{castle:23} },
+  { level:21, power:55000, capacity:5250,  wood:9500000,   time:97200,   req:{castle:24} },
+  { level:22, power:60000, capacity:5720,  wood:13000000,  time:108000,  req:{castle:25} },
+  { level:23, power:65200, capacity:6210,  wood:17500000,  time:118800,  req:{castle:26} },
+  { level:24, power:70600, capacity:6720,  wood:23000000,  time:129600,  req:{castle:27} },
+  { level:25, power:76200, capacity:7250,  wood:30000000,  time:172800,  req:{castle:28} },
+  { level:26, power:200000,capacity:7800,  wood:38000000,  time:194400,  req:{castle:29} },
+  { level:27, power:220000,capacity:8370,  wood:47000000,  time:216000,  req:{castle:30} },
+  { level:28, power:240000,capacity:8960,  wood:57000000,  time:259200,  req:{castle:31} },
+  { level:29, power:255000,capacity:9570,  wood:68000000,  time:280800,  req:{castle:32} },
+  { level:30, power:268000,capacity:10200, wood:80000000,  time:345600,  req:{castle:33} },
+  { level:31, power:278000,capacity:10500, wood:90000000,  time:388800,  req:{castle:34} },
+  { level:32, power:287000,capacity:10800, wood:100000000, time:432000,  req:{castle:35} },
+  { level:33, power:295000,capacity:11100, wood:108000000, time:475200,  req:{castle:36} },
+  { level:34, power:302000,capacity:11400, wood:115000000, time:518400,  req:{castle:37} },
+  { level:35, power:308000,capacity:11700, wood:121000000, time:561600,  req:{castle:38} },
+  { level:36, power:313000,capacity:12000, wood:126000000, time:604800,  req:{castle:39} },
+  { level:37, power:317000,capacity:12300, wood:130000000, time:633600,  req:{castle:40} },
+  { level:38, power:320000,capacity:12600, wood:133000000, time:662400,  req:{castle:41} },
+  { level:39, power:323000,capacity:12900, wood:136000000, time:691200,  req:{castle:42} },
+  { level:40, power:326000,capacity:13200, wood:138000000, time:720000,  req:{castle:43} },
+  { level:41, power:328000,capacity:13500, wood:140000000, time:748800,  req:{castle:44} },
+  { level:42, power:330000,capacity:13800, wood:142000000, time:777600,  req:{castle:45} },
+  { level:43, power:332000,capacity:14100, wood:144000000, time:806400,  req:{castle:46} },
+  { level:44, power:334000,capacity:14400, wood:146000000, time:835200,  req:{castle:47} },
+  { level:45, power:336000,capacity:14700, wood:147000000, time:864000,  req:{castle:48} },
+  { level:46, power:337000,capacity:14800, wood:148000000, time:864000,  req:{castle:49} },
+  { level:47, power:338000,capacity:14900, wood:149000000, time:864000,  req:{castle:50} },
+  { level:48, power:339000,capacity:14950, wood:149500000, time:864000,  req:{castle:50} },
+  { level:49, power:339500,capacity:15000, wood:150000000, time:864000,  req:{castle:50} },
+  { level:50, power:400000,capacity:15000, wood:150000000, time:864000,  req:{castle:50} },
+];
+
+function getPrisonLevelData(level) {
+  return PRISON_LEVELS.find(l => l.level === level) || PRISON_LEVELS[0];
+}
+const HUNTER_CAMP_LEVELS = [
+  { level:1,  power:600,   capacity:200,   train:5,   gold:700,       wood:400,       food:300,       time:30,      req:{castle:6}  },
+  { level:2,  power:1200,  capacity:450,   train:10,  gold:1600,      wood:900,       food:700,       time:60,      req:{castle:6}  },
+  { level:3,  power:2000,  capacity:750,   train:15,  gold:3400,      wood:1900,      food:1400,      time:120,     req:{castle:6}  },
+  { level:4,  power:3000,  capacity:1100,  train:20,  gold:6800,      wood:3800,      food:2900,      time:240,     req:{castle:7}  },
+  { level:5,  power:4200,  capacity:1500,  train:25,  gold:12000,     wood:6800,      food:5100,      time:480,     req:{castle:8}  },
+  { level:6,  power:5600,  capacity:1950,  train:30,  gold:21000,     wood:11800,     food:8800,      time:900,     req:{castle:9}  },
+  { level:7,  power:7200,  capacity:2450,  train:35,  gold:35000,     wood:19600,     food:14700,     time:1800,    req:{castle:10} },
+  { level:8,  power:9000,  capacity:3000,  train:40,  gold:57000,     wood:32000,     food:24000,     time:3600,    req:{castle:11} },
+  { level:9,  power:11000, capacity:3600,  train:45,  gold:90000,     wood:50600,     food:37900,     time:7200,    req:{castle:12} },
+  { level:10, power:13200, capacity:4250,  train:50,  gold:140000,    wood:78700,     food:59000,     time:10800,   req:{castle:13} },
+  { level:11, power:15600, capacity:4950,  train:60,  gold:215000,    wood:120800,    food:90600,     time:14400,   req:{castle:14} },
+  { level:12, power:18200, capacity:5700,  train:70,  gold:325000,    wood:182600,    food:136900,    time:21600,   req:{castle:15} },
+  { level:13, power:21000, capacity:6500,  train:80,  gold:490000,    wood:275200,    food:206400,    time:28800,   req:{castle:16} },
+  { level:14, power:24000, capacity:7350,  train:90,  gold:720000,    wood:404400,    food:303300,    time:36000,   req:{castle:17} },
+  { level:15, power:27200, capacity:8250,  train:100, gold:1050000,   wood:589700,    food:442200,    time:43200,   req:{castle:18} },
+  { level:16, power:30600, capacity:9200,  train:110, gold:1500000,   wood:843000,    food:632200,    time:50400,   req:{castle:19} },
+  { level:17, power:34200, capacity:10200, train:120, gold:2150000,   wood:1208400,   food:906300,    time:57600,   req:{castle:20} },
+  { level:18, power:38000, capacity:11250, train:130, gold:3050000,   wood:1714100,   food:1285500,   time:64800,   req:{castle:21} },
+  { level:19, power:42000, capacity:12350, train:140, gold:4300000,   wood:2416600,   food:1812400,   time:72000,   req:{castle:22} },
+  { level:20, power:46200, capacity:13500, train:150, gold:6000000,   wood:3372000,   food:2529000,   time:86400,   req:{castle:23} },
+  { level:21, power:50600, capacity:14700, train:160, gold:8300000,   wood:4664600,   food:3498400,   time:97200,   req:{castle:24} },
+  { level:22, power:55200, capacity:15950, train:170, gold:11300000,  wood:6350600,   food:4762900,   time:108000,  req:{castle:25} },
+  { level:23, power:60000, capacity:17250, train:180, gold:15200000,  wood:8542400,   food:6406800,   time:118800,  req:{castle:26} },
+  { level:24, power:65000, capacity:18600, train:190, gold:20000000,  wood:11240000,  food:8430000,   time:129600,  req:{castle:27} },
+  { level:25, power:70200, capacity:20000, train:200, gold:26000000,  wood:14612000,  food:10959000,  time:172800,  req:{castle:28} },
+  { level:26, power:180000,capacity:21450, train:220, gold:33000000,  wood:18546000,  food:13909500,  time:194400,  req:{castle:29} },
+  { level:27, power:195000,capacity:22950, train:240, gold:41000000,  wood:23042000,  food:17281500,  time:216000,  req:{castle:30} },
+  { level:28, power:210000,capacity:24500, train:260, gold:50000000,  wood:28100000,  food:21075000,  time:259200,  req:{castle:31} },
+  { level:29, power:225000,capacity:26100, train:280, gold:60000000,  wood:33720000,  food:25290000,  time:280800,  req:{castle:32} },
+  { level:30, power:240000,capacity:27750, train:300, gold:71000000,  wood:39914000,  food:29935500,  time:345600,  req:{castle:33} },
+  { level:31, power:252000,capacity:29000, train:320, gold:82000000,  wood:46084000,  food:34563000,  time:388800,  req:{castle:34} },
+  { level:32, power:263000,capacity:30300, train:340, gold:93000000,  wood:52278000,  food:39208500,  time:432000,  req:{castle:35} },
+  { level:33, power:273000,capacity:31600, train:360, gold:103000000, wood:57898000,  food:43423500,  time:475200,  req:{castle:36} },
+  { level:34, power:282000,capacity:32900, train:380, gold:112000000, wood:62944000,  food:47208000,  time:518400,  req:{castle:37} },
+  { level:35, power:290000,capacity:34200, train:400, gold:119000000, wood:66878000,  food:50158500,  time:561600,  req:{castle:38} },
+  { level:36, power:295000,capacity:35500, train:420, gold:125000000, wood:70250000,  food:52687500,  time:604800,  req:{castle:39} },
+  { level:37, power:297000,capacity:36500, train:440, gold:130000000, wood:73060000,  food:54795000,  time:633600,  req:{castle:40} },
+  { level:38, power:298000,capacity:37500, train:460, gold:134000000, wood:75308000,  food:56481000,  time:662400,  req:{castle:41} },
+  { level:39, power:298500,capacity:38500, train:480, gold:137000000, wood:77014000,  food:57760500,  time:691200,  req:{castle:42} },
+  { level:40, power:299000,capacity:39000, train:500, gold:140000000, wood:78680000,  food:59010000,  time:720000,  req:{castle:43} },
+  { level:41, power:299200,capacity:39200, train:550, gold:143000000, wood:80378000,  food:60283500,  time:748800,  req:{castle:44} },
+  { level:42, power:299400,capacity:39400, train:600, gold:145000000, wood:81490000,  food:61117500,  time:777600,  req:{castle:45} },
+  { level:43, power:299600,capacity:39600, train:700, gold:147000000, wood:82614000,  food:61960500,  time:806400,  req:{castle:46} },
+  { level:44, power:299700,capacity:39700, train:800, gold:148000000, wood:83176000,  food:62382000,  time:835200,  req:{castle:47} },
+  { level:45, power:299800,capacity:39800, train:900, gold:149000000, wood:83738000,  food:62803500,  time:864000,  req:{castle:48} },
+  { level:46, power:299850,capacity:39850, train:1000,gold:149500000, wood:84019000,  food:63014250,  time:864000,  req:{castle:49} },
+  { level:47, power:299900,capacity:39900, train:1200,gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:50} },
+  { level:48, power:299950,capacity:39950, train:1500,gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:50} },
+  { level:49, power:299980,capacity:39975, train:1800,gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:50} },
+  { level:50, power:300000,capacity:40000, train:2000,gold:150000000, wood:84300000,  food:63225000,  time:864000,  req:{castle:50} },
+];
+
+function getHunterCampLevelData(level) {
+  return HUNTER_CAMP_LEVELS.find(l => l.level === level) || HUNTER_CAMP_LEVELS[0];
+}
 function getBuildingNameByKey(key) {
   for (const cfg of Object.values(BUILDINGS_CONFIG)) {
     if (cfg.key === key) {
@@ -6681,152 +6406,18 @@ function getBuildingNameByKey(key) {
 let currentBuildingKey = null;
 // أنواع تسريع ترقية المباني بالوقت
 const BUILDING_SPEEDUPS = [
-  { seconds: 60,    label: "1 د"  },
-  { seconds: 600,   label: "10 د" },
-  { seconds: 1800,  label: "30 د" },
-  { seconds: 3600,  label: "1 س"  },
-  { seconds: 10800, label: "3 س"  }
+  { seconds: 60,     label: "1 د"    },
+  { seconds: 300,    label: "5 د"    },
+  { seconds: 900,    label: "15 د"   },
+  { seconds: 3600,   label: "1 س"    },
+  { seconds: 10800,  label: "3 س"    },
+  { seconds: 28800,  label: "8 س"    },
+  { seconds: 43200,  label: "12 س"   },
+  { seconds: 86400,  label: "1 يوم"  },
+  { seconds: 259200, label: "3 أيام" },
+  { seconds: 518400, label: "6 أيام" },
 ];
 
-function showBuildingPopup(buildingKey) {
-  console.log("showBuildingPopup CALLED with", buildingKey);
-  currentBuildingKey = buildingKey;
-
-  showBuildingActions(buildingKey);
-
-  if (buildingKey === "castle") {
-    const oldHighlight = document.querySelector(".building-highlight");
-    if (oldHighlight) oldHighlight.classList.remove("building-highlight");
-    const castleEl = document.getElementById("castle-building");
-    if (castleEl) {
-      const castleImg = castleEl.querySelector("img");
-      if (castleImg) castleImg.classList.add("building-highlight");
-      else castleEl.classList.add("building-highlight");
-
-      const old = document.getElementById("building-popup");
-      if (old) old.parentNode.removeChild(old);
-
-      const popup = document.createElement("div");
-      popup.id = "building-popup";
-      popup.style.cssText = "position:absolute;left:50%;top:0;transform:translate(-50%,-110%);background:rgba(15,23,42,0.98);border:2px solid #0ea5e9;border-radius:16px;padding:8px 12px;width:fit-content;white-space:nowrap;color:#e5e7eb;font-size:12px;z-index:9999;box-shadow:0 14px 30px rgba(0,0,0,0.85);";
-
-      popup.innerHTML = `
-        <div style="display:flex;align-items:center;gap:6px;">
-          <img src="${getBuildingImageByKey('castle')}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid rgba(148,163,184,0.8);">
-          <div>
-            <div style="font-weight:bold;font-size:12px;">القلعة</div>
-            <div style="font-size:11px;color:#22c55e;margin-top:2px;">LVL ${castleLevel}</div>
-          </div>
-        </div>
-      `;
-
-      const cityMapContainer = document.getElementById("city-map-container");
-      if (cityMapContainer) {
-        const rect = castleEl.getBoundingClientRect();
-        const containerRect = cityMapContainer.getBoundingClientRect();
-        popup.style.position = "absolute";
-        popup.style.left = (rect.left - containerRect.left + rect.width / 2) + "px";
-        popup.style.top = (rect.top - containerRect.top + cityMapContainer.scrollTop) + "px";
-        popup.style.transform = "translate(-50%, -110%)";
-        cityMapContainer.appendChild(popup);
-      } else {
-        castleEl.appendChild(popup);
-      }
-    }
-    return;
-  }
-
-  const old = document.getElementById("building-popup");
-  if (old) old.parentNode.removeChild(old);
-
-  let buildingId = null;
-  for (const cfg of Object.values(BUILDINGS_CONFIG)) {
-    if (cfg.key === buildingKey) {
-      buildingId = cfg.id;
-      break;
-    }
-  }
-  if (!buildingId) return;
-
-  const el = document.getElementById(buildingId);
-  if (!el) return;
-
-  const oldHighlight = document.querySelector(".building-highlight");
-  if (oldHighlight) oldHighlight.classList.remove("building-highlight");
-
-  const imgEl = el.querySelector("img");
-  if (imgEl) {
-    imgEl.classList.add("building-highlight");
-  } else {
-    el.classList.add("building-highlight");
-  }
-
-  const popup = document.createElement("div");
-  popup.id = "building-popup";
-  popup.style.zIndex = "9999";
-  popup.style.background = "rgba(15,23,42,0.98)";
-  popup.style.border = "2px solid #0ea5e9";
-  popup.style.borderRadius = "16px";
-  popup.style.padding = "8px 12px";
-  popup.style.width = "fit-content";
-  popup.style.whiteSpace = "nowrap";
-  popup.style.color = "#e5e7eb";
-  popup.style.fontSize = "12px";
-  popup.style.boxShadow = "0 14px 30px rgba(0,0,0,0.85)";
-
-  const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.alignItems = "center";
-  header.style.gap = "6px";
-
-  const img = document.createElement("img");
-img.style.width = "40px";
-img.style.height = "40px";
-  img.style.borderRadius = "8px";
-  img.style.objectFit = "cover";
-  img.style.border = "1px solid rgba(148,163,184,0.8)";
-  img.src = getBuildingImageByKey(buildingKey);
-
-  const titleBox = document.createElement("div");
-  titleBox.style.display = "flex";
-  titleBox.style.flexDirection = "column";
-
-  const nameEl = document.createElement("div");
-  nameEl.style.fontWeight = "bold";
-  nameEl.style.fontSize = "12px";
-  nameEl.style.letterSpacing = "0.5px";
-  nameEl.textContent = getBuildingNameByKey(buildingKey);
-
-  const levelEl = document.createElement("div");
-  levelEl.style.fontSize = "11px";
-  levelEl.style.color = "#22c55e";
-  levelEl.style.marginTop = "2px";
-  const lvl = buildingLevels[buildingKey] || 1;
-  levelEl.textContent = "LVL " + lvl;
-
-  titleBox.appendChild(nameEl);
-  titleBox.appendChild(levelEl);
-  header.appendChild(img);
-  header.appendChild(titleBox);
-  popup.appendChild(header);
-
-  const cityMapContainer = document.getElementById("city-map-container");
-  if (cityMapContainer) {
-    const rect = el.getBoundingClientRect();
-    const containerRect = cityMapContainer.getBoundingClientRect();
-    popup.style.position = "absolute";
-    popup.style.left = (rect.left - containerRect.left + rect.width / 2) + "px";
-    popup.style.top = (rect.top - containerRect.top + cityMapContainer.scrollTop) + "px";
-    popup.style.transform = "translate(-50%, -110%)";
-    cityMapContainer.appendChild(popup);
-  } else {
-    popup.style.position = "absolute";
-    popup.style.left = "50%";
-    popup.style.top = "0";
-    popup.style.transform = "translate(-50%, -110%)";
-    el.appendChild(popup);
-  }
-}
 
 function showToast(message) {
   const old = document.getElementById("toast-msg");
@@ -6856,68 +6447,6 @@ function showToast(message) {
 }
 
 
-
-function openBuildingPanel(buildingKey) {
-  const oldPopup = document.getElementById("building-popup");
-  if (oldPopup && oldPopup.parentNode) oldPopup.parentNode.removeChild(oldPopup);
-  showSummonButton(false);
-
-  if (buildingKey === "castle") {
-    openCastlePanel();
-    return;
-  }
-
-
-  lockCityScroll();
-  console.log("Open building panel for:", buildingKey);
-  currentBuildingKey = buildingKey;
-
-  const cfg = Object.values(BUILDINGS_CONFIG).find(c => c.key === buildingKey);
-  if (!cfg) return;
-
-  if (buildingPanelTitle) buildingPanelTitle.textContent = cfg.name;
-  if (buildingPanelImage) {
-    buildingPanelImage.src = getBuildingImageByKey(buildingKey);
-    buildingPanelImage.alt = cfg.name;
-  }
-  if (buildingPanelDesc) buildingPanelDesc.textContent = "";
-  if (buildingPanelExtra) updateBuildingInfoTab(buildingKey);
-
-  fillGenericUpgradeTab(buildingKey);
-  updateBuildingUpgradePanelForTimer(buildingKey);
-
-  const cancelBtn = document.getElementById("building-panel-cancel-upgrade-btn");
-  if (cancelBtn) {
-    const up = buildingUpgrades[buildingKey];
-    if (up && up.inProgress) {
-      cancelBtn.style.display = "block";
-      cancelBtn.onclick = function () {
-        cancelBuildingUpgrade(buildingKey);
-        cancelBtn.style.display = "none";
-        updateBuildingUpgradePanelForTimer(buildingKey);
-      };
-    } else {
-      cancelBtn.style.display = "none";
-      cancelBtn.onclick = null;
-    }
-  }
-
-  const panelInner = document.getElementById("building-panel-inner");
-  if (panelInner) {
-    panelInner.style.position = "fixed";
-    panelInner.style.top = "80px";
-    panelInner.style.left = "10px";
-    panelInner.style.right = "10px";
-    panelInner.style.bottom = "150px";
-    panelInner.style.width = "auto";
-    panelInner.style.maxWidth = "100%";
-    panelInner.style.transform = "none";
-    panelInner.style.overflowY = "auto";
-  }
-
-  switchBuildingPanelTab('info');
-  buildingPanel.classList.remove('hidden');
-}
 
 
 
@@ -7646,53 +7175,8 @@ if (buildingEl) {
   });
 }
 
-
-// ---------------- Building Panel Elements ----------------
-const buildingPanel = document.getElementById("building-panel");
-const buildingPanelTitle = document.getElementById("building-panel-title");
-const buildingPanelImage = document.getElementById("building-panel-image");
-const buildingPanelDesc  = document.getElementById("building-panel-desc");
-const buildingPanelExtra = document.getElementById("building-panel-extra-info");
-
-const buildingTabInfoBtn    = document.getElementById("building-tab-info-btn");
-const buildingTabUpgradeBtn = document.getElementById("building-tab-upgrade-btn");
-const buildingTabInfo       = document.getElementById("building-tab-info");
-const buildingTabUpgrade    = document.getElementById("building-tab-upgrade");
-
-const buildingPanelUpgradeBtn = document.getElementById("building-panel-upgrade-btn");
-const buildingPanelCloseBtn   = document.getElementById("building-panel-close-btn");
-
 // المبنى الحالي المفتوح (goldMine / woodMine / meatFarm)
 let currentMiningBuildingKey = null;
-
-function switchBuildingPanelTab(tab) {
-  if (tab === 'info') {
-    if (buildingTabInfo)    buildingTabInfo.style.display = 'block';
-    if (buildingTabUpgrade) buildingTabUpgrade.style.display = 'none';
-
-    if (buildingTabInfoBtn)    buildingTabInfoBtn.style.display = 'inline-block';
-    if (buildingTabUpgradeBtn) buildingTabUpgradeBtn.style.display = 'none';
-  } else {
-    if (buildingTabInfo)    buildingTabInfo.style.display = 'none';
-    if (buildingTabUpgrade) buildingTabUpgrade.style.display = 'block';
-
-    if (buildingTabInfoBtn)    buildingTabInfoBtn.style.display = 'none';
-    if (buildingTabUpgradeBtn) buildingTabUpgradeBtn.style.display = 'inline-block';
-  }
-}
-
-if (buildingTabUpgradeBtn) {
-  buildingTabUpgradeBtn.onclick = function () {
-    switchBuildingPanelTab('upgrade');
-  };
-}
-
-buildingPanelCloseBtn.onclick = function () {
-  buildingPanel.classList.add('hidden');
-  unlockCityScroll();
-  showSummonButton(true);
-};
-
 
       /* --- Loading --- */
       function fillLoadingBar(callback) {
@@ -7716,1405 +7200,7 @@ buildingPanelCloseBtn.onclick = function () {
         characterScreen.style.display = "none";
         enterCity();
       }
-function lockCityScroll() {
-  const cs = document.querySelector("#city-screen");
-  if (cs) {
-    cs.style.overflowY = "hidden";
-    cs.style.overflowX = "hidden";
-  }
-  document.body.style.overflow = "hidden";
-  document.documentElement.style.overflow = "hidden";
-}
 
-function unlockCityScroll() {
-  const cs = document.querySelector("#city-screen");
-  if (cs) {
-    cs.style.overflowY = "auto";
-    cs.style.overflowX = "hidden";
-  }
-  document.body.style.overflow = "";
-  document.documentElement.style.overflow = "";
-}
-
-function createUnifiedBar(buildingEl, barId, fillId, textId) {
-  let uniBar = document.getElementById(barId);
-  if (uniBar) return;
-
-  uniBar = document.createElement("div");
-  uniBar.id = barId;
-  uniBar.style.cssText = `
-    position:absolute;
-    bottom:-34px;
-    left:50%;
-    transform:translateX(-50%);
-    width:110px;
-    height:16px;
-    background:rgba(15,23,42,0.85);
-    border-radius:999px;
-    overflow:hidden;
-    display:none;
-    border:1px solid rgba(148,163,184,0.2);
-  `;
-
-  const fill = document.createElement("div");
-  fill.id = fillId;
-  fill.style.cssText = `
-    width:0%;
-    height:100%;
-    border-radius:999px;
-    transition:width 1s linear;
-    background:linear-gradient(90deg,#facc15,#f97316);
-  `;
-  uniBar.appendChild(fill);
-
-  const text = document.createElement("div");
-  text.id = textId;
-  text.style.cssText = `
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:9px;
-    font-weight:bold;
-    color:white;
-    text-shadow:0 1px 2px rgba(0,0,0,0.8);
-    white-space:nowrap;
-    pointer-events:none;
-  `;
-  text.textContent = "";
-  uniBar.appendChild(text);
-
-  buildingEl.appendChild(uniBar);
-}
-
-function updateUniBar(barId, fillId, textId, percent, timeText, icon, color) {
-  const bar  = document.getElementById(barId);
-  const fill = document.getElementById(fillId);
-  const text = document.getElementById(textId);
-  if (!bar || !fill || !text) return;
-  bar.style.display     = "block";
-  fill.style.background = color;
-  fill.style.width      = percent + "%";
-  text.textContent      = icon + " " + timeText;
-}
-
-function hideUniBar(barId, fillId, textId) {
-  const bar  = document.getElementById(barId);
-  const fill = document.getElementById(fillId);
-  const text = document.getElementById(textId);
-  if (bar)  bar.style.display = "none";
-  if (fill) fill.style.width  = "0%";
-  if (text) text.textContent  = "";
-}
-
-function enterCity() {
-  cityScreen.style.display = "block";
-
-  let cityMapContainer = document.getElementById("city-map-container");
-  if (!cityMapContainer) {
-    cityMapContainer = document.createElement("div");
-    cityMapContainer.id = "city-map-container";
-    cityMapContainer.style.position = "absolute";
-    cityMapContainer.style.top = "80px";
-    cityMapContainer.style.left = "0";
-    cityMapContainer.style.right = "0";
-    cityMapContainer.style.height = "calc(100vh - 140px)";
-    cityMapContainer.style.overflowY = "auto";
-    cityMapContainer.style.overflowX = "hidden";
-    cityScreen.appendChild(cityMapContainer);
-  }
-
-if (!document.getElementById("city-bg")) {
-  const cityMap = document.createElement("img");
-  cityMap.id = "city-bg";
-  cityMap.src = "city-bg.png";
-  cityMap.style.width = "100%";
-  cityMap.style.height = "1000px";
-  cityMap.style.objectFit = "cover";
-  cityMap.style.display = "block";
-  cityMap.style.position = "relative";
-  cityMapContainer.appendChild(cityMap);
-
-
-
-
-
-   // القلعة في النص
-const castleWrapper = document.createElement("div");
-castleWrapper.id = "castle-building";
-castleWrapper.style.position = "absolute";
-castleWrapper.style.width = "210px";
-castleWrapper.style.left = "50%";
-castleWrapper.style.top = "58%";
-castleWrapper.style.transform = "translate(-50%, -50%)";
-castleWrapper.style.zIndex = 100;
-
-const castle = document.createElement("img");
-castle.src = currentHero + "_castle.png";
-castle.style.width = "100%";
-castle.style.height = "100%";
-castle.style.objectFit = "contain";
-castle.style.pointerEvents = "none";
-castleWrapper.appendChild(castle);
-
-// صندوق مستوى القلعة تحت المبنى
-const castleStatusBox = document.createElement("div");
-castleStatusBox.id = "castle-status-box";
-castleStatusBox.style.position = "absolute";
-castleStatusBox.style.bottom = "0%";
-castleStatusBox.style.left = "50%";
-castleStatusBox.style.transform = "translateX(-50%)";
-castleStatusBox.style.background = "rgba(0,0,0,0.7)";
-castleStatusBox.style.padding = "3px 8px";
-castleStatusBox.style.borderRadius = "8px";
-castleStatusBox.style.fontSize = "11px";
-castleStatusBox.style.minWidth = "80px";
-castleStatusBox.style.textAlign = "center";
-
-castleStatusBox.textContent = "Castle Lv." + castleLevel;
-castleWrapper.appendChild(castleStatusBox);
-createUnifiedBar(castleWrapper, "castle-uni-bar", "castle-uni-fill", "castle-uni-text");
-
-castleWrapper.addEventListener("click", function(e) {
-  e.stopPropagation();
-  const rect = castleWrapper.getBoundingClientRect();
-  const centerX = rect.left + rect.width / 2;
-  const centerY = rect.top + rect.height / 2;
-  if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-  showBuildingPopup("castle");
-});
-
-
-
-cityMapContainer.appendChild(castleWrapper);
-
-
-const buildingPositions = [
-  { left: "80%", top: "45%" },  // 1 - منجم الذهب
-  { left: "19%", top: "105%" },  // 2 - منجم الخشب
-  { left: "81%", top: "78%" },  // 3 - المدرسة
-  { left: "75%", top: "19%" },  // 4 - برج الهجوم
-  { left: "25%", top: "18%" },  // 5 - برج الدفاع
-  { left: "23%", top: "42%" },  // 6 - مزرعة اللحم
-  { left: "20%", top: "81%" }, // 7 - قاعة الأبطال
-  { left: "70%", top: "125%" }, // 8 - السوق
-  { left: "84%", top: "105%" }, // 9 - برج البوست
-  { left: "26%", top: "126%" }, // 10 - المستشفى
-{ left: "51%", top: "97%" }, // 11 - برج التنانين
-];
-
-
-
-
-
-
-
-// إنشاء مربعات المباني الأساسية 1..10
-buildingPositions.forEach((pos, index) => {
-  const id = "building-" + (index + 1);
-  let b = document.getElementById(id);
-  if (!b) {
-    b = document.createElement("div");
-    b.id = id;
-    b.className = "city-building";
-cityMapContainer.appendChild(b);
-  }
-
-  b.style.position = "absolute";
-  b.style.width = "60px";
-  b.style.height = "60px";
-  b.style.left = pos.left;
-  b.style.top = pos.top;
-  b.style.transform = "translate(-50%, -50%)";
-  b.style.borderRadius = "12px";
-  b.style.background = "rgba(0,0,0,0.6)";
-  b.style.border = "2px solid #facc15";
-  b.style.display = "flex";
-  b.style.alignItems = "center";
-  b.style.justifyContent = "center";
-  b.style.color = "#fff";
-  b.style.fontWeight = "bold";
-  b.style.fontSize = "16px";
-  b.style.zIndex = 90;
-  b.textContent = index + 1;
-
-  // شريط الترقية السفلي لكل مبنى (مخفي افتراضيًا)
-  let upgradeBar = b.querySelector(".building-upgrade-bar");
-  if (!upgradeBar) {
-    console.log("Creating upgrade bar for", id);
-
-    upgradeBar = document.createElement("div");
-    upgradeBar.className = "building-upgrade-bar";
-    upgradeBar.style.position = "absolute";
-    upgradeBar.style.left = "10%";
-    upgradeBar.style.right = "10%";
-    upgradeBar.style.bottom = "4px";
-    upgradeBar.style.height = "4px";
-    upgradeBar.style.background = "rgba(15,23,42,0.8)";
-    upgradeBar.style.borderRadius = "999px";
-    upgradeBar.style.overflow = "hidden";
-    upgradeBar.style.display = "none";
-
-    const fill = document.createElement("div");
-    fill.className = "building-upgrade-bar-fill";
-    fill.style.width = "0%";
-    fill.style.height = "100%";
-    fill.style.background = "#0ea5e9";
-
-    upgradeBar.appendChild(fill);
-    b.appendChild(upgradeBar);
-  } else {
-    console.log("Upgrade bar already exists for", id);
-  }
-});
-
-
-// 1: منجم الذهب (building-1)
-const goldMine = document.getElementById("building-1");
-if (goldMine) {
-  goldMine.style.border = "none";
-  goldMine.style.background = "transparent";
-  goldMine.style.width = "130px";
-  goldMine.style.height = "150px";
-  goldMine.style.position = "absolute";
-  goldMine.style.left = buildingPositions[0].left;
-  goldMine.style.top = buildingPositions[0].top;
-  goldMine.style.transform = "translate(-50%, -50%)";
-  goldMine.style.zIndex = 95;
-  goldMine.innerHTML = "";
-
-  const goldImg = document.createElement("img");
-  goldImg.src = "goldmine.png";
-  goldImg.style.width = "100%";
-  goldImg.style.height = "100%";
-  goldImg.style.objectFit = "contain";
-  goldImg.style.pointerEvents = "none";
-  goldMine.appendChild(goldImg);
-
-  const goldStatusBox = document.createElement("div");
-  goldStatusBox.id = "gold-mine-status-box";
-  goldStatusBox.style.position = "absolute";
-  goldStatusBox.style.bottom = "0%";
-  goldStatusBox.style.left = "50%";
-  goldStatusBox.style.transform = "translateX(-50%)";
-  goldStatusBox.style.background = "rgba(0,0,0,0.7)";
-  goldStatusBox.style.padding = "2px 6px";
-  goldStatusBox.style.borderRadius = "8px";
-  goldStatusBox.style.fontSize = "10px";
-  goldStatusBox.style.minWidth = "70px";
-  goldStatusBox.style.textAlign = "center";
-  goldStatusBox.style.pointerEvents = "none";
-  goldStatusBox.textContent = "Lv." + (buildingLevels.goldMine || 1);
-  goldMine.appendChild(goldStatusBox);
-
-  createUnifiedBar(goldMine, "gold-mine-uni-bar", "gold-mine-uni-fill", "gold-mine-uni-text");
-
-  let goldBar = document.getElementById("gold-mine-upgrade-bar");
-  if (!goldBar) {
-    goldBar = document.createElement("div");
-    goldBar.id = "gold-mine-upgrade-bar";
-    goldBar.style.display = "none";
-    goldMine.appendChild(goldBar);
-    const goldFill = document.createElement("div");
-    goldFill.id = "gold-mine-upgrade-bar-fill";
-    goldBar.appendChild(goldFill);
-  }
-
-  let goldTime = document.getElementById("gold-mine-upgrade-remaining-time");
-  if (!goldTime) {
-    goldTime = document.createElement("div");
-    goldTime.id = "gold-mine-upgrade-remaining-time";
-    goldTime.style.display = "none";
-    goldMine.appendChild(goldTime);
-  }
-
-  if (castleLevel < 2) {
-    goldMine.style.filter = "grayscale(1)";
-    goldMine.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv.2";
-    lock.style.position = "absolute";
-    lock.style.bottom = "4px";
-    lock.style.left = "50%";
-    lock.style.transform = "translateX(-50%)";
-    lock.style.background = "rgba(0,0,0,0.7)";
-    lock.style.padding = "2px 6px";
-    lock.style.borderRadius = "8px";
-    lock.style.fontSize = "10px";
-    lock.style.pointerEvents = "none";
-    goldMine.appendChild(lock);
-    goldMine.onclick = function (e) {
-      e.stopPropagation();
-      const rect = goldMine.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("منجم الذهب مقفول.\nقم بترقية القلعة إلى المستوى 2 أولاً.");
-    };
-  } else {
-    goldMine.style.filter = "none";
-    goldMine.style.opacity = "1";
-    goldMine.onclick = function (e) {
-      e.stopPropagation();
-      const rect = goldMine.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("goldMine");
-    };
-
-    let goldMineCollectHint = document.getElementById("gold-mine-collect-hint");
-    if (!goldMineCollectHint) {
-      goldMineCollectHint = document.createElement("div");
-      goldMineCollectHint.id = "gold-mine-collect-hint";
-      goldMineCollectHint.style.position = "absolute";
-      goldMineCollectHint.style.top = "-10px";
-      goldMineCollectHint.style.left = "50%";
-      goldMineCollectHint.style.transform = "translateX(-50%)";
-      goldMineCollectHint.innerHTML = `<img src="gold.png" style="width:32px;height:32px;object-fit:contain;">`;
-      goldMineCollectHint.style.animation = "bounce 1s infinite";
-      goldMineCollectHint.style.cursor = "pointer";
-      goldMineCollectHint.style.display = "none";
-      goldMineCollectHint.style.pointerEvents = "auto";
-      goldMine.appendChild(goldMineCollectHint);
-    }
-    goldMineCollectHint.onclick = function (e) {
-      e.stopPropagation();
-      collectGoldFromMine(miningStored.goldMine || 0);
-    };
-  }
-}
-
-
-
-// 2: منجم الخشب (building-2)
-const woodMine = document.getElementById("building-2");
-if (woodMine) {
-  const requiredLevel = 2;
-
-  woodMine.style.border = "none";
-  woodMine.style.background = "transparent";
-  woodMine.style.width = "170px";
-  woodMine.style.height = "150px";
-  woodMine.style.position = "absolute";
-  woodMine.style.left = buildingPositions[1].left;
-  woodMine.style.top = buildingPositions[1].top;
-  woodMine.style.transform = "translate(-50%, -50%)";
-  woodMine.style.zIndex = 95;
-  woodMine.innerHTML = "";
-
-  const woodImg = document.createElement("img");
-  woodImg.src = "woodmine.png";
-  woodImg.style.width = "100%";
-  woodImg.style.height = "100%";
-  woodImg.style.objectFit = "contain";
-  woodImg.style.pointerEvents = "none";
-  woodMine.appendChild(woodImg);
-
-  const woodStatusBox = document.createElement("div");
-  woodStatusBox.id = "wood-mine-status-box";
-  woodStatusBox.style.position = "absolute";
-  woodStatusBox.style.bottom = "0%";
-  woodStatusBox.style.left = "50%";
-  woodStatusBox.style.transform = "translateX(-50%)";
-  woodStatusBox.style.background = "rgba(0,0,0,0.7)";
-  woodStatusBox.style.padding = "2px 6px";
-  woodStatusBox.style.borderRadius = "8px";
-  woodStatusBox.style.fontSize = "10px";
-  woodStatusBox.style.minWidth = "70px";
-  woodStatusBox.style.textAlign = "center";
-  woodStatusBox.style.pointerEvents = "none";
-
-  createUnifiedBar(woodMine, "wood-mine-uni-bar", "wood-mine-uni-fill", "wood-mine-uni-text");
-
-  let woodBar = document.getElementById("wood-mine-upgrade-bar");
-  if (!woodBar) {
-    woodBar = document.createElement("div");
-    woodBar.id = "wood-mine-upgrade-bar";
-    woodBar.style.display = "none";
-    woodMine.appendChild(woodBar);
-    const woodFill = document.createElement("div");
-    woodFill.id = "wood-mine-upgrade-bar-fill";
-    woodBar.appendChild(woodFill);
-  }
-
-  let woodTime = document.getElementById("wood-mine-upgrade-bar-time");
-  if (!woodTime) {
-    woodTime = document.createElement("div");
-    woodTime.id = "wood-mine-upgrade-bar-time";
-    woodTime.style.display = "none";
-    woodMine.appendChild(woodTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    woodMine.style.filter = "grayscale(1)";
-    woodMine.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.position = "absolute";
-    lock.style.bottom = "4px";
-    lock.style.left = "50%";
-    lock.style.transform = "translateX(-50%)";
-    lock.style.background = "rgba(0,0,0,0.7)";
-    lock.style.padding = "2px 6px";
-    lock.style.borderRadius = "8px";
-    lock.style.fontSize = "10px";
-    lock.style.pointerEvents = "none";
-    woodMine.appendChild(lock);
-    woodMine.onclick = function (e) {
-      e.stopPropagation();
-      const rect = woodMine.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("منجم الخشب مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    woodMine.style.filter = "none";
-    woodMine.style.opacity = "1";
-    woodMine.onclick = function (e) {
-      e.stopPropagation();
-      const rect = woodMine.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("woodMine");
-    };
-
-    let woodMineCollectHint = document.getElementById("wood-mine-collect-hint");
-    if (!woodMineCollectHint) {
-      woodMineCollectHint = document.createElement("div");
-      woodMineCollectHint.id = "wood-mine-collect-hint";
-      woodMineCollectHint.style.position = "absolute";
-      woodMineCollectHint.style.top = "-10px";
-      woodMineCollectHint.style.left = "50%";
-      woodMineCollectHint.style.transform = "translateX(-50%)";
-      woodMineCollectHint.innerHTML = `<img src="wood.png" style="width:32px;height:32px;object-fit:contain;">`;
-      woodMineCollectHint.style.animation = "bounce 1s infinite";
-      woodMineCollectHint.style.cursor = "pointer";
-      woodMineCollectHint.style.display = "none";
-      woodMineCollectHint.style.pointerEvents = "auto";
-      woodMine.appendChild(woodMineCollectHint);
-    }
-    woodMineCollectHint.onclick = function (e) {
-      e.stopPropagation();
-      const stored = Math.floor(miningStored.woodMine || 0);
-      if (stored <= 0) return;
-      resources.wood += stored;
-      miningStored.woodMine = 0;
-      if (typeof updateTopBar === "function") updateTopBar();
-      updateGoldMineUI();
-    };
-
-    woodStatusBox.textContent = "Lv." + (buildingLevels.woodMine || 1);
-    woodMine.appendChild(woodStatusBox);
-  }
-}
-
-// 3: المدرسة (building-3)
-const school = document.getElementById("building-3");
-if (school) {
-  const requiredLevel = 3;
-
-  school.style.border = "none";
-  school.style.background = "transparent";
-  school.style.width = "160px";
-  school.style.height = "160px";
-  school.style.position = "absolute";
-  school.style.left = buildingPositions[2].left;
-  school.style.top = buildingPositions[2].top;
-  school.style.transform = "translate(-50%, -50%)";
-  school.style.zIndex = 95;
-  school.innerHTML = "";
-
-  const schoolImg = document.createElement("img");
-  schoolImg.src = "school.png";
-  schoolImg.style.width = "100%";
-  schoolImg.style.height = "100%";
-  schoolImg.style.objectFit = "contain";
-  schoolImg.style.pointerEvents = "none";
-  school.appendChild(schoolImg);
-
-  const schoolStatusBox = document.createElement("div");
-  schoolStatusBox.id = "school-status-box";
-  schoolStatusBox.style.position = "absolute";
-  schoolStatusBox.style.bottom = "0%";
-  schoolStatusBox.style.left = "50%";
-  schoolStatusBox.style.transform = "translateX(-50%)";
-  schoolStatusBox.style.background = "rgba(0,0,0,0.7)";
-  schoolStatusBox.style.padding = "2px 6px";
-  schoolStatusBox.style.borderRadius = "8px";
-  schoolStatusBox.style.fontSize = "10px";
-  schoolStatusBox.style.minWidth = "70px";
-  schoolStatusBox.style.textAlign = "center";
-  schoolStatusBox.style.pointerEvents = "none";
-
-  createUnifiedBar(school, "school-uni-bar", "school-uni-fill", "school-uni-text");
-
-  let schoolBar = document.getElementById("school-upgrade-bar");
-  if (!schoolBar) {
-    schoolBar = document.createElement("div");
-    schoolBar.id = "school-upgrade-bar";
-    schoolBar.style.display = "none";
-    school.appendChild(schoolBar);
-    const fill = document.createElement("div");
-    fill.id = "school-upgrade-bar-fill";
-    schoolBar.appendChild(fill);
-  }
-
-  let schoolTime = document.getElementById("school-upgrade-bar-time");
-  if (!schoolTime) {
-    schoolTime = document.createElement("div");
-    schoolTime.id = "school-upgrade-bar-time";
-    schoolTime.style.display = "none";
-    school.appendChild(schoolTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    school.style.filter = "grayscale(1)";
-    school.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.position = "absolute";
-    lock.style.bottom = "4px";
-    lock.style.left = "50%";
-    lock.style.transform = "translateX(-50%)";
-    lock.style.background = "rgba(0,0,0,0.7)";
-    lock.style.padding = "2px 6px";
-    lock.style.borderRadius = "8px";
-    lock.style.fontSize = "10px";
-    lock.style.pointerEvents = "none";
-    school.appendChild(lock);
-    school.onclick = function (e) {
-      e.stopPropagation();
-      const rect = school.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("المدرسة مقفولة.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    school.style.filter = "none";
-    school.style.opacity = "1";
-    school.onclick = function (e) {
-      e.stopPropagation();
-      const rect = school.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("school");
-    };
-    schoolStatusBox.textContent = "Lv." + (buildingLevels.school || 1);
-    school.appendChild(schoolStatusBox);
-  }
-}
-
-// 4: برج الهجوم (building-4)
-const attackTower = document.getElementById("building-4");
-if (attackTower) {
-  const requiredLevel = 5;
-
-  attackTower.style.border = "none";
-  attackTower.style.background = "transparent";
-  attackTower.style.width = "240px";
-  attackTower.style.height = "200px";
-  attackTower.style.position = "absolute";
-  attackTower.style.left = buildingPositions[3].left;
-  attackTower.style.top = buildingPositions[3].top;
-  attackTower.style.transform = "translate(-50%, -50%)";
-  attackTower.style.zIndex = 95;
-  attackTower.innerHTML = "";
-
-  const attackImg = document.createElement("img");
-  attackImg.src = "attack_tower.png";
-  attackImg.style.width = "100%";
-  attackImg.style.height = "100%";
-  attackImg.style.objectFit = "contain";
-  attackImg.style.pointerEvents = "none";
-  attackTower.appendChild(attackImg);
-
-  const attackStatusBox = document.createElement("div");
-  attackStatusBox.id = "attack-tower-status-box";
-  attackStatusBox.style.position = "absolute";
-  attackStatusBox.style.bottom = "0%";
-  attackStatusBox.style.left = "50%";
-  attackStatusBox.style.transform = "translateX(-50%)";
-  attackStatusBox.style.background = "rgba(0,0,0,0.7)";
-  attackStatusBox.style.padding = "2px 6px";
-  attackStatusBox.style.borderRadius = "8px";
-  attackStatusBox.style.fontSize = "10px";
-  attackStatusBox.style.minWidth = "70px";
-  attackStatusBox.style.textAlign = "center";
-  attackStatusBox.style.pointerEvents = "none";
-
-  createUnifiedBar(attackTower, "attack-tower-uni-bar", "attack-tower-uni-fill", "attack-tower-uni-text");
-
-  let attackBar = document.getElementById("attack-tower-upgrade-bar");
-  if (!attackBar) {
-    attackBar = document.createElement("div");
-    attackBar.id = "attack-tower-upgrade-bar";
-    attackBar.style.display = "none";
-    attackTower.appendChild(attackBar);
-    const fill = document.createElement("div");
-    fill.id = "attack-tower-upgrade-bar-fill";
-    attackBar.appendChild(fill);
-  }
-
-  let attackTime = document.getElementById("attack-tower-upgrade-bar-time");
-  if (!attackTime) {
-    attackTime = document.createElement("div");
-    attackTime.id = "attack-tower-upgrade-bar-time";
-    attackTime.style.display = "none";
-    attackTower.appendChild(attackTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    attackTower.style.filter = "grayscale(1)";
-    attackTower.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.position = "absolute";
-    lock.style.bottom = "4px";
-    lock.style.left = "50%";
-    lock.style.transform = "translateX(-50%)";
-    lock.style.background = "rgba(0,0,0,0.7)";
-    lock.style.padding = "2px 6px";
-    lock.style.borderRadius = "8px";
-    lock.style.fontSize = "10px";
-    lock.style.pointerEvents = "none";
-    attackTower.appendChild(lock);
-    attackTower.onclick = function (e) {
-      e.stopPropagation();
-      const rect = attackTower.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("برج الهجوم مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    attackTower.style.filter = "none";
-    attackTower.style.opacity = "1";
-    attackTower.onclick = function (e) {
-      e.stopPropagation();
-      const rect = attackTower.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("attackTower");
-    };
-    attackStatusBox.textContent = "Lv." + (buildingLevels.attackTower || 1);
-    attackTower.appendChild(attackStatusBox);
-  }
-}
-
-// 5: برج الدفاع (building-5)
-const defenseTower = document.getElementById("building-5");
-if (defenseTower) {
-  const requiredLevel = 7;
-
-  defenseTower.style.border = "none";
-  defenseTower.style.background = "transparent";
-  defenseTower.style.width = "220px";
-  defenseTower.style.height = "200px";
-  defenseTower.style.position = "absolute";
-  defenseTower.style.left = buildingPositions[4].left;
-  defenseTower.style.top = buildingPositions[4].top;
-  defenseTower.style.transform = "translate(-50%, -50%)";
-  defenseTower.style.zIndex = 95;
-  defenseTower.innerHTML = "";
-
-  const defenseImg = document.createElement("img");
-  defenseImg.src = "defense_tower.png";
-  defenseImg.style.width = "100%";
-  defenseImg.style.height = "100%";
-  defenseImg.style.objectFit = "contain";
-  defenseImg.style.pointerEvents = "none";
-  defenseTower.appendChild(defenseImg);
-
-  const defenseStatusBox = document.createElement("div");
-  defenseStatusBox.id = "defense-tower-status-box";
-  defenseStatusBox.style.position = "absolute";
-  defenseStatusBox.style.bottom = "0%";
-  defenseStatusBox.style.left = "50%";
-  defenseStatusBox.style.transform = "translateX(-50%)";
-  defenseStatusBox.style.background = "rgba(0,0,0,0.7)";
-  defenseStatusBox.style.padding = "2px 6px";
-  defenseStatusBox.style.borderRadius = "8px";
-  defenseStatusBox.style.fontSize = "10px";
-  defenseStatusBox.style.minWidth = "70px";
-  defenseStatusBox.style.textAlign = "center";
-  defenseStatusBox.style.pointerEvents = "none";
-
-  createUnifiedBar(defenseTower, "defense-tower-uni-bar", "defense-tower-uni-fill", "defense-tower-uni-text");
-
-  let defenseBar = document.getElementById("defense-tower-upgrade-bar");
-  if (!defenseBar) {
-    defenseBar = document.createElement("div");
-    defenseBar.id = "defense-tower-upgrade-bar";
-    defenseBar.style.display = "none";
-    defenseTower.appendChild(defenseBar);
-    const fill = document.createElement("div");
-    fill.id = "defense-tower-upgrade-bar-fill";
-    defenseBar.appendChild(fill);
-  }
-
-  let defenseTime = document.getElementById("defense-tower-upgrade-bar-time");
-  if (!defenseTime) {
-    defenseTime = document.createElement("div");
-    defenseTime.id = "defense-tower-upgrade-bar-time";
-    defenseTime.style.display = "none";
-    defenseTower.appendChild(defenseTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    defenseTower.style.filter = "grayscale(1)";
-    defenseTower.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.position = "absolute";
-    lock.style.bottom = "4px";
-    lock.style.left = "50%";
-    lock.style.transform = "translateX(-50%)";
-    lock.style.background = "rgba(0,0,0,0.7)";
-    lock.style.padding = "2px 6px";
-    lock.style.borderRadius = "8px";
-    lock.style.fontSize = "10px";
-    lock.style.pointerEvents = "none";
-    defenseTower.appendChild(lock);
-    defenseTower.onclick = function (e) {
-      e.stopPropagation();
-      const rect = defenseTower.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("برج الدفاع مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    defenseTower.style.filter = "none";
-    defenseTower.style.opacity = "1";
-    defenseTower.onclick = function (e) {
-      e.stopPropagation();
-      const rect = defenseTower.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("defenseTower");
-    };
-    defenseStatusBox.textContent = "Lv." + (buildingLevels.defenseTower || 1);
-    defenseTower.appendChild(defenseStatusBox);
-  }
-}
-
-
- // 6: مزرعة اللحم
-const meatFarm = document.getElementById("building-6");
-if (meatFarm) {
-  const requiredLevel = 2;
-  meatFarm.style.border = "none";
-  meatFarm.style.background = "transparent";
-  meatFarm.style.width = "180px";
-  meatFarm.style.height = "180px";
-  meatFarm.style.position = "absolute";
-  meatFarm.style.left = buildingPositions[5].left;
-  meatFarm.style.top = buildingPositions[5].top;
-  meatFarm.style.transform = "translate(-50%, -50%)";
-  meatFarm.style.zIndex = 95;
-  meatFarm.innerHTML = "";
-
-  const img6 = document.createElement("img");
-  img6.src = "meatfarm.png";
-  img6.style.width = "100%";
-  img6.style.height = "100%";
-  img6.style.objectFit = "contain";
-  img6.style.pointerEvents = "none";
-  meatFarm.appendChild(img6);
-
-  const meatStatusBox = document.createElement("div");
-  meatStatusBox.id = "meat-farm-status-box";
-  meatStatusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
-
-  createUnifiedBar(meatFarm, "meat-farm-uni-bar", "meat-farm-uni-fill", "meat-farm-uni-text");
-
-  let meatBar = document.getElementById("meat-farm-upgrade-bar");
-  if (!meatBar) {
-    meatBar = document.createElement("div");
-    meatBar.id = "meat-farm-upgrade-bar";
-    meatBar.style.display = "none";
-    meatFarm.appendChild(meatBar);
-    const meatFill = document.createElement("div");
-    meatFill.id = "meat-farm-upgrade-bar-fill";
-    meatBar.appendChild(meatFill);
-  }
-
-  let meatTime = document.getElementById("meat-farm-upgrade-bar-time");
-  if (!meatTime) {
-    meatTime = document.createElement("div");
-    meatTime.id = "meat-farm-upgrade-bar-time";
-    meatTime.style.display = "none";
-    meatFarm.appendChild(meatTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    meatFarm.style.filter = "grayscale(1)";
-    meatFarm.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    meatFarm.appendChild(lock);
-    meatFarm.onclick = function (e) {
-      e.stopPropagation();
-      const rect = meatFarm.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("مزرعة اللحم مقفولة.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    meatFarm.style.filter = "none";
-    meatFarm.style.opacity = "1";
-    meatFarm.onclick = function (e) {
-      e.stopPropagation();
-      const rect = meatFarm.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("meatFarm");
-    };
-
-    let meatFarmCollectHint = document.getElementById("meat-farm-collect-hint");
-    if (!meatFarmCollectHint) {
-      meatFarmCollectHint = document.createElement("div");
-      meatFarmCollectHint.id = "meat-farm-collect-hint";
-      meatFarmCollectHint.style.cssText = "position:absolute;top:-10px;left:50%;transform:translateX(-50%);animation:bounce 1s infinite;cursor:pointer;display:none;pointer-events:auto;";
-      meatFarmCollectHint.innerHTML = `<img src="food.png" style="width:32px;height:32px;object-fit:contain;">`;
-      meatFarm.appendChild(meatFarmCollectHint);
-    }
-    meatFarmCollectHint.onclick = function (e) {
-      e.stopPropagation();
-      const stored = Math.floor(miningStored.meatFarm || 0);
-      if (stored <= 0) return;
-      resources.food += stored;
-      miningStored.meatFarm = 0;
-      if (typeof updateTopBar === "function") updateTopBar();
-      updateGoldMineUI();
-    };
-
-    meatStatusBox.textContent = "Lv." + (buildingLevels.meatFarm || 1);
-    meatFarm.appendChild(meatStatusBox);
-  }
-}
-
-// 7: قاعة الأبطال
-const heroesHall = document.getElementById("building-7");
-if (heroesHall) {
-  const requiredLevel = 4;
-  heroesHall.style.border = "none";
-  heroesHall.style.background = "transparent";
-  heroesHall.style.width = "180px";
-  heroesHall.style.height = "200px";
-  heroesHall.style.position = "absolute";
-  heroesHall.style.left = buildingPositions[6].left;
-  heroesHall.style.top = buildingPositions[6].top;
-  heroesHall.style.transform = "translate(-50%, -50%)";
-  heroesHall.style.zIndex = 95;
-  heroesHall.innerHTML = "";
-
-  const img7 = document.createElement("img");
-  img7.src = "heroes_hall.png";
-  img7.style.width = "100%";
-  img7.style.height = "100%";
-  img7.style.objectFit = "contain";
-  img7.style.pointerEvents = "none";
-  heroesHall.appendChild(img7);
-
-  const heroesHallStatusBox = document.createElement("div");
-  heroesHallStatusBox.id = "heroes-hall-status-box";
-  heroesHallStatusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
-
-  createUnifiedBar(heroesHall, "heroes-hall-uni-bar", "heroes-hall-uni-fill", "heroes-hall-uni-text");
-
-  let heroesBar = document.getElementById("heroes-hall-upgrade-bar");
-  if (!heroesBar) {
-    heroesBar = document.createElement("div");
-    heroesBar.id = "heroes-hall-upgrade-bar";
-    heroesBar.style.display = "none";
-    heroesHall.appendChild(heroesBar);
-    const fill = document.createElement("div");
-    fill.id = "heroes-hall-upgrade-bar-fill";
-    heroesBar.appendChild(fill);
-  }
-
-  let heroesTime = document.getElementById("heroes-hall-upgrade-bar-time");
-  if (!heroesTime) {
-    heroesTime = document.createElement("div");
-    heroesTime.id = "heroes-hall-upgrade-bar-time";
-    heroesTime.style.display = "none";
-    heroesHall.appendChild(heroesTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    heroesHall.style.filter = "grayscale(1)";
-    heroesHall.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    heroesHall.appendChild(lock);
-    heroesHall.onclick = function (e) {
-      e.stopPropagation();
-      const rect = heroesHall.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("قاعة الأبطال مقفولة.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    heroesHall.style.filter = "none";
-    heroesHall.style.opacity = "1";
-    heroesHall.onclick = function (e) {
-      e.stopPropagation();
-      const rect = heroesHall.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("heroesHall");
-    };
-    heroesHallStatusBox.textContent = "Lv." + (buildingLevels.heroesHall || 1);
-    heroesHall.appendChild(heroesHallStatusBox);
-  }
-}
-
-
-// 8: السوق
-const market = document.getElementById("building-8");
-if (market) {
-  const requiredLevel = 6;
-  market.style.border = "none";
-  market.style.background = "transparent";
-  market.style.width = "180px";
-  market.style.height = "200px";
-  market.style.position = "absolute";
-  market.style.left = buildingPositions[7].left;
-  market.style.top = buildingPositions[7].top;
-  market.style.transform = "translate(-50%, -50%)";
-  market.style.zIndex = 95;
-  market.innerHTML = "";
-
-  const img8 = document.createElement("img");
-  img8.src = "market.png";
-  img8.style.width = "100%";
-  img8.style.height = "100%";
-  img8.style.objectFit = "contain";
-  img8.style.pointerEvents = "none";
-  market.appendChild(img8);
-
-  const marketStatusBox = document.createElement("div");
-  marketStatusBox.id = "market-status-box";
-  marketStatusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
-
-  createUnifiedBar(market, "market-uni-bar", "market-uni-fill", "market-uni-text");
-
-  let marketBar = document.getElementById("market-upgrade-bar");
-  if (!marketBar) {
-    marketBar = document.createElement("div");
-    marketBar.id = "market-upgrade-bar";
-    marketBar.style.display = "none";
-    market.appendChild(marketBar);
-    const fill = document.createElement("div");
-    fill.id = "market-upgrade-bar-fill";
-    marketBar.appendChild(fill);
-  }
-
-  let marketTime = document.getElementById("market-upgrade-bar-time");
-  if (!marketTime) {
-    marketTime = document.createElement("div");
-    marketTime.id = "market-upgrade-bar-time";
-    marketTime.style.display = "none";
-    market.appendChild(marketTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    market.style.filter = "grayscale(1)";
-    market.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    market.appendChild(lock);
-    market.onclick = function (e) {
-      e.stopPropagation();
-      const rect = market.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("السوق مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    market.style.filter = "none";
-    market.style.opacity = "1";
-    market.onclick = function (e) {
-      e.stopPropagation();
-      const rect = market.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("market");
-    };
-    marketStatusBox.textContent = "Lv." + (buildingLevels.market || 1);
-    market.appendChild(marketStatusBox);
-  }
-}
-
-// 9: برج البوست
-const booster = document.getElementById("building-9");
-if (booster) {
-  const requiredLevel = 8;
-  booster.style.border = "none";
-  booster.style.background = "transparent";
-  booster.style.width = "130px";
-  booster.style.height = "130px";
-  booster.style.position = "absolute";
-  booster.style.left = buildingPositions[8].left;
-  booster.style.top = buildingPositions[8].top;
-  booster.style.transform = "translate(-50%, -50%)";
-  booster.style.zIndex = 95;
-  booster.innerHTML = "";
-
-  const boosterImg = document.createElement("img");
-  boosterImg.src = "booster_tower.png";
-  boosterImg.style.width = "100%";
-  boosterImg.style.height = "100%";
-  boosterImg.style.objectFit = "contain";
-  boosterImg.style.pointerEvents = "none";
-  booster.appendChild(boosterImg);
-
-  const boosterStatusBox = document.createElement("div");
-  boosterStatusBox.id = "booster-tower-status-box";
-  boosterStatusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
-
-  createUnifiedBar(booster, "booster-uni-bar", "booster-uni-fill", "booster-uni-text");
-
-  let boosterBar = document.getElementById("booster-tower-upgrade-bar");
-  if (!boosterBar) {
-    boosterBar = document.createElement("div");
-    boosterBar.id = "booster-tower-upgrade-bar";
-    boosterBar.style.display = "none";
-    booster.appendChild(boosterBar);
-    const fill = document.createElement("div");
-    fill.id = "booster-tower-upgrade-bar-fill";
-    boosterBar.appendChild(fill);
-  }
-
-  let boosterTime = document.getElementById("booster-tower-upgrade-bar-time");
-  if (!boosterTime) {
-    boosterTime = document.createElement("div");
-    boosterTime.id = "booster-tower-upgrade-bar-time";
-    boosterTime.style.display = "none";
-    booster.appendChild(boosterTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    booster.style.filter = "grayscale(1)";
-    booster.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    booster.appendChild(lock);
-    booster.onclick = function (e) {
-      e.stopPropagation();
-      const rect = booster.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("برج البوست مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    booster.style.filter = "none";
-    booster.style.opacity = "1";
-    booster.onclick = function (e) {
-      e.stopPropagation();
-      const rect = booster.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("booster");
-    };
-    boosterStatusBox.textContent = "Lv." + (buildingLevels.booster || 1);
-    booster.appendChild(boosterStatusBox);
-  }
-}
-
-
-// 10: المستشفى
-const hospital = document.getElementById("building-10");
-if (hospital) {
-  const requiredLevel = 10;
-  hospital.style.border = "none";
-  hospital.style.background = "transparent";
-  hospital.style.width = "195px";
-  hospital.style.height = "175px";
-  hospital.style.position = "absolute";
-  hospital.style.left = buildingPositions[9].left;
-  hospital.style.top = buildingPositions[9].top;
-  hospital.style.transform = "translate(-50%, -50%)";
-  hospital.style.zIndex = 95;
-  hospital.innerHTML = "";
-
-  const hospitalImg = document.createElement("img");
-  hospitalImg.src = "hospital.png";
-  hospitalImg.style.width = "100%";
-  hospitalImg.style.height = "100%";
-  hospitalImg.style.objectFit = "contain";
-  hospitalImg.style.pointerEvents = "none";
-  hospital.appendChild(hospitalImg);
-
-  const hospitalStatusBox = document.createElement("div");
-  hospitalStatusBox.id = "hospital-status-box";
-  hospitalStatusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
-
-  createUnifiedBar(hospital, "hospital-uni-bar", "hospital-uni-fill", "hospital-uni-text");
-
-  let hospitalBar = document.getElementById("hospital-upgrade-bar");
-  if (!hospitalBar) {
-    hospitalBar = document.createElement("div");
-    hospitalBar.id = "hospital-upgrade-bar";
-    hospitalBar.style.display = "none";
-    hospital.appendChild(hospitalBar);
-    const fill = document.createElement("div");
-    fill.id = "hospital-upgrade-bar-fill";
-    hospitalBar.appendChild(fill);
-  }
-
-  let hospitalTime = document.getElementById("hospital-upgrade-bar-time");
-  if (!hospitalTime) {
-    hospitalTime = document.createElement("div");
-    hospitalTime.id = "hospital-upgrade-bar-time";
-    hospitalTime.style.display = "none";
-    hospital.appendChild(hospitalTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    hospital.style.filter = "grayscale(1)";
-    hospital.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    hospital.appendChild(lock);
-    hospital.onclick = function (e) {
-      e.stopPropagation();
-      const rect = hospital.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("المستشفى مقفول.\nقم بترقية القلعة إلى المستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    hospital.style.filter = "none";
-    hospital.style.opacity = "1";
-    hospital.onclick = function (e) {
-      e.stopPropagation();
-      const rect = hospital.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("hospital");
-    };
-    hospitalStatusBox.textContent = "Lv." + (buildingLevels.hospital || 1);
-    hospital.appendChild(hospitalStatusBox);
-  }
-}
-
-// 11: برج التنانين
-const dragonTowerEl = document.getElementById("building-11");
-if (dragonTowerEl) {
-  const requiredLevel = 6;
-
-  dragonTowerEl.style.border = "none";
-  dragonTowerEl.style.background = "transparent";
-  dragonTowerEl.style.width = "190px";
-  dragonTowerEl.style.height = "190px";
-  dragonTowerEl.style.position = "absolute";
-  dragonTowerEl.style.left = buildingPositions[10].left;
-  dragonTowerEl.style.top = buildingPositions[10].top;
-  dragonTowerEl.style.transform = "translate(-50%, -50%)";
-  dragonTowerEl.style.zIndex = 95;
-  dragonTowerEl.innerHTML = "";
-
-  const dragonImg = document.createElement("img");
-  dragonImg.src = "dragontower.png";
-  dragonImg.style.width = "100%";
-  dragonImg.style.height = "100%";
-  dragonImg.style.objectFit = "contain";
-  dragonImg.style.pointerEvents = "none";
-  dragonTowerEl.appendChild(dragonImg);
-
-  const statusBox = document.createElement("div");
-  statusBox.id = "dragon-tower-status-box";
-  statusBox.style.position = "absolute";
-  statusBox.style.bottom = "0%";
-  statusBox.style.left = "50%";
-  statusBox.style.transform = "translateX(-50%)";
-  statusBox.style.background = "rgba(0,0,0,0.7)";
-  statusBox.style.padding = "2px 6px";
-  statusBox.style.borderRadius = "8px";
-  statusBox.style.fontSize = "10px";
-  statusBox.style.minWidth = "70px";
-  statusBox.style.textAlign = "center";
-  statusBox.style.pointerEvents = "none";
-
-  createUnifiedBar(dragonTowerEl, "dragon-tower-uni-bar", "dragon-tower-uni-fill", "dragon-tower-uni-text");
-
-  let dragonBar = document.getElementById("dragon-tower-upgrade-bar");
-  if (!dragonBar) {
-    dragonBar = document.createElement("div");
-    dragonBar.id = "dragon-tower-upgrade-bar";
-    dragonBar.style.display = "none";
-    dragonTowerEl.appendChild(dragonBar);
-    const fill = document.createElement("div");
-    fill.id = "dragon-tower-upgrade-bar-fill";
-    dragonBar.appendChild(fill);
-  }
-
-  let dragonTime = document.getElementById("dragon-tower-upgrade-bar-time");
-  if (!dragonTime) {
-    dragonTime = document.createElement("div");
-    dragonTime.id = "dragon-tower-upgrade-bar-time";
-    dragonTime.style.display = "none";
-    dragonTowerEl.appendChild(dragonTime);
-  }
-
-  if (castleLevel < requiredLevel) {
-    dragonTowerEl.style.filter = "grayscale(1)";
-    dragonTowerEl.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + requiredLevel;
-    lock.style.position = "absolute";
-    lock.style.bottom = "4px";
-    lock.style.left = "50%";
-    lock.style.transform = "translateX(-50%)";
-    lock.style.background = "rgba(0,0,0,0.7)";
-    lock.style.padding = "2px 6px";
-    lock.style.borderRadius = "8px";
-    lock.style.fontSize = "10px";
-    lock.style.pointerEvents = "none";
-    dragonTowerEl.appendChild(lock);
-    dragonTowerEl.onclick = function (e) {
-      e.stopPropagation();
-      const rect = dragonTowerEl.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      alert("برج التنانين مقفول.\nرقّي القلعة للمستوى " + requiredLevel + " أولاً.");
-    };
-  } else {
-    dragonTowerEl.style.filter = "none";
-    dragonTowerEl.style.opacity = "1";
-    dragonTowerEl.onclick = function (e) {
-      e.stopPropagation();
-      const rect = dragonTowerEl.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-      showBuildingPopup("dragonTower");
-    };
-    statusBox.textContent = "Lv." + (buildingLevels.dragonTower || 1);
-    dragonTowerEl.appendChild(statusBox);
-  }
-}
-
-
-
-
-    addTopBar();
-    addBottomBar();
-    // startResourceAutoUpdate();  // وقفناها مؤقتًا
-
-
-    const rightArrowMenu = document.querySelector(".right-arrow-menu");
-    if (rightArrowMenu) {
-      rightArrowMenu.style.display = "block";
-    }
-
-    const tutorialDone = localStorage.getItem(TUTORIAL_DONE_KEY) === "1";
-    if (!tutorialDone) {
-      showTutorialStep();
-    }
-  } // نهاية if (!document.getElementById("city-bg"))
-}   // نهاية function enterCity
-function highlightBuildingInCity(buildingKey) {
-  let buildingId = null;
-  for (const cfg of Object.values(BUILDINGS_CONFIG)) {
-    if (cfg.key === buildingKey) {
-      buildingId = cfg.id; // مثال: "building-1"
-      break;
-    }
-  }
-  if (!buildingId) {
-    console.warn("No building id found for key:", buildingKey);
-    return;
-  }
-
-  const el = document.getElementById(buildingId);
-  if (!el) {
-    console.warn("Building element not found:", buildingId);
-    return;
-  }
-
-  const oldPointer = el.querySelector(".building-pointer");
-  if (oldPointer) {
-    oldPointer.remove();
-  }
-
-  el.style.position = el.style.position || "absolute";
-
-  const pointer = document.createElement("div");
-  pointer.className = "building-pointer";
-  pointer.style.position = "absolute";
-  pointer.style.left = "50%";
-  pointer.style.top = "50%";
-  pointer.style.transform = "translate(-50%, -50%) scale(1)";
-  pointer.style.width = "40px";
-  pointer.style.height = "40px";
-  pointer.style.borderRadius = "50%";
-  pointer.style.background = "rgba(0,0,0,0.6)";
-  pointer.style.display = "flex";
-  pointer.style.alignItems = "center";
-  pointer.style.justifyContent = "center";
-  pointer.style.zIndex = "999";
-  pointer.style.cursor = "pointer";
-
-  const icon = document.createElement("div");
-  icon.textContent = "👆";
-  icon.style.fontSize = "22px";
-  pointer.appendChild(icon);
-
-  el.appendChild(pointer);
-
-  let elapsed = 0;
-  const duration = 5000;
-  const interval = 200;
-
-  const pulse = setInterval(() => {
-    elapsed += interval;
-    const scale = pointer.style.transform.includes("scale(1.1)")
-      ? "translate(-50%, -50%) scale(1)"
-      : "translate(-50%, -50%) scale(1.1)";
-    pointer.style.transform = scale;
-
-    if (elapsed >= duration) {
-      clearInterval(pulse);
-      if (pointer && pointer.parentNode) {
-        pointer.remove();
-      }
-    }
-  }, interval);
-
-  pointer.onclick = () => {
-    clearInterval(pulse);
-    if (pointer && pointer.parentNode) {
-      pointer.remove();
-    }
-  };
-}
 
 function openGoldMinePage() {
   openMiningBuildingPanel("goldMine");
@@ -9133,9 +7219,6 @@ function updateGoldMineInfoPanel() {
     السعة القصوى: ${capacity.toLocaleString()} ذهب
   `;
 }
-
-
-
 
 
 function openWoodMinePage() {
@@ -12958,158 +11041,13 @@ loadPassState();
   }
 });
 
-function openCastlePanel() {
-  const oldPopup = document.getElementById("building-popup");
-  if (oldPopup && oldPopup.parentNode) oldPopup.parentNode.removeChild(oldPopup);
-  showSummonButton(false);
 
-  const panel = document.getElementById("castle-panel");
-  if (!panel) return;
-;
-
-  hideAllGamePages();
-  panel.classList.remove("castle-hidden");
-  panel.classList.add("castle-visible");
-
-  if (typeof updateCastleInfoTab === "function") updateCastleInfoTab();
-  if (typeof updateCastleUpgradeTab === "function") updateCastleUpgradeTab();
-
-  switchCastleTab("info");
-}
-
-function switchCastleTab(tab) {
-  const infoTab    = document.getElementById("castle-tab-info");
-  const upgradeTab = document.getElementById("castle-tab-upgrade");
-  const infoBtn    = document.getElementById("castle-tab-info-btn");
-  const upgradeBtn = document.getElementById("castle-tab-upgrade-btn");
-
-  if (tab === "info") {
-    infoTab.style.display       = "block";
-    upgradeTab.style.display    = "none";
-    infoBtn.style.color         = "#facc15";
-    infoBtn.style.fontWeight    = "bold";
-    upgradeBtn.style.color      = "#9ca3af";
-    upgradeBtn.style.fontWeight = "normal";
-    updateCastleInfoTab();
-  } else {
-    infoTab.style.display       = "none";
-    upgradeTab.style.display    = "block";
-    upgradeBtn.style.color      = "#facc15";
-    upgradeBtn.style.fontWeight = "bold";
-    infoBtn.style.color         = "#9ca3af";
-    infoBtn.style.fontWeight    = "normal";
-    updateCastleUpgradeTab();
-  }
-}
-
-
-function closeCastlePanel() {
-  const panel = document.getElementById("castle-panel");
-  if (!panel) return;
-  panel.classList.remove("castle-visible");
-  panel.classList.add("castle-hidden");
-  showSummonButton(true);
-}
-// تحديث تبويب "معلومات"
-function updateCastleInfoTab() {
-  const levelEl = document.getElementById("castle-info-level");
-  const powerEl = document.getElementById("castle-info-power");
-  const storageEl = document.getElementById("castle-info-storage");
-
-  if (levelEl) levelEl.textContent = castleLevel.toString();
-  if (powerEl) powerEl.textContent = getCastlePowerForLevel(castleLevel).toString();
-  if (storageEl) storageEl.textContent = getCastleStorageCapacity(castleLevel).toString();
-}
 function getCastleRequirementsForLevel(nextLevel) {
   const req = CASTLE_LEVEL_REQUIREMENTS[nextLevel];
   if (!req) return null;
   return req.requiredBuildings || null;
 }
 
-// تحديث تبويب "ترقية"
-function updateCastleUpgradeTab() {
-  const currentLevelEl = document.getElementById("castle-upgrade-current-level");
-  const nextLevelEl = document.getElementById("castle-upgrade-next-level");
-  const goldCostEl = document.getElementById("castle-upgrade-gold-cost");
-  const woodCostEl = document.getElementById("castle-upgrade-wood-cost");
-  const foodCostEl = document.getElementById("castle-upgrade-food-cost");
-  const timeEl = document.getElementById("castle-upgrade-time");
-
-  const currentLevel = castleLevel;
-  const nextLevel = Math.min(castleLevel + 1, castleMaxLevel);
-
-  const goldCost = getCastleGoldCost(currentLevel);
-  const woodCost = getCastleWoodCost(currentLevel);
-  const foodCost = getCastleFoodCost(currentLevel);
-  const upgradeTimeSec = getCastleUpgradeTime(currentLevel);
-
-  if (currentLevelEl) currentLevelEl.textContent = currentLevel.toString();
-  if (nextLevelEl) nextLevelEl.textContent = nextLevel.toString();
-  if (goldCostEl) goldCostEl.textContent = goldCost.toString();
-  if (woodCostEl) woodCostEl.textContent = woodCost.toString();
-  if (foodCostEl) foodCostEl.textContent = foodCost.toString();
-  if (timeEl) timeEl.textContent = formatDuration(upgradeTimeSec);
-  // ----- عرض المباني المطلوبة للترقية -----
-  const reqContainer = document.getElementById("castle-upgrade-required-buildings");
-  if (!reqContainer) return;
-
-  reqContainer.innerHTML = "";
-
-  const requirements = getCastleRequirementsForLevel(nextLevel);
-  if (!requirements) {
-    return; // مفيش متطلبات خاصة للمستوى ده
-  }
-
-  const title = document.createElement("div");
-  title.textContent = "لترقية القلعة يجب تطوير هذه المباني:";
-  title.style.fontSize = "12px";
-  title.style.margin = "6px 0 4px 0";
-  reqContainer.appendChild(title);
-
-  const row = document.createElement("div");
-  row.style.display = "flex";
-  row.style.flexWrap = "wrap";
-  row.style.gap = "6px";
-  reqContainer.appendChild(row);
-
-  for (const [key, neededLevel] of Object.entries(requirements)) {
-    const currentLvl = buildingLevels[key] || 0;
-    const ok = currentLvl >= neededLevel;
-
-    const item = document.createElement("div");
-    item.style.minWidth = "90px";
-    item.style.padding = "4px 6px";
-    item.style.borderRadius = "8px";
-    item.style.background = "rgba(15, 23, 42, 0.9)";
-    item.style.fontSize = "11px";
-    item.style.textAlign = "center";
-item.style.cursor = "pointer";
-item.onclick = () => {
-  openBuildingPanel(key);
-};
-
-    const img = document.createElement("img");
-    img.src = getBuildingImageByKey(key);
-    img.style.width = "28px";
-    img.style.height = "28px";
-    img.style.objectFit = "contain";
-    img.style.display = "block";
-    img.style.margin = "0 auto 2px auto";
-
-    const name = document.createElement("div");
-    name.style.marginBottom = "2px";
-    name.textContent = getBuildingNameByKey(key);
-
-    const status = document.createElement("div");
-    status.textContent = `المطلوب: ${neededLevel} - الحالي: ${currentLvl}`;
-    status.style.color = ok ? "#22c55e" : "#ef4444";
-
-    item.appendChild(img);
-    item.appendChild(name);
-    item.appendChild(status);
-    row.appendChild(item);
-  }
-}
 function updateGoldMineUpgradeTab() {
   const currentLevelEl = document.getElementById("gold-mine-upgrade-current-level");
   const nextLevelEl    = document.getElementById("gold-mine-upgrade-next-level");
@@ -13227,105 +11165,6 @@ function finishGoldMineUpgrade() {
   saveGameState();
 }
 
-function startCastlePanelUpgrade() {
-  if (upgradeInProgress) {
-    return; // في ترقية شغالة بالفعل
-  }
-
-  if (castleLevel >= castleMaxLevel) {
-    alert("وصلت لأقصى مستوى للقلعة");
-    return;
-  }
-
-  const nextLevel = castleLevel + 1;
-  if (!canUpgradeCastleTo(nextLevel)) {
-    alert("طوّر مباني الموارد (والشروط المطلوبة) قبل ترقية القلعة.");
-    return;
-  }
-
-  const level = castleLevel;
-  const goldCost = getCastleGoldCost(level);
-  const woodCost = getCastleWoodCost(level);
-  const foodCost = getCastleFoodCost(level);
-  const upgradeTimeSec = getCastleUpgradeTime(level);
-
-  console.log("DEBUG resources:", resources);
-  console.log("DEBUG cost:", { goldCost, woodCost, foodCost });
-
-  // تأكد إن الموارد كفاية
-  if (resources.gold < goldCost || resources.wood < woodCost || resources.food < foodCost) {
-    alert("Not enough resources!");
-    return;
-  }
-
-  // تأكد إن فيه عامل متاح
-  if (busyBuilders >= maxBuilders) {
-    alert("No free builders available!");
-    return;
-  }
-
-  // خصم الموارد
-  resources.gold -= goldCost;
-  resources.wood -= woodCost;
-  resources.food -= foodCost;
-
-  // حفظ آخر تكلفة (للإرجاع عند الإلغاء)
-  lastUpgradeGoldCost = goldCost;
-  lastUpgradeWoodCost = woodCost;
-  lastUpgradeFoodCost = foodCost;
-
-  // تحديث شريط الموارد فوق لو عندك دالة
-  if (typeof updateTopBar === "function") {
-    updateTopBar();
-  }
-
-  // حجز عامل
-  busyBuilders++;
-
-  // تجهيز حالة الترقية
-  upgradeInProgress = true;
-  upgradeRemainingTime = upgradeTimeSec;
-  upgradeFinishAt = Date.now() + upgradeTimeSec * 1000;
-
-  // حفظ الحالة بعد خصم الموارد وبدء الترقية
-  saveGameState();
-
-  // إظهار شريط التقدم
-  const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
-  const progressFill = document.getElementById("castle-upgrade-progress-fill");
-  const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
-
-  if (progressWrapper) progressWrapper.style.display = "block";
-
-  const totalTime = upgradeTimeSec;
-  if (progressFill) progressFill.style.width = "100%";
-  if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
-
-  // نحدّث تبويب الترقية بالبداية
-  updateCastleUpgradeTab();
-
-  // مؤقت الترقية
-  if (upgradeInterval) clearInterval(upgradeInterval);
-
-  upgradeInterval = setInterval(() => {
-    upgradeRemainingTime -= 1;
-    if (upgradeRemainingTime < 0) upgradeRemainingTime = 0;
-
-    if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(upgradeRemainingTime);
-
-    const ratio = totalTime > 0 ? upgradeRemainingTime / totalTime : 0;
-    if (progressFill) {
-      const percent = Math.max(0, Math.min(100, ratio * 100));
-      progressFill.style.width = percent + "%";
-    }
-
-    if (upgradeRemainingTime <= 0) {
-      clearInterval(upgradeInterval);
-      upgradeInterval = null;
-      finishCastlePanelUpgrade();
-    }
-  }, 1000);
-}
 
 function startGoldMineUpgrade() {
   if (goldMineUpgradeInProgress) return;
@@ -13413,82 +11252,6 @@ function finishGoldMineUpgrade() {
 
   saveGameState();
 }
-
-// ← هنا قفلنا الدالة صح
-function cancelCastlePanelUpgrade() {
-  if (!upgradeInProgress) return;
-
-  if (!window.castleCancelPopup || !window.castleCancelConfirmBtn || !window.castleCancelDismissBtn) {
-    return;
-  }
-
-  // إظهار الـ popup
-  window.castleCancelPopup.style.display = "flex";
-
-  // زر "إلغاء" في popup
-  window.castleCancelDismissBtn.onclick = () => {
-    window.castleCancelPopup.style.display = "none";
-  };
-
-  // زر "موافق" في popup
-  window.castleCancelConfirmBtn.onclick = () => {
-    window.castleCancelPopup.style.display = "none";
-
-    // استرجاع 50% من الموارد المنفقة
-    resources.gold += Math.floor(lastUpgradeGoldCost * 0.5);
-    resources.wood += Math.floor(lastUpgradeWoodCost * 0.5);
-    resources.food += Math.floor(lastUpgradeFoodCost * 0.5);
-
-    if (upgradeInterval) {
-      clearInterval(upgradeInterval);
-      upgradeInterval = null;
-    }
-
-    upgradeInProgress = false;
-
-    const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
-    const progressFill = document.getElementById("castle-upgrade-progress-fill");
-    const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
-
-    if (progressWrapper) progressWrapper.style.display = "none";
-    if (progressFill) progressFill.style.width = "0%";
-    if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(0);
-
-    updateCastleInfoTab();
-    updateCastleUpgradeTab();
-    saveGameState();
-  };
-}
-
-function finishCastlePanelUpgrade() {
-  upgradeInProgress = false;
-  currentUpgradeType = null;
-
-  if (castleLevel < castleMaxLevel) {
-    castleLevel += 1;
-
-    // مهمة طوّر أي مبنى (تحسب القلعة كمان)
-    addProgressToTasksByType("upgrade_building", 1);
-  }
-
-  busyBuilders--;
-  if (busyBuilders < 0) busyBuilders = 0;
-
-  recalculatePower();
-  updateCastleInfoTab();
-  updateCastleUpgradeTab();
-
-  const progressWrapper = document.getElementById("castle-upgrade-progress-wrapper");
-  const progressFill = document.getElementById("castle-upgrade-progress-fill");
-  const remainingTimeEl = document.getElementById("castle-upgrade-remaining-time");
-
-  if (progressWrapper) progressWrapper.style.display = "none";
-  if (progressFill) progressFill.style.width = "0";
-  if (remainingTimeEl) remainingTimeEl.textContent = formatDuration(0);
-
-  saveGameState();
-}
-
 
 
 /* --- Start App --- */
@@ -16603,53 +14366,6 @@ function closeResourceShop() {
 })();
 document.addEventListener("DOMContentLoaded", function () {
 
- // ===== Building Panel (open/close + زر الترقية) =====
-  function openBuildingUpgradePanel() {
-    const panel = document.getElementById("building-panel");
-    if (panel) panel.classList.remove("hidden");
-  }
-
-  function closeBuildingUpgradePanel() {
-    const panel = document.getElementById("building-panel");
-    if (panel) panel.classList.add("hidden");
-  }
-
-  const closeBtn = document.getElementById("building-panel-close-btn");
-  if (closeBtn) closeBtn.addEventListener("click", closeBuildingUpgradePanel);
-
-  const castleStartUpgradeBtn = document.getElementById("castle-start-upgrade-btn");
-  if (castleStartUpgradeBtn) {
-    castleStartUpgradeBtn.addEventListener("click", function () { startCastlePanelUpgrade(); });
-  }
-
-  const castleCancelUpgradeBtn = document.getElementById("castle-cancel-upgrade-btn");
-  if (castleCancelUpgradeBtn) {
-    castleCancelUpgradeBtn.addEventListener("click", function () { cancelCastlePanelUpgrade(); });
-  }
-
-  const buildingPanelUpgradeBtn = document.getElementById("building-panel-upgrade-btn");
-  if (buildingPanelUpgradeBtn) {
-    buildingPanelUpgradeBtn.addEventListener("click", function () {
-      console.log("CLICK building-panel-upgrade-btn");
-      if (!currentBuildingKey) return;
-      console.log("CALL startGenericBuildingUpgrade with", currentBuildingKey);
-      startGenericBuildingUpgrade(currentBuildingKey);
-      const cancelBtn = document.getElementById("building-panel-cancel-upgrade-btn");
-      if (cancelBtn) {
-        const up = buildingUpgrades[currentBuildingKey];
-        if (up && up.inProgress) {
-          cancelBtn.style.display = "block";
-          cancelBtn.onclick = function () {
-            cancelBuildingUpgrade(currentBuildingKey);
-            cancelBtn.style.display = "none";
-            updateBuildingUpgradePanelForTimer(currentBuildingKey);
-          };
-        }
-      }
-      updateBuildingUpgradePanelForTimer(currentBuildingKey);
-    });
-  }
-
 // ===== أزرار المربع السفلي (INFO / TRAIN + UPGRADE) =====
 window.showBuildingActions = function (buildingKey) {
   currentBuildingKey = buildingKey;
@@ -16729,9 +14445,9 @@ bottomInfoBtn.onclick = () => {
     initSchoolPanel();
     const panel = document.getElementById("school-panel");
     if (panel) panel.style.display = "block";
-  } else if (buildingKey === "castle") {
-    openCastlePanel();
-    switchCastleTab("info");
+ } else if (buildingKey === "castle") {
+  createBuildingPanel("castle");
+  document.getElementById("castle-panel").style.display = "block";
   } else {
     openBuildingPanel(buildingKey);
     const collectBtn = document.getElementById("gold-mine-collect-btn");
@@ -16751,30 +14467,22 @@ bottomInfoBtn.onclick = () => {
   }
 };
 
-  // زر UPGRADE
-  bottomUpgradeBtn.onclick = () => {
-    console.log("UPGRADE for", buildingKey);
-    if (buildingKey === "castle") {
-      openCastlePanel();
-      switchCastleTab("upgrade");
-      return;
-    }
-    openBuildingPanel(buildingKey);
-    const tabInfo = document.getElementById("building-tab-info-btn");
-    const tabUpgrade = document.getElementById("building-tab-upgrade-btn");
-    if (tabUpgrade && tabInfo) {
-      tabInfo.classList.remove("active");
-      tabUpgrade.classList.add("active");
-      document.getElementById("building-tab-info").style.display = "none";
-      document.getElementById("building-tab-upgrade").style.display = "block";
-    }
+// زر UPGRADE
+bottomUpgradeBtn.onclick = () => {
+  console.log("UPGRADE for", buildingKey);
+  if (buildingKey === "castle") {
+    createBuildingPanel("castle");
+    document.getElementById("castle-panel").style.display = "block";
+    return;
+  }
+  openBuildingPanel(buildingKey);
 
-    const collectBtn = document.getElementById("gold-mine-collect-btn");
-    if (collectBtn) {
-      collectBtn.style.display = "none";
-      collectBtn.onclick = null;
-    }
-  };
+  const collectBtn = document.getElementById("gold-mine-collect-btn");
+  if (collectBtn) {
+    collectBtn.style.display = "none";
+    collectBtn.onclick = null;
+  }
+};
 
 // TRAIN
 if (
@@ -17380,8 +15088,8 @@ if (infoBtnBottom) {
   infoBtnBottom.onclick = function () {
     if (!currentBuildingKey) return;
     if (currentBuildingKey === "castle") {
-      openCastlePanel();
-      switchCastleTab("info");
+      createBuildingPanel("castle");
+      document.getElementById("castle-panel").style.display = "block";
       return;
     }
     openBuildingPanel(currentBuildingKey);
@@ -17393,8 +15101,8 @@ if (upgradeBtnBottom) {
   upgradeBtnBottom.onclick = function () {
     if (!currentBuildingKey) return;
     if (currentBuildingKey === "castle") {
-      openCastlePanel();
-      switchCastleTab("upgrade");
+      createBuildingPanel("castle");
+      document.getElementById("castle-panel").style.display = "block";
       return;
     }
     openBuildingPanel(currentBuildingKey);
@@ -17536,6 +15244,7 @@ async function clanLevelUp() {
     </button>
   </div>
 </div>
+
 <script>
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   tg && tg.ready();
