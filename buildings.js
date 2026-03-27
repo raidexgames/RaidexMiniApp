@@ -1,3 +1,24 @@
+function isClickOnSprite(img, clientX, clientY) {
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    const rect = img.getBoundingClientRect();
+    const scaleX = img.naturalWidth / rect.width;
+    const scaleY = img.naturalHeight / rect.height;
+
+    const px = Math.floor((clientX - rect.left) * scaleX);
+    const py = Math.floor((clientY - rect.top) * scaleY);
+
+    const pixel = ctx.getImageData(px, py, 1, 1).data;
+    return pixel[3] > 10; // لو الـ alpha أكبر من 10 يعني مش شفاف
+  } catch (e) {
+    return true; // لو في error نعتبره كليك صح
+  }
+}
 let buildingPanelExtra = null;
 let buildingPanelTitle = null;
 let buildingPanelImage = null;
@@ -158,132 +179,150 @@ const BUILDINGS_CONFIG = {
 };
 
 function setupMineBuilding(mineKey, pos) {
-  const cfg = MINES_CONFIG[mineKey];
-  const el = document.getElementById(cfg.buildingId);
-  if (!el) return;
+  const cfg = MINES_CONFIG[mineKey];
+  const el = document.getElementById(cfg.buildingId);
+  if (!el) return;
 
-  el.style.border = "none";
-  el.style.background = "transparent";
-  el.style.width = cfg.width;
-  el.style.height = cfg.height;
-  el.style.position = "absolute";
-  el.style.left = pos.left;
-  el.style.top = pos.top;
-  el.style.transform = "translate(-50%, -50%)";
-  el.style.zIndex = 95;
-  el.innerHTML = "";
 
-  const img = document.createElement("img");
-  img.src = cfg.img;
-  img.style.width = "100%";
-  img.style.height = "100%";
-  img.style.objectFit = "contain";
-  img.style.pointerEvents = "none";
-  el.appendChild(img);
+  el.style.border = "none";
+  el.style.background = "transparent";
+  el.style.width = cfg.width;
+  el.style.height = cfg.height;
+  el.style.position = "absolute";
+  el.style.left = pos.left;
+  el.style.top = pos.top;
+  el.style.transform = "translate(-50%, -50%)";
+  el.style.zIndex = 95;
+  el.innerHTML = "";
 
-  const statusBox = document.createElement("div");
-  statusBox.id = cfg.statusBoxId;
-  statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
 
-  createUnifiedBar(el, cfg.uniBar[0], cfg.uniBar[1], cfg.uniBar[2]);
+  const img = document.createElement("img");
+  img.src = cfg.img;
+  img.crossOrigin = "anonymous";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  el.appendChild(img);
 
-  if (castleLevel < cfg.requiredCastleLevel) {
-    el.style.filter = "grayscale(1)";
-    el.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + cfg.requiredCastleLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    el.appendChild(lock);
-    el.onclick = function(e) {
-      e.stopPropagation();
-      alert(`${cfg.name || mineKey} مقفول.\nقم بترقية القلعة إلى المستوى ${cfg.requiredCastleLevel} أولاً.`);
-    };
-  } else {
-    el.style.filter = "none";
-    el.style.opacity = "1";
-    el.onclick = function(e) {
-      e.stopPropagation();
-      showBuildingPopup(mineKey);
-    };
 
-    let collectHint = document.getElementById(cfg.collectHintId);
-    if (!collectHint) {
-      collectHint = document.createElement("div");
-      collectHint.id = cfg.collectHintId;
-      collectHint.style.cssText = "position:absolute;top:-10px;left:50%;transform:translateX(-50%);animation:bounce 1s infinite;cursor:pointer;display:none;pointer-events:auto;";
-      collectHint.innerHTML = `<img src="${cfg.collectImg}" style="width:32px;height:32px;object-fit:contain;">`;
-      el.appendChild(collectHint);
-    }
-    collectHint.onclick = function(e) {
-      e.stopPropagation();
-      const stored = Math.floor(miningStored[mineKey] || 0);
-      if (stored <= 0) return;
-      if (mineKey === "goldMine") {
-        collectGoldFromMine(stored);
-      } else {
-        resources[cfg.resource] += stored;
-        miningStored[mineKey] = 0;
-        if (typeof updateTopBar === "function") updateTopBar();
-        updateGoldMineUI();
-      }
-    };
+  const statusBox = document.createElement("div");
+  statusBox.id = cfg.statusBoxId;
+  statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
 
-    statusBox.textContent = "Lv." + (buildingLevels[mineKey] || 1);
-    el.appendChild(statusBox);
-  }
+
+  createUnifiedBar(el, cfg.uniBar[0], cfg.uniBar[1], cfg.uniBar[2]);
+
+
+  if (castleLevel < cfg.requiredCastleLevel) {
+    el.style.filter = "grayscale(1)";
+    el.style.opacity = "0.5";
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + cfg.requiredCastleLevel;
+    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
+    el.appendChild(lock);
+    el.onclick = function(e) {
+      e.stopPropagation();
+      alert(`${cfg.name || mineKey} مقفول.\nقم بترقية القلعة إلى المستوى ${cfg.requiredCastleLevel} أولاً.`);
+    };
+  } else {
+    el.style.filter = "none";
+    el.style.opacity = "1";
+el.onclick = function(e) {
+  e.stopPropagation();
+  const img = el.querySelector("img");
+  if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
+  showBuildingPopup(mineKey);
+};
+
+
+    let collectHint = document.getElementById(cfg.collectHintId);
+    if (!collectHint) {
+      collectHint = document.createElement("div");
+      collectHint.id = cfg.collectHintId;
+      collectHint.style.cssText = "position:absolute;top:-10px;left:50%;transform:translateX(-50%);animation:bounce 1s infinite;cursor:pointer;display:none;pointer-events:auto;";
+      collectHint.innerHTML = `<img src="${cfg.collectImg}" style="width:32px;height:32px;object-fit:contain;">`;
+      el.appendChild(collectHint);
+    }
+    collectHint.onclick = function(e) {
+      e.stopPropagation();
+      const stored = Math.floor(miningStored[mineKey] || 0);
+      if (stored <= 0) return;
+      if (mineKey === "goldMine") {
+        collectGoldFromMine(stored);
+      } else {
+        resources[cfg.resource] += stored;
+        miningStored[mineKey] = 0;
+        if (typeof updateTopBar === "function") updateTopBar();
+        updateGoldMineUI();
+      }
+    };
+
+
+    statusBox.textContent = "Lv." + (buildingLevels[mineKey] || 1);
+    el.appendChild(statusBox);
+  }
 }
 function setupBuilding(buildingKey, pos) {
-  const cfg = BUILDINGS_CONFIG[buildingKey];
-  if (!cfg) return;
-  const el = document.getElementById(cfg.buildingId);
-  if (!el) return;
+  const cfg = BUILDINGS_CONFIG[buildingKey];
+  if (!cfg) return;
+  const el = document.getElementById(cfg.buildingId);
+  if (!el) return;
 
-  el.style.border = "none";
-  el.style.background = "transparent";
-  el.style.width = cfg.width;
-  el.style.height = cfg.height;
-  el.style.position = "absolute";
-  el.style.left = pos.left;
-  el.style.top = pos.top;
-  el.style.transform = "translate(-50%, -50%)";
-  el.style.zIndex = 95;
-  el.innerHTML = "";
 
-  const img = document.createElement("img");
-  img.src = cfg.img;
-  img.style.width = "100%";
-  img.style.height = "100%";
-  img.style.objectFit = "contain";
-  img.style.pointerEvents = "none";
-  el.appendChild(img);
+  el.style.border = "none";
+  el.style.background = "transparent";
+  el.style.width = cfg.width;
+  el.style.height = cfg.height;
+  el.style.position = "absolute";
+  el.style.left = pos.left;
+  el.style.top = pos.top;
+  el.style.transform = "translate(-50%, -50%)";
+  el.style.zIndex = 95;
+  el.innerHTML = "";
 
-  const statusBox = document.createElement("div");
-  statusBox.id = cfg.statusBoxId;
-  statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
 
-  createUnifiedBar(el, cfg.uniBar[0], cfg.uniBar[1], cfg.uniBar[2]);
+  const img = document.createElement("img");
+  img.src = cfg.img;
+  img.crossOrigin = "anonymous";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  el.appendChild(img);
 
-  if (castleLevel < cfg.requiredCastleLevel) {
-    el.style.filter = "grayscale(1)";
-    el.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + cfg.requiredCastleLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    el.appendChild(lock);
-    el.onclick = function(e) {
-      e.stopPropagation();
-      alert(`${cfg.name} مقفول.\nقم بترقية القلعة إلى المستوى ${cfg.requiredCastleLevel} أولاً.`);
-    };
-  } else {
-    el.style.filter = "none";
-    el.style.opacity = "1";
-    el.onclick = function(e) {
-      e.stopPropagation();
-      showBuildingPopup(cfg.popupKey);
-    };
-    statusBox.textContent = "Lv." + (buildingLevels[buildingKey] || 1);
-    el.appendChild(statusBox);
-  }
+
+  const statusBox = document.createElement("div");
+  statusBox.id = cfg.statusBoxId;
+  statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
+
+
+  createUnifiedBar(el, cfg.uniBar[0], cfg.uniBar[1], cfg.uniBar[2]);
+
+
+  if (castleLevel < cfg.requiredCastleLevel) {
+    el.style.filter = "grayscale(1)";
+    el.style.opacity = "0.5";
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + cfg.requiredCastleLevel;
+    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
+    el.appendChild(lock);
+    el.onclick = function(e) {
+      e.stopPropagation();
+      alert(`${cfg.name} مقفول.\nقم بترقية القلعة إلى المستوى ${cfg.requiredCastleLevel} أولاً.`);
+    };
+  } else {
+    el.style.filter = "none";
+    el.style.opacity = "1";
+  el.onclick = function(e) {
+  e.stopPropagation();
+  const img = el.querySelector("img");
+  if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
+  showBuildingPopup(cfg.popupKey);
+};
+    statusBox.textContent = "Lv." + (buildingLevels[buildingKey] || 1);
+    el.appendChild(statusBox);
+  }
 }
 function getBuildingNameByKey(key) {
   if (BUILDINGS_CONFIG[key]) return BUILDINGS_CONFIG[key].name;
@@ -948,195 +987,193 @@ function enterCity() {
     cityMapContainer = document.createElement("div");
     cityMapContainer.id = "city-map-container";
     cityMapContainer.style.position = "absolute";
-    cityMapContainer.style.top = "80px";
+    cityMapContainer.style.top = "0px";
     cityMapContainer.style.left = "0";
     cityMapContainer.style.right = "0";
-    cityMapContainer.style.height = "calc(100vh - 140px)";
+    cityMapContainer.style.bottom = "0px";
+    cityMapContainer.style.height = "auto";
     cityMapContainer.style.overflowY = "auto";
     cityMapContainer.style.overflowX = "hidden";
     cityScreen.appendChild(cityMapContainer);
   }
 
-if (!document.getElementById("city-bg")) {
-  const cityMap = document.createElement("img");
-  cityMap.id = "city-bg";
-  cityMap.src = "city-bg.png";
-  cityMap.style.width = "100%";
-  cityMap.style.height = "1000px";
-  cityMap.style.objectFit = "cover";
-  cityMap.style.display = "block";
-  cityMap.style.position = "relative";
-  cityMapContainer.appendChild(cityMap);
-
-  
-   // القلعة في النص
-const castleWrapper = document.createElement("div");
-castleWrapper.id = "castle-building";
-castleWrapper.style.position = "absolute";
-castleWrapper.style.width = "210px";
-castleWrapper.style.left = "50%";
-castleWrapper.style.top = "58%";
-castleWrapper.style.transform = "translate(-50%, -50%)";
-castleWrapper.style.zIndex = 100;
-
-const castle = document.createElement("img");
-castle.src = currentHero + "_castle.png";
-castle.style.width = "100%";
-castle.style.height = "100%";
-castle.style.objectFit = "contain";
-castle.style.pointerEvents = "none";
-castleWrapper.appendChild(castle);
-
-// صندوق مستوى القلعة تحت المبنى
-const castleStatusBox = document.createElement("div");
-castleStatusBox.id = "castle-status-box";
-castleStatusBox.style.position = "absolute";
-castleStatusBox.style.bottom = "0%";
-castleStatusBox.style.left = "50%";
-castleStatusBox.style.transform = "translateX(-50%)";
-castleStatusBox.style.background = "rgba(0,0,0,0.7)";
-castleStatusBox.style.padding = "3px 8px";
-castleStatusBox.style.borderRadius = "8px";
-castleStatusBox.style.fontSize = "11px";
-castleStatusBox.style.minWidth = "80px";
-castleStatusBox.style.textAlign = "center";
-
-castleStatusBox.textContent = "Castle Lv." + castleLevel;
-castleWrapper.appendChild(castleStatusBox);
-createUnifiedBar(castleWrapper, "castle-uni-bar", "castle-uni-fill", "castle-uni-text");
-
-castleWrapper.addEventListener("click", function(e) {
-  e.stopPropagation();
-  const rect = castleWrapper.getBoundingClientRect();
-  const centerX = rect.left + rect.width / 2;
-  const centerY = rect.top + rect.height / 2;
-  if (Math.abs(e.clientX - centerX) > rect.width * 0.4 || Math.abs(e.clientY - centerY) > rect.height * 0.4) return;
-  showBuildingPopup("castle");
-});
-
-
-
-cityMapContainer.appendChild(castleWrapper);
-
-
-const buildingPositions = [
-  { left: "85%", top: "45%" },  // 1 - منجم الذهب
-  { left: "19%", top: "105%" }, // 2 - منجم الخشب
-  { left: "81%", top: "78%" },  // 3 - المدرسة
-  { left: "75%", top: "19%" },  // 4 - برج الهجوم
-  { left: "25%", top: "18%" },  // 5 - برج الدفاع
-  { left: "23%", top: "42%" },  // 6 - مزرعة اللحم
-  { left: "20%", top: "81%" },  // 7 - قاعة الأبطال
-  { left: "70%", top: "125%" }, // 8 - السوق
-  { left: "84%", top: "105%" }, // 9 - برج البوست
-  { left: "26%", top: "126%" }, // 10 - المستشفى
-  { left: "51%", top: "97%" },  // 11 - برج التنانين
-  { left: "20%", top: "60%" },  // 12 - Hunter Camp (غيّر الموضع زي ما تحب)
-  { left: "60%", top: "45%" },  // 13 - Prison (غيّر الموضع زي ما تحب)
-];
-
-
-
-
-
-
-
-// إنشاء مربعات المباني الأساسية 1..10
-buildingPositions.forEach((pos, index) => {
-  const id = "building-" + (index + 1);
-  let b = document.getElementById(id);
-  if (!b) {
-    b = document.createElement("div");
-    b.id = id;
-    b.className = "city-building";
-cityMapContainer.appendChild(b);
+  if (!document.getElementById("city-bg")) {
+    const cityMap = document.createElement("img");
+    cityMap.id = "city-bg";
+    cityMap.src = "city-bg.png";
+    cityMap.style.position = "absolute";
+    cityMap.style.top = "0px";
+    cityMap.style.left = "0";
+    cityMap.style.width = "100%";
+    cityMap.style.height = "auto";
+    cityMap.style.objectFit = "fill";
+    cityMap.style.minHeight = "1280px";
+    cityMap.style.objectPosition = "top";
+    cityMap.style.display = "block";
+    cityMap.style.zIndex = "0";
+    cityMapContainer.prepend(cityMap);
   }
 
-  b.style.position = "absolute";
-  b.style.width = "60px";
-  b.style.height = "60px";
-  b.style.left = pos.left;
-  b.style.top = pos.top;
-  b.style.transform = "translate(-50%, -50%)";
-  b.style.borderRadius = "12px";
-  b.style.background = "rgba(0,0,0,0.6)";
-  b.style.border = "2px solid #facc15";
-  b.style.display = "flex";
-  b.style.alignItems = "center";
-  b.style.justifyContent = "center";
-  b.style.color = "#fff";
-  b.style.fontWeight = "bold";
-  b.style.fontSize = "16px";
-  b.style.zIndex = 90;
-  b.textContent = index + 1;
+  // القلعة في النص
+  const castleWrapper = document.createElement("div");
+  castleWrapper.id = "castle-building";
+  castleWrapper.style.position = "absolute";
+  castleWrapper.style.width = "210px";
+  castleWrapper.style.left = "50%";
+  castleWrapper.style.top = "58%";
+  castleWrapper.style.transform = "translate(-50%, -50%)";
+  castleWrapper.style.zIndex = 100;
+  castleWrapper.style.pointerEvents = "none"; /* الـ div ما يستجبش */
 
-  // شريط الترقية السفلي لكل مبنى (مخفي افتراضيًا)
-  let upgradeBar = b.querySelector(".building-upgrade-bar");
-  if (!upgradeBar) {
-    console.log("Creating upgrade bar for", id);
+  const castle = document.createElement("img");
+  castle.src = currentHero + "_castle.png";
+  castle.crossOrigin = "anonymous";
+  castle.style.width = "100%";
+  castle.style.height = "100%";
+  castle.style.objectFit = "contain";
+  castle.style.pointerEvents = "auto"; /* الصورة بس تستجب */
+  castle.style.cursor = "pointer";
+  castleWrapper.appendChild(castle);
 
-    upgradeBar = document.createElement("div");
-    upgradeBar.className = "building-upgrade-bar";
-    upgradeBar.style.position = "absolute";
-    upgradeBar.style.left = "10%";
-    upgradeBar.style.right = "10%";
-    upgradeBar.style.bottom = "4px";
-    upgradeBar.style.height = "4px";
-    upgradeBar.style.background = "rgba(15,23,42,0.8)";
-    upgradeBar.style.borderRadius = "999px";
-    upgradeBar.style.overflow = "hidden";
-    upgradeBar.style.display = "none";
+  const castleStatusBox = document.createElement("div");
+  castleStatusBox.id = "castle-status-box";
+  castleStatusBox.style.position = "absolute";
+  castleStatusBox.style.bottom = "0%";
+  castleStatusBox.style.left = "50%";
+  castleStatusBox.style.transform = "translateX(-50%)";
+  castleStatusBox.style.background = "rgba(0,0,0,0.7)";
+  castleStatusBox.style.padding = "3px 8px";
+  castleStatusBox.style.borderRadius = "8px";
+  castleStatusBox.style.fontSize = "11px";
+  castleStatusBox.style.minWidth = "80px";
+  castleStatusBox.style.textAlign = "center";
+  castleStatusBox.style.pointerEvents = "none";
+  castleStatusBox.textContent = "Castle Lv." + castleLevel;
+  castleWrapper.appendChild(castleStatusBox);
+  createUnifiedBar(castleWrapper, "castle-uni-bar", "castle-uni-fill", "castle-uni-text");
 
-    const fill = document.createElement("div");
-    fill.className = "building-upgrade-bar-fill";
-    fill.style.width = "0%";
-    fill.style.height = "100%";
-    fill.style.background = "#0ea5e9";
+  castle.addEventListener("click", function(e) {
+    e.stopPropagation();
+    if (!isClickOnSprite(castle, e.clientX, e.clientY)) return;
+    showBuildingPopup("castle");
+  });
 
-    upgradeBar.appendChild(fill);
-    b.appendChild(upgradeBar);
-  } else {
-    console.log("Upgrade bar already exists for", id);
+  cityMapContainer.appendChild(castleWrapper);
+
+  const buildingPositions = [
+    { left: "85%", top: "38%" },
+    { left: "19%", top: "105%" },
+    { left: "81%", top: "78%" },
+    { left: "75%", top: "60%" },
+    { left: "15%", top: "25%" },
+    { left: "23%", top: "42%" },
+    { left: "20%", top: "81%" },
+    { left: "70%", top: "125%" },
+    { left: "84%", top: "105%" },
+    { left: "26%", top: "126%" },
+    { left: "51%", top: "97%" },
+    { left: "20%", top: "60%" },
+    { left: "61%", top: "28%" },
+  ];
+
+  buildingPositions.forEach((pos, index) => {
+    const id = "building-" + (index + 1);
+    let b = document.getElementById(id);
+    if (!b) {
+      b = document.createElement("div");
+      b.id = id;
+      b.className = "city-building";
+      cityMapContainer.appendChild(b);
+    }
+
+    b.style.position = "absolute";
+    b.style.width = "60px";
+    b.style.height = "60px";
+    b.style.left = pos.left;
+    b.style.top = pos.top;
+    b.style.transform = "translate(-50%, -50%)";
+    b.style.borderRadius = "12px";
+    b.style.background = "rgba(0,0,0,0.6)";
+    b.style.border = "2px solid #facc15";
+    b.style.display = "flex";
+    b.style.alignItems = "center";
+    b.style.justifyContent = "center";
+    b.style.color = "#fff";
+    b.style.fontWeight = "bold";
+    b.style.fontSize = "16px";
+    b.style.zIndex = 90;
+    b.textContent = index + 1;
+
+    let upgradeBar = b.querySelector(".building-upgrade-bar");
+    if (!upgradeBar) {
+      console.log("Creating upgrade bar for", id);
+      upgradeBar = document.createElement("div");
+      upgradeBar.className = "building-upgrade-bar";
+      upgradeBar.style.position = "absolute";
+      upgradeBar.style.left = "10%";
+      upgradeBar.style.right = "10%";
+      upgradeBar.style.bottom = "4px";
+      upgradeBar.style.height = "4px";
+      upgradeBar.style.background = "rgba(15,23,42,0.8)";
+      upgradeBar.style.borderRadius = "999px";
+      upgradeBar.style.overflow = "hidden";
+      upgradeBar.style.display = "none";
+
+      const fill = document.createElement("div");
+      fill.className = "building-upgrade-bar-fill";
+      fill.style.width = "0%";
+      fill.style.height = "100%";
+      fill.style.background = "#0ea5e9";
+
+      upgradeBar.appendChild(fill);
+      b.appendChild(upgradeBar);
+    } else {
+      console.log("Upgrade bar already exists for", id);
+    }
+  });
+
+  // المناجم
+  setupMineBuilding("goldMine",  buildingPositions[0]);
+  setupMineBuilding("woodMine",  buildingPositions[1]);
+  setupMineBuilding("meatFarm",  buildingPositions[5]);
+
+  // باقي المباني
+  setupBuilding("school",       buildingPositions[2]);
+  setupBuilding("attackTower",  buildingPositions[3]);
+  setupBuilding("defenseTower", buildingPositions[4]);
+  setupBuilding("heroesHall",   buildingPositions[6]);
+  setupBuilding("market",       buildingPositions[7]);
+  setupBuilding("booster",      buildingPositions[8]);
+  setupBuilding("hospital",     buildingPositions[9]);
+  setupBuilding("dragonTower",  buildingPositions[10]);
+  setupBuilding("hunterCamp",   buildingPositions[11]);
+  setupBuilding("prison",       buildingPositions[12]);
+
+  addTopBar();
+  addBottomBar();
+
+  const rightArrowMenu = document.querySelector(".right-arrow-menu");
+  if (rightArrowMenu) {
+    rightArrowMenu.style.display = "block";
   }
-});
 
+  const tutorialDone = localStorage.getItem(TUTORIAL_DONE_KEY) === "1";
+  if (!tutorialDone) {
+    showTutorialStep();
+  }
 
-// المناجم
-setupMineBuilding("goldMine",  buildingPositions[0]);
-setupMineBuilding("woodMine",  buildingPositions[1]);
-setupMineBuilding("meatFarm",  buildingPositions[5]);
-
-// باقي المباني
-setupBuilding("school",       buildingPositions[2]);
-setupBuilding("attackTower",  buildingPositions[3]);
-setupBuilding("defenseTower", buildingPositions[4]);
-setupBuilding("heroesHall",   buildingPositions[6]);
-setupBuilding("market",       buildingPositions[7]);
-setupBuilding("booster",      buildingPositions[8]);
-setupBuilding("hospital",     buildingPositions[9]);
-setupBuilding("dragonTower",  buildingPositions[10]);
-setupBuilding("hunterCamp",   buildingPositions[11]);
-setupBuilding("prison",       buildingPositions[12]);
-
-
-
-
-    addTopBar();
-    addBottomBar();
-    // startResourceAutoUpdate();  // وقفناها مؤقتًا
-
-
-    const rightArrowMenu = document.querySelector(".right-arrow-menu");
-    if (rightArrowMenu) {
-      rightArrowMenu.style.display = "block";
+  // الكليك على الأرض يغلق البانل
+  cityMapContainer.addEventListener("click", function(e) {
+    if (e.target === cityMapContainer || e.target.id === "city-bg") {
+      document.querySelectorAll(".building-panel").forEach(p => {
+        p.style.display = "none";
+      });
+      document.body.style.overflow = "auto";
+      showSummonButton(true);
     }
+  });
 
-    const tutorialDone = localStorage.getItem(TUTORIAL_DONE_KEY) === "1";
-    if (!tutorialDone) {
-      showTutorialStep();
-    }
-  } // نهاية if (!document.getElementById("city-bg"))
-}   // نهاية function enterCity
+} // نهاية function enterCity
 function showBuildingPopup(buildingKey) {
   console.log("showBuildingPopup CALLED with", buildingKey);
   currentBuildingKey = buildingKey;

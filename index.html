@@ -108,21 +108,40 @@
         width: 100%;
         border-radius: 10px;
       }
-    /* City */
+#city-bg {
+  width: 100%;
+  height: calc(100% + 200px); /* تغطي فوق وتحت */
+  object-fit: cover;
+  object-position: top;
+  position: absolute;
+  top: -60px;                 /* تطلع فوق الـ container */
+  left: 0;
+  z-index: 0;
+}
+
 #city-screen {
   display: none;
   height: 100vh;
-  background: #121a2f;
   position: relative;
   overflow: hidden;
+  background: transparent !important;
 }
+
+#city-map-container {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 80px;
+  height: auto;
+  background: transparent;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 #city-screen .building-panel-body {
   overflow-y: scroll !important;
 }
-#city-map-container {
-  background: #121a2f;
-}
-
 
 .right-arrow-menu {
   position: fixed;
@@ -356,58 +375,44 @@
 
 
 
-/* الشريط العلوي الأساسي */
 #top-bar {
   position: fixed;
-  top: -10px;
+  top: 0px;
   left: 0;
   width: 100%;
   height: 70px;
-  background: #ffffff;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 4px 4px;
   gap: 2px;
   z-index: 200;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.7);
-
-  clip-path: path(
-    "M 0 0
-     H 100%
-     V 60
-     C 62% 56, 56% 70, 50% 70
-     C 44% 70, 38% 56, 0 60
-     Z"
-  );
+  box-shadow: none;
 }
 
-/* البابل المنحنية للبروفايل */
-#top-bar-avatar-bubble {
+#player-avatar {
   position: absolute;
-  top: 40px;
+  top: 44px;
   left: 50%;
   transform: translateX(-50%);
-  width: 72px;
-  height: 72px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 50% 30%, #1f2937, #020617);
-  box-shadow: 0 10px 14px rgba(0,0,0,0.8);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 210;
-}
-
-/* صورة البروفايل */
-#top-bar-avatar-bubble img {
-  width: 48px;
-  height: 48px;
+  width: 68px;
+  height: 68px;
   border-radius: 999px;
   object-fit: cover;
+  z-index: 210;
   box-shadow: 0 0 10px rgba(250,204,21,0.7);
-  transform: translateY(-2px);
+}
+
+#topbar-power {
+  position: absolute;
+  top: 116px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #facc15;
+  z-index: 210;
+  white-space: nowrap;
 }
 
 /* POWER */
@@ -443,18 +448,17 @@
   gap: 2px;
 }
 
-/* كابسولة موحدة لكل العناصر الخمسة */
 .resource-cap {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 7px 12px;
+  justify-content: flex-end;
+  padding: 7px 8px 7px 12px;  /* padding يمين أقل عشان الرقم يمشي يمين */
   border-radius: 999px;
-  background: rgba(15,23,42,0.95);
-  font-size: 13px;
-  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  color: #000000;
   min-width: 44px;
-  text-align: center;
+  text-align: right;
 }
 
 /* أيقونة موحدة لكل العناصر الخمسة */
@@ -464,7 +468,19 @@
   object-fit: contain;
   flex-shrink: 0;
 }
+/* نبضة على الـ wrapper كله */
+#wrapper-gold    { animation: icon-pulse 2.5s ease-in-out infinite; animation-delay: 0s; }
+#wrapper-wood    { animation: icon-pulse 2.5s ease-in-out infinite; animation-delay: 0.4s; }
+#wrapper-food    { animation: icon-pulse 2.5s ease-in-out infinite; animation-delay: 0.8s; }
+#wrapper-gem     { animation: icon-pulse 2.5s ease-in-out infinite; animation-delay: 1.2s; }
+#wrapper-builder { animation: icon-pulse 2.5s ease-in-out infinite; animation-delay: 1.6s; }
+#wrapper-rx      { animation: icon-pulse 2.5s ease-in-out infinite; animation-delay: 2s; }
 
+@keyframes icon-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
 
       /* Bottom bar */
 #bottom-bar {
@@ -2624,19 +2640,7 @@
   </div>
 </div>
 
-<!-- Resource Shop Panel بين الـ top-bar والـ bottom-bar -->
-<div id="resource-shop-panel" class="game-page-panel game-page-hidden">
-  <div class="page-header">
-    <span id="resource-shop-title">شراء الموارد</span>
-    <button onclick="closeResourceShop()">✖</button>
-  </div>
-  <div class="page-sub" id="resource-shop-sub">
-    اختر باقة الموارد التي تريد شراءها بالجواهر
-  </div>
-  <div class="page-content" id="resource-shop-content">
-    <!-- الباقات هتتولد ديناميكياً من JavaScript -->
-  </div>
-</div>
+
 <div id="summon-shop-panel" class="game-page-panel game-page-hidden">
   <!-- هيدر -->
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
@@ -3311,7 +3315,8 @@
 
 
 let currentHero = "";
-let resources = { gold: 100000, wood: 100000, food: 1000000, gem: 500 };
+let resources = { gold: 100000, wood: 100000, food: 1000000, gem: 500, rxCoin: 0 };
+let rxCoinLog = [];
 
 let army = [
   {
@@ -4698,7 +4703,9 @@ let totalPower = 0;
 // عمال البناء
 let maxBuilders = 1;
 let busyBuilders = 0;
-
+let permanentBuilders = 0;        // عدد العمال الدائمين المشتراة
+let rentedBuilderExpiry = null;   // وقت انتهاء العامل المستأجر (ms)
+let rentedBuilderTimer = null;    // interval بتاع العامل المستأجر
 
 // Helpers for mining buildings (gold/wood/meat)
 
@@ -5149,25 +5156,27 @@ function cancelBuildingUpgrade(buildingKey) {
       "for",
       buildingKey
     );
-
-    if (typeof updateTopBar === "function") {
-      updateTopBar();
-    }
   }
 
   // وقف الترقية
   upgrade.inProgress = false;
   upgrade.remainingTime = 0;
 
+  // وقف التايمر الخاص بالمبنى
+  if (window._buildingUpgradeTimers && window._buildingUpgradeTimers[buildingKey]) {
+    clearInterval(window._buildingUpgradeTimers[buildingKey]);
+    window._buildingUpgradeTimers[buildingKey] = null;
+  }
+
   // نظّف البار في المدينة
-  updateCityBuildingUpgradeBar(buildingKey, upgrade);
+  updateCityBuildingUpgradeBar(buildingKey, null);
 
   // رجّع الـ builder
   if (typeof busyBuilders !== "undefined") {
     busyBuilders = Math.max(0, busyBuilders - 1);
   }
 
-  // لو مفيش أي ترقية تانية، وقف التايمر
+  // لو مفيش أي ترقية تانية، وقف التايمر العام
   let anyInProgress = false;
   for (const key in buildingUpgrades) {
     if (buildingUpgrades[key] && buildingUpgrades[key].inProgress) {
@@ -5180,9 +5189,8 @@ function cancelBuildingUpgrade(buildingKey) {
     buildingUpgradeInterval = null;
   }
 
-  if (typeof saveGameState === "function") {
-    saveGameState();
-  }
+  if (typeof updateTopBar === "function") updateTopBar();
+  if (typeof saveGameState === "function") saveGameState();
 
   console.log("Upgrade canceled for", buildingKey);
 }
@@ -5996,13 +6004,12 @@ function saveGameState() {
       currentHealthTrainingUnitKey,
       currentHealthTrainingAmount,
       dragonTrainingInProgress,
-dragonTrainingFinishAt,
-dragonTrainingRemainingTime,
-dragonTrainingTotalTime,
-currentDragonTrainingHeroKey,
-currentDragonTrainingUnitKey,
-currentDragonTrainingAmount,
-
+      dragonTrainingFinishAt,
+      dragonTrainingRemainingTime,
+      dragonTrainingTotalTime,
+      currentDragonTrainingHeroKey,
+      currentDragonTrainingUnitKey,
+      currentDragonTrainingAmount,
       buildingLevels,
       buildingUpgrades,
       miningStored,
@@ -6010,6 +6017,13 @@ currentDragonTrainingAmount,
       goldMineUpgradeFinishAt,
       lastMiningUpdate,
       lastGoldMineCollectAt: window.lastGoldMineCollectAt || Date.now(),
+
+      // ===== حفظ العمال و RX COIN =====
+      permanentBuilders,
+      rentedBuilderExpiry,
+      busyBuilders,
+      rxCoin: resources.rxCoin || 0,
+      rxCoinLog,
     };
 
     // 1) احفظ محلياً كامل مع miningStored
@@ -6832,7 +6846,6 @@ if (telegramId) {
 }
 */
 
-
   try {
     const raw = localStorage.getItem("raidex_gamestate_v3");
     if (!raw) return;
@@ -6846,22 +6859,23 @@ if (telegramId) {
       buildingLevels.goldMine = goldMineLevel;
     }
     if (state.buildingLevels) buildingLevels = { ...buildingLevels, ...state.buildingLevels };
-// استئناف ترقيات المباني بعد الريفريش
-if (state.buildingUpgrades) {
-  buildingUpgrades = { ...buildingUpgrades, ...state.buildingUpgrades };
-  Object.keys(buildingUpgrades).forEach(buildingKey => {
-    const upgrade = buildingUpgrades[buildingKey];
-    if (!upgrade || !upgrade.inProgress) return;
-    const now = Date.now();
-    const diffMs = upgrade.finishAt - now;
-    if (diffMs <= 0) {
-      finishGenericBuildingUpgrade(buildingKey);
-    } else {
-      upgrade.remainingTime = Math.floor(diffMs / 1000);
-      startBuildingUpgradeTimer(buildingKey);
+
+    // استئناف ترقيات المباني بعد الريفريش
+    if (state.buildingUpgrades) {
+      buildingUpgrades = { ...buildingUpgrades, ...state.buildingUpgrades };
+      Object.keys(buildingUpgrades).forEach(buildingKey => {
+        const upgrade = buildingUpgrades[buildingKey];
+        if (!upgrade || !upgrade.inProgress) return;
+        const now = Date.now();
+        const diffMs = upgrade.finishAt - now;
+        if (diffMs <= 0) {
+          finishGenericBuildingUpgrade(buildingKey);
+        } else {
+          upgrade.remainingTime = Math.floor(diffMs / 1000);
+          startBuildingUpgradeTimer(buildingKey);
+        }
+      });
     }
-  });
-}
 
     // جيب miningStored من key المنفصل
     const miningRaw = localStorage.getItem("raidex_mining_state");
@@ -6885,9 +6899,8 @@ if (state.buildingUpgrades) {
       });
     }
 
-   lastMiningUpdate = nowTs;
-window.__lastMiningTick = null; // ← هنخلي tickMiningResources يبدأ من الصفر بس مش يكتب
-
+    lastMiningUpdate = nowTs;
+    window.__lastMiningTick = null;
 
     goldMineUpgradeInProgress = !!state.goldMineUpgradeInProgress;
     goldMineUpgradeFinishAt = state.goldMineUpgradeFinishAt || null;
@@ -6907,6 +6920,32 @@ window.__lastMiningTick = null; // ← هنخلي tickMiningResources يبدأ �
     currentHealthTrainingHeroKey = state.currentHealthTrainingHeroKey || null;
     currentHealthTrainingUnitKey = state.currentHealthTrainingUnitKey || null;
     currentHealthTrainingAmount = state.currentHealthTrainingAmount || 0;
+
+    // ===== تحميل العمال و RX COIN =====
+    if (state.permanentBuilders != null) permanentBuilders = state.permanentBuilders;
+    if (state.busyBuilders != null) busyBuilders = state.busyBuilders;
+    if (state.rxCoin != null) resources.rxCoin = state.rxCoin;
+    if (state.rxCoinLog) rxCoinLog = state.rxCoinLog;
+
+    // استئناف العامل المستأجر لو لسه شغال
+    if (state.rentedBuilderExpiry && state.rentedBuilderExpiry > Date.now()) {
+      rentedBuilderExpiry = state.rentedBuilderExpiry;
+      maxBuilders = 1 + permanentBuilders + 1;
+      if (rentedBuilderTimer) clearInterval(rentedBuilderTimer);
+      rentedBuilderTimer = setInterval(() => {
+        if (Date.now() >= rentedBuilderExpiry) {
+          clearInterval(rentedBuilderTimer);
+          rentedBuilderTimer = null;
+          rentedBuilderExpiry = null;
+          maxBuilders = Math.max(1, maxBuilders - 1);
+          saveGameState();
+          updateTopBar();
+        }
+      }, 60000);
+    } else {
+      rentedBuilderExpiry = null;
+      maxBuilders = 1 + permanentBuilders;
+    }
 
     if (healthTrainingInProgress && healthTrainingFinishAt) {
       const now = Date.now();
@@ -7144,7 +7183,12 @@ let lastUpgradeFoodCost = 0;
 
 let tasks = []; // خليه زي ما كان
 
-
+function formatCapsuleNumber(value) {
+  if (value >= 1_000_000_000) return Math.floor(value / 1_000_000_000) + "B";
+  if (value >= 1_000_000)     return Math.floor(value / 1_000_000) + "M";
+  if (value >= 1_000)         return Math.floor(value / 1_000) + "K";
+  return Math.floor(value).toString();
+}
 // دوال حساب تكلفة ووقت تطوير القلعة
 function getCastleUpgradeCost(level) {
   // level = المستوى الحالي اللي هتطوّر منه
@@ -10485,12 +10529,12 @@ function addTopBar() {
 
   // ===== إعدادات كل عنصر - عدّل هنا براحتك =====
   const settings = {
-    gold:    { iconW: 36, iconH: 31, iconX: -7, iconY: 0, capW: 44, capH: 28, capX: 17, capY: 0 },
-    wood:    { iconW: 36, iconH: 31, iconX: 8, iconY: 0, capW: 44, capH: 28, capX: 28, capY: 0 },
-    food:    { iconW: 36, iconH: 31, iconX: 20, iconY: 3, capW: 44, capH: 28, capX: 35, capY: 0 },
-    gem:     { iconW: 36, iconH: 31, iconX: 27, iconY: 0, capW: 44, capH: 28, capX: 35, capY: 0 },
-    builder: { iconW: 36, iconH: 31, iconX: 0, iconY: 0, capW: 44, capH: 28, capX: 45, capY: 0 },
-    rx:      { iconW: 36, iconH: 31, iconX: 0, iconY: 0, capW: 44, capH: 28, capX: 50, capY: 0 },
+    gold:    { iconW: 38, iconH: 33, iconX: -7, iconY: 0, capW: 51, capH: 30, capX: 17, capY: 0 },
+    wood:    { iconW: 38, iconH: 33, iconX: 8, iconY: 0, capW: 51, capH: 30, capX: 28, capY: 0 },
+    food:    { iconW: 38, iconH: 33, iconX: 18, iconY: 3, capW: 51, capH: 30, capX: 36, capY: 0 },
+    gem:     { iconW: 38, iconH: 33, iconX: 28, iconY: 0, capW: 51, capH: 30, capX: 43, capY: 0 },
+    builder: { iconW: 38, iconH: 33, iconX: 38, iconY: 0, capW: 51, capH: 30, capX: 22, capY: 0 },
+    rx:      { iconW: 38, iconH: 33, iconX: 14, iconY: 0, capW: 51, capH: 30, capX: -4, capY: 0 },
   };
   // iconW/H = عرض/طول الأيقونة
   // iconX/Y = تحريك الأيقونة يمين/شمال وفوق/تحت
@@ -10510,38 +10554,48 @@ function makeResourceCapsule(key, icon) {
     const wrapper = document.createElement("div");
     wrapper.className = "resource-wrapper";
     wrapper.id = "wrapper-" + key;
-    wrapper.style.position = "relative"; // مهم عشان الأيقونة تتحسب من جوفه
+    wrapper.style.position = "relative";
 
-    // الكابسولة الأول عشان تاخد مكانها الطبيعي
     const cap = document.createElement("div");
     cap.className = "resource-cap";
     cap.id = "cap-" + key;
-    cap.style.cursor = "pointer";
     cap.style.width = s.capW + "px";
     cap.style.height = s.capH + "px";
     cap.style.transform = `translate(${s.capX}px, ${s.capY}px)`;
+    cap.style.cursor = "pointer";
 
     const valueSpan = document.createElement("span");
     valueSpan.id = "res-" + key;
     valueSpan.textContent = "0";
+    valueSpan.style.pointerEvents = "none";
 
-    // الأيقونة فوق الكابسولة دايماً
     const iconImg = document.createElement("img");
     iconImg.src = icon;
     iconImg.id = "icon-" + key;
     iconImg.style.width = s.iconW + "px";
     iconImg.style.height = s.iconH + "px";
     iconImg.style.objectFit = "contain";
-    iconImg.style.position = "absolute"; // فوق الكابسولة
+    iconImg.style.position = "absolute";
     iconImg.style.top = "50%";
     iconImg.style.left = "0px";
     iconImg.style.transform = `translate(${s.iconX}px, calc(-50% + ${s.iconY}px))`;
-    iconImg.style.zIndex = "2"; // دايماً فوق
+    iconImg.style.zIndex = "2";
+    iconImg.style.pointerEvents = "none";
 
     cap.appendChild(valueSpan);
+    wrapper.appendChild(iconImg);
     wrapper.appendChild(cap);
-    wrapper.appendChild(iconImg); // الأيقونة بعد الكابسولة عشان تبقى فوقها
-    cap.onclick = function () { openResourceShop(key); };
+
+    // الكليك على الكابسولة بس
+    cap.onclick = function (e) {
+      e.stopPropagation();
+      if (key === "gem") {
+        openGemShop();
+      } else {
+        openResourceShop(key);
+      }
+    };
+
     leftResources.appendChild(wrapper);
   }
 
@@ -10550,10 +10604,7 @@ function makeResourceCapsule(key, icon) {
   makeResourceCapsule("food", "food.png");
   makeResourceCapsule("gem",  "gem.png");
 
-  // ===== وسط: البابل =====
-  const bubble = document.createElement("div");
-  bubble.id = "top-bar-avatar-bubble";
-
+  // ===== وسط: الصورة مباشرة بدون bubble =====
   const avatar = document.createElement("img");
   avatar.id = "player-avatar";
   avatar.src = currentHero + ".png";
@@ -10564,19 +10615,20 @@ function makeResourceCapsule(key, icon) {
   powerLine.id = "topbar-power";
   powerLine.textContent = "Power: " + formatShortNumber(totalPower);
 
-  bubble.appendChild(avatar);
-  bubble.appendChild(powerLine);
+  document.body.appendChild(avatar);
+  document.body.appendChild(powerLine);
 
   // ===== يمين: Builder + RX =====
   const rightActions = document.createElement("div");
   rightActions.className = "top-bar-right-actions";
 
-  function makeActionCapsule(key, icon, countId, countText) {
+function makeActionCapsule(key, icon, countId, countText) {
     const s = settings[key];
 
     const wrapper = document.createElement("div");
     wrapper.className = "resource-wrapper";
     wrapper.id = "wrapper-" + key;
+    wrapper.style.position = "relative";
 
     const iconImg = document.createElement("img");
     iconImg.src = icon;
@@ -10586,6 +10638,8 @@ function makeResourceCapsule(key, icon) {
     iconImg.style.objectFit = "contain";
     iconImg.style.flexShrink = "0";
     iconImg.style.transform = `translate(${s.iconX}px, ${s.iconY}px)`;
+    iconImg.style.zIndex = "2";
+    iconImg.style.pointerEvents = "none";
 
     const cap = document.createElement("div");
     cap.className = "resource-cap";
@@ -10593,16 +10647,33 @@ function makeResourceCapsule(key, icon) {
     cap.style.width = s.capW + "px";
     cap.style.height = s.capH + "px";
     cap.style.transform = `translate(${s.capX}px, ${s.capY}px)`;
+    cap.style.zIndex = "1";
+    cap.style.justifyContent = "center";
+    cap.style.textAlign = "center";
+    cap.style.cursor = "pointer";
 
     const valueSpan = document.createElement("span");
     valueSpan.id = countId;
     valueSpan.textContent = countText;
+    valueSpan.style.pointerEvents = "none";
 
     cap.appendChild(valueSpan);
     wrapper.appendChild(iconImg);
     wrapper.appendChild(cap);
+
+    // الكليك على الكابسولة بس
+    cap.onclick = function (e) {
+      e.stopPropagation();
+      if (key === "builder") {
+        openBuilderShop();
+      } else if (key === "rx") {
+        openRxCoinShop();
+      }
+    };
+
     rightActions.appendChild(wrapper);
   }
+
 
   makeActionCapsule(
     "builder",
@@ -10618,14 +10689,37 @@ function makeResourceCapsule(key, icon) {
     "0"
   );
 
-  topBar.appendChild(leftResources);
+   topBar.appendChild(leftResources);
   topBar.appendChild(rightActions);
   document.body.appendChild(topBar);
-  document.body.appendChild(bubble);
+  updateTopBar();
 }
 
 
+function updateTopBar() {
+  // الموارد
+  const gold = document.getElementById("res-gold");
+  const wood = document.getElementById("res-wood");
+  const food = document.getElementById("res-food");
+  const gem  = document.getElementById("res-gem");
 
+  if (gold) gold.textContent = formatCapsuleNumber(resources.gold);
+  if (wood) wood.textContent = formatCapsuleNumber(resources.wood);
+  if (food) food.textContent = formatCapsuleNumber(resources.food);
+  if (gem)  gem.textContent  = formatCapsuleNumber(resources.gem);
+
+  // عامل البناء
+  const builders = document.getElementById("builders-count");
+  if (builders) builders.textContent = (maxBuilders - busyBuilders) + "/" + maxBuilders;
+
+  // RX COIN
+  const rx = document.getElementById("rx-coin-value");
+  if (rx) rx.textContent = formatCapsuleNumber(resources.rxCoin || 0);
+
+  // Power
+  const power = document.getElementById("topbar-power");
+  if (power) power.textContent = "Power: " + formatShortNumber(totalPower);
+}
 
 /* --- Bottom Bar --- */
 function addBottomBar() {
@@ -14411,66 +14505,1070 @@ let currentShopResource = "gold"; // gold | wood | food
 
 function openResourceShop(resourceType) {
   showSummonButton(false);
-  console.log("openResourceShop called with:", resourceType);
   currentShopResource = resourceType || currentShopResource || "gold";
 
-  const panel   = document.getElementById("resource-shop-panel");
-  const titleEl = document.getElementById("resource-shop-title");
-  const subEl   = document.getElementById("resource-shop-sub");
-  const content = document.getElementById("resource-shop-content");
+  const panelId = "resource-shop-panel";
+  let panel = document.getElementById(panelId);
 
-  if (!panel || !titleEl || !subEl || !content) return;
+  if (panel) {
+    panel.style.display = "block";
+    document.body.style.overflow = "hidden";
+    refreshResourcePanel();
+    return;
+  }
+
+  panel = document.createElement("div");
+  panel.id = panelId;
+  panel.className = "building-panel";
+
+  // ===== الهيدر =====
+  const header = document.createElement("div");
+  header.style.cssText = `
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    border-bottom:1px solid rgba(250,204,21,0.2);
+  `;
+
+  const infoBtn = document.createElement("button");
+  infoBtn.textContent = "!";
+  infoBtn.style.cssText = `
+    width:32px; height:32px; border-radius:999px;
+    background:rgba(250,204,21,0.15);
+    border:1px solid rgba(250,204,21,0.3);
+    color:#facc15; font-weight:bold; font-size:16px;
+    cursor:pointer;
+  `;
+
+  const titleBox = document.createElement("div");
+  titleBox.style.cssText = `flex:1; text-align:center;`;
+  const titleInner = document.createElement("div");
+  titleInner.id = "resource-shop-title";
+  titleInner.style.cssText = `
+    display:inline-block;
+    padding:6px 20px;
+    background:rgba(250,204,21,0.1);
+    border:1px solid rgba(250,204,21,0.3);
+    border-radius:999px;
+    font-weight:bold; font-size:16px;
+    color:#facc15;
+  `;
+  titleBox.appendChild(titleInner);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.cssText = `
+    width:32px; height:32px; border-radius:999px;
+    background:rgba(239,68,68,0.15);
+    border:1px solid rgba(239,68,68,0.3);
+    color:#ef4444; font-size:14px;
+    cursor:pointer;
+  `;
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+    document.body.style.overflow = "auto";
+    showSummonButton(true);
+  };
+
+  header.appendChild(infoBtn);
+  header.appendChild(titleBox);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  const body = document.createElement("div");
+  body.id = panelId + "-body";
+  body.className = "building-panel-body";
+  panel.appendChild(body);
+
+  document.body.appendChild(panel);
+  document.body.style.overflow = "hidden";
+
+  requestAnimationFrame(() => {
+    const panelRect = panel.getBoundingClientRect();
+    const headerRect = header.getBoundingClientRect();
+    const h = panelRect.height - headerRect.height;
+    body.style.height = h + "px";
+    body.style.overflowY = "auto";
+  });
+
+  refreshResourcePanel();
+}
+
+function refreshResourcePanel() {
+  const body = document.getElementById("resource-shop-panel-body");
+  if (!body) return;
+  body.innerHTML = "";
+  body.style.cssText = "display:flex; flex-direction:column; gap:10px; padding:14px;";
 
   const nameAr =
     currentShopResource === "gold" ? "الذهب" :
-    currentShopResource === "wood" ? "الخشب" :
-    "اللحم";
+    currentShopResource === "wood" ? "الخشب" : "اللحم";
 
-  titleEl.textContent = `شراء ${nameAr}`;
-  subEl.textContent   = `اختر باقة ${nameAr} تريد شراءها بالجواهر`;
+  const iconSrc =
+    currentShopResource === "gold" ? "gold.png" :
+    currentShopResource === "wood" ? "wood.png" : "food.png";
 
-  content.innerHTML = "";
+  const accentColor =
+    currentShopResource === "gold" ? "#facc15" :
+    currentShopResource === "wood" ? "#4ade80" : "#f97316";
 
-  RESOURCE_PACKS.forEach(pack => {
+  // تحديث العنوان
+  const titleEl = document.getElementById("resource-shop-title");
+  if (titleEl) titleEl.textContent = `شراء ${nameAr}`;
+
+  // ===== الجزء العلوي =====
+  const topRow = document.createElement("div");
+  topRow.style.cssText = `
+    display:flex;
+    height:180px;
+    position:relative;
+    overflow:hidden;
+    margin-left:-14px;
+    margin-right:-14px;
+    border-bottom:1px solid rgba(148,163,184,0.2);
+    margin-bottom:8px;
+  `;
+
+  const videoEl = document.createElement("video");
+  videoEl.src = "smoke.mp4";
+  videoEl.autoplay = true;
+  videoEl.loop = true;
+  videoEl.muted = true;
+  videoEl.playsInline = true;
+  videoEl.style.cssText = `
+    position:absolute; left:0; top:0;
+    width:100%; height:100%;
+    object-fit:cover; opacity:0.4;
+    pointer-events:none; z-index:0;
+    mix-blend-mode:screen;
+  `;
+  topRow.appendChild(videoEl);
+
+  const resImg = document.createElement("img");
+  resImg.src = iconSrc;
+  resImg.style.cssText = `
+    width:40%; height:100%; object-fit:contain;
+    object-position:center; position:relative; z-index:1;
+    filter: drop-shadow(0 0 12px ${accentColor}99);
+  `;
+
+  const statsBox = document.createElement("div");
+  statsBox.style.cssText = `
+    flex:1; display:flex; flex-direction:column;
+    gap:10px; padding:14px; justify-content:center;
+    position:relative; z-index:1;
+  `;
+
+  // رصيد المورد الحالي
+  const currentAmount = resources[currentShopResource] || 0;
+  const balanceRow = document.createElement("div");
+  balanceRow.style.cssText = `
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 10px; border-radius:10px;
+    background:rgba(15,23,42,0.9);
+    border:2px solid ${accentColor}44;
+    font-size:12px;
+  `;
+  balanceRow.innerHTML = `
+    <span style="color:#9ca3af;">رصيدك الحالي</span>
+    <span style="color:${accentColor}; font-weight:bold;">${formatCapsuleNumber(currentAmount)}</span>
+  `;
+  statsBox.appendChild(balanceRow);
+
+  // رصيد الجواهر
+  const gemRow = document.createElement("div");
+  gemRow.style.cssText = `
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 10px; border-radius:10px;
+    background:rgba(15,23,42,0.9);
+    border:2px solid rgba(139,92,246,0.3);
+    font-size:12px;
+  `;
+ gemRow.innerHTML = `
+  <span style="color:#9ca3af;display:flex;align-items:center;gap:4px;">
+    <img src="gem.png" style="width:16px;height:16px;object-fit:contain;"> جواهرك
+  </span>
+  <span style="color:#a78bfa; font-weight:bold;">${formatCapsuleNumber(resources.gem)}</span>
+`;
+  statsBox.appendChild(gemRow);
+
+  topRow.appendChild(resImg);
+  topRow.appendChild(statsBox);
+  body.appendChild(topRow);
+
+  // ===== الباقات =====
+  const packsLabel = document.createElement("div");
+  packsLabel.textContent = `اختر باقة ${nameAr}`;
+  packsLabel.style.cssText = "font-size:13px; color:#facc15; font-weight:bold; text-align:center;";
+  body.appendChild(packsLabel);
+
+  RESOURCE_PACKS.forEach((pack, i) => {
+    const canAfford = resources.gem >= pack.costGem;
     const btn = document.createElement("button");
-    btn.className = "resource-pack-btn";
-
-    if (currentShopResource === "gold") {
-      btn.classList.add("resource-pack-gold");
-    } else if (currentShopResource === "wood") {
-      btn.classList.add("resource-pack-wood");
-    } else {
-      btn.classList.add("resource-pack-food");
-    }
-
-    btn.innerHTML = `
-      <div>
-        <div>${pack.amount.toLocaleString()}</div>
-        <span class="amount">وحدة من ${nameAr}</span>
-      </div>
-      <span class="price">${pack.costGem.toLocaleString()} 💎</span>
+    btn.style.cssText = `
+      width:100%; padding:12px 16px; border-radius:12px;
+      border:1px solid ${canAfford ? accentColor + "44" : "rgba(255,255,255,0.05)"};
+      background:${canAfford ? "rgba(15,23,42,0.9)" : "rgba(55,65,81,0.5)"};
+      color:${canAfford ? "white" : "#6b7280"};
+      font-size:13px; cursor:${canAfford ? "pointer" : "not-allowed"};
+      display:flex; align-items:center; justify-content:space-between;
     `;
-    btn.onclick = () => {
-      buyResourcePack(currentShopResource, pack.amount, pack.costGem);
-    };
-    content.appendChild(btn);
+    btn.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img src="${iconSrc}" style="width:22px;height:22px;object-fit:contain;">
+        <span style="font-weight:bold;">${pack.amount.toLocaleString()}</span>
+      </div>
+      <span style="display:flex; align-items:center; gap:4px; color:#a78bfa; font-weight:bold;">
+        <img src="gem.png" style="width:16px;height:16px;"> ${pack.costGem.toLocaleString()}
+      </span>
+    `;
+    if (canAfford) {
+      btn.onclick = () => {
+        buyResourcePack(currentShopResource, pack.amount, pack.costGem);
+        refreshResourcePanel();
+      };
+    }
+    body.appendChild(btn);
   });
-
-  panel.classList.remove("game-page-hidden");
-  panel.classList.remove("hidden");
 }
 
 function closeResourceShop() {
   const panel = document.getElementById("resource-shop-panel");
-  if (panel) {
-    panel.classList.remove("hidden");
-    panel.classList.add("game-page-hidden");
-  }
+  if (panel) panel.style.display = "none";
+  document.body.style.overflow = "auto";
   showSummonButton(true);
 }
+const GEM_PACKS = [
+  { gems: 1_000,     ton: 1   },
+  { gems: 5_000,     ton: 4   },
+  { gems: 10_000,    ton: 7   },
+  { gems: 50_000,    ton: 30  },
+  { gems: 100_000,   ton: 55  },
+  { gems: 250_000,   ton: 130 },
+  { gems: 500_000,   ton: 240 },
+  { gems: 1_000_000, ton: 460 },
+];
+function showPopup(message, type = "info") {
+  // شيل أي popup قديم
+  const old = document.getElementById("game-popup");
+  const oldOverlay = document.getElementById("game-popup-overlay");
+  if (old) old.remove();
+  if (oldOverlay) oldOverlay.remove();
 
+  const popup = document.createElement("div");
+  popup.id = "game-popup";
+  popup.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border: 1px solid ${type === "error" ? "rgba(239,68,68,0.4)" : type === "success" ? "rgba(34,197,94,0.4)" : "rgba(250,204,21,0.4)"};
+    border-radius: 16px;
+    padding: 24px 20px;
+    width: 80%;
+    max-width: 300px;
+    z-index: 9999;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  `;
 
+  const icon = type === "error" ? "❌" : type === "success" ? "✅" : "ℹ️";
 
+  popup.innerHTML = `
+    <div style="font-size:32px; margin-bottom:12px;">${icon}</div>
+    <div style="color:#e5e7eb; font-size:14px; line-height:1.6; margin-bottom:16px;">${message}</div>
+    <button onclick="document.getElementById('game-popup').remove(); document.getElementById('game-popup-overlay')?.remove();" style="
+      padding:10px 30px; border-radius:999px; border:none;
+      background:linear-gradient(135deg,#facc15,#f97316);
+      color:#0b1120; font-weight:bold; font-size:14px; cursor:pointer;
+    ">حسناً</button>
+  `;
+
+  const overlay = document.createElement("div");
+  overlay.id = "game-popup-overlay";
+  overlay.style.cssText = `
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); z-index:9998;
+  `;
+  overlay.onclick = () => {
+    popup.remove();
+    overlay.remove();
+  };
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+}
+
+// استبدال alert الأصلية بـ showPopup
+window.alert = function(message) {
+  showPopup(message.replace(/\n/g, "<br>"), "info");
+};
+function openGemShop() {
+  showSummonButton(false);
+
+  const panelId = "gem-shop-panel";
+  let panel = document.getElementById(panelId);
+
+  if (panel) {
+    panel.style.display = "block";
+    document.body.style.overflow = "hidden";
+    refreshGemPanel();
+    return;
+  }
+
+  panel = document.createElement("div");
+  panel.id = panelId;
+  panel.className = "building-panel";
+
+  // ===== الهيدر =====
+  const header = document.createElement("div");
+  header.style.cssText = `
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    border-bottom:1px solid rgba(250,204,21,0.2);
+  `;
+
+  const infoBtn = document.createElement("button");
+  infoBtn.textContent = "!";
+  infoBtn.style.cssText = `
+    width:32px; height:32px; border-radius:999px;
+    background:rgba(250,204,21,0.15);
+    border:1px solid rgba(250,204,21,0.3);
+    color:#facc15; font-weight:bold; font-size:16px;
+    cursor:pointer;
+  `;
+
+  const titleBox = document.createElement("div");
+  titleBox.style.cssText = `flex:1; text-align:center;`;
+  const titleInner = document.createElement("div");
+  titleInner.textContent = "شحن الجواهر";
+  titleInner.style.cssText = `
+    display:inline-block;
+    padding:6px 20px;
+    background:rgba(250,204,21,0.1);
+    border:1px solid rgba(250,204,21,0.3);
+    border-radius:999px;
+    font-weight:bold; font-size:16px;
+    color:#facc15;
+  `;
+  titleBox.appendChild(titleInner);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.cssText = `
+    width:32px; height:32px; border-radius:999px;
+    background:rgba(239,68,68,0.15);
+    border:1px solid rgba(239,68,68,0.3);
+    color:#ef4444; font-size:14px;
+    cursor:pointer;
+  `;
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+    document.body.style.overflow = "auto";
+    showSummonButton(true);
+  };
+
+  header.appendChild(infoBtn);
+  header.appendChild(titleBox);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  // ===== الجسم =====
+  const body = document.createElement("div");
+  body.id = panelId + "-body";
+  body.className = "building-panel-body";
+  panel.appendChild(body);
+
+  document.body.appendChild(panel);
+  document.body.style.overflow = "hidden";
+
+  requestAnimationFrame(() => {
+    const panelRect = panel.getBoundingClientRect();
+    const headerRect = header.getBoundingClientRect();
+    const h = panelRect.height - headerRect.height;
+    body.style.height = h + "px";
+    body.style.overflowY = "auto";
+  });
+
+  refreshGemPanel();
+}
+
+function refreshGemPanel() {
+  const body = document.getElementById("gem-shop-panel-body");
+  if (!body) return;
+  body.innerHTML = "";
+  body.style.cssText = "display:flex; flex-direction:column; gap:10px; padding:14px;";
+
+  // ===== الجزء العلوي: صورة + رصيد الجواهر =====
+  const topRow = document.createElement("div");
+  topRow.style.cssText = `
+    display:flex;
+    height:180px;
+    position:relative;
+    overflow:hidden;
+    margin-left:-14px;
+    margin-right:-14px;
+    border-bottom:1px solid rgba(148,163,184,0.2);
+    margin-bottom:8px;
+  `;
+
+  const videoEl = document.createElement("video");
+  videoEl.src = "smoke.mp4";
+  videoEl.autoplay = true;
+  videoEl.loop = true;
+  videoEl.muted = true;
+  videoEl.playsInline = true;
+  videoEl.style.cssText = `
+    position:absolute; left:0; top:0;
+    width:100%; height:100%;
+    object-fit:cover; opacity:0.4;
+    pointer-events:none; z-index:0;
+    mix-blend-mode:screen;
+  `;
+  topRow.appendChild(videoEl);
+
+  const gemImg = document.createElement("img");
+  gemImg.src = "gem.png";
+  gemImg.style.cssText = `
+    width:40%; height:100%; object-fit:contain;
+    object-position:center; position:relative; z-index:1;
+    filter: drop-shadow(0 0 12px rgba(139,92,246,0.8));
+  `;
+
+  const statsBox = document.createElement("div");
+  statsBox.style.cssText = `
+    flex:1; display:flex; flex-direction:column;
+    gap:10px; padding:14px; justify-content:center;
+    position:relative; z-index:1;
+  `;
+
+  // رصيد الجواهر الحالي
+  const balanceRow = document.createElement("div");
+  balanceRow.style.cssText = `
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 10px; border-radius:10px;
+    background:rgba(15,23,42,0.9);
+    border:2px solid rgba(250,204,21,0.3);
+    font-size:12px;
+  `;
+  balanceRow.innerHTML = `
+    <span style="color:#9ca3af;">💎 رصيدك الحالي</span>
+    <span style="color:#facc15; font-weight:bold;">${formatCapsuleNumber(resources.gem)}</span>
+  `;
+  statsBox.appendChild(balanceRow);
+
+  // نوع الدفع
+  const payRow = document.createElement("div");
+  payRow.style.cssText = `
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 10px; border-radius:10px;
+    background:rgba(15,23,42,0.9);
+    border:2px solid rgba(99,102,241,0.3);
+    font-size:12px;
+  `;
+  payRow.innerHTML = `
+    <span style="color:#9ca3af;">طريقة الدفع</span>
+    <span style="color:#818cf8; font-weight:bold;">TON / USDT</span>
+  `;
+  statsBox.appendChild(payRow);
+
+  topRow.appendChild(gemImg);
+  topRow.appendChild(statsBox);
+  body.appendChild(topRow);
+
+  // ===== الباقات =====
+  const packsLabel = document.createElement("div");
+  packsLabel.textContent = "اختر الباقة";
+  packsLabel.style.cssText = "font-size:13px; color:#facc15; font-weight:bold; text-align:center;";
+  body.appendChild(packsLabel);
+
+  GEM_PACKS.forEach((pack, i) => {
+    const btn = document.createElement("button");
+
+    // الباقات الكبيرة تبقى مميزة
+    const isPopular = i === 2; // 10,000 جوهرة
+    const isBest = i === 4;    // 100,000 جوهرة
+
+    btn.style.cssText = `
+      width:100%; padding:12px 16px; border-radius:12px;
+      border:1px solid ${isPopular ? "rgba(250,204,21,0.6)" : isBest ? "rgba(139,92,246,0.6)" : "rgba(99,102,241,0.2)"};
+      background:${isPopular ? "rgba(250,204,21,0.1)" : isBest ? "rgba(139,92,246,0.1)" : "rgba(15,23,42,0.9)"};
+      color:white; font-size:13px; cursor:pointer;
+      display:flex; align-items:center; justify-content:space-between;
+      position:relative;
+    `;
+
+    btn.innerHTML = `
+      ${isPopular ? '<span style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#facc15;color:#0b1120;font-size:10px;font-weight:bold;padding:2px 8px;border-radius:999px;">الأكثر شعبية</span>' : ""}
+      ${isBest ? '<span style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#7c3aed;color:white;font-size:10px;font-weight:bold;padding:2px 8px;border-radius:999px;">أفضل قيمة</span>' : ""}
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img src="gem.png" style="width:24px;height:24px;object-fit:contain;">
+        <span style="font-weight:bold; font-size:14px;">${pack.gems.toLocaleString()}</span>
+      </div>
+      <span style="color:#818cf8; font-weight:bold;">${pack.ton} TON</span>
+    `;
+
+    btn.onclick = () => buyGemPack(pack);
+    body.appendChild(btn);
+  });
+}
+
+function buyGemPack(pack) {
+  showPopup(
+    `سيتم ربط الدفع قريباً!<br><br>
+    <span style="color:#facc15; font-size:16px; font-weight:bold;">${pack.gems.toLocaleString()}</span>
+    <img src="gem.png" style="width:18px;height:18px;vertical-align:middle;">
+    <br>مقابل <span style="color:#818cf8; font-weight:bold;">${pack.ton} TON</span>`,
+    "info"
+  );
+}
+function addRxCoin(amount, reason) {
+  resources.rxCoin += amount;
+  rxCoinLog.unshift({
+    amount: amount,
+    reason: reason || "حرب",
+    time: new Date().toLocaleString("ar-EG")
+  });
+  // نحافظ على آخر 50 عملية بس
+  if (rxCoinLog.length > 50) rxCoinLog.pop();
+  saveGameState();
+  updateTopBar();
+}
+function openRxCoinShop() {
+  showSummonButton(false);
+
+  const panelId = "rx-coin-panel";
+  let panel = document.getElementById(panelId);
+
+  if (panel) {
+    panel.style.display = "block";
+    document.body.style.overflow = "hidden";
+    refreshRxCoinPanel();
+    return;
+  }
+
+  panel = document.createElement("div");
+  panel.id = panelId;
+  panel.className = "building-panel";
+
+  // ===== الهيدر =====
+  const header = document.createElement("div");
+  header.style.cssText = `
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    border-bottom:1px solid rgba(250,204,21,0.2);
+  `;
+
+  const infoBtn = document.createElement("button");
+  infoBtn.textContent = "!";
+  infoBtn.style.cssText = `
+    width:32px; height:32px; border-radius:999px;
+    background:rgba(250,204,21,0.15);
+    border:1px solid rgba(250,204,21,0.3);
+    color:#facc15; font-weight:bold; font-size:16px;
+    cursor:pointer;
+  `;
+
+  const titleBox = document.createElement("div");
+  titleBox.style.cssText = `flex:1; text-align:center;`;
+  const titleInner = document.createElement("div");
+  titleInner.textContent = "RX COIN";
+  titleInner.style.cssText = `
+    display:inline-block;
+    padding:6px 20px;
+    background:rgba(250,204,21,0.1);
+    border:1px solid rgba(250,204,21,0.3);
+    border-radius:999px;
+    font-weight:bold; font-size:16px;
+    color:#facc15;
+  `;
+  titleBox.appendChild(titleInner);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.cssText = `
+    width:32px; height:32px; border-radius:999px;
+    background:rgba(239,68,68,0.15);
+    border:1px solid rgba(239,68,68,0.3);
+    color:#ef4444; font-size:14px;
+    cursor:pointer;
+  `;
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+    document.body.style.overflow = "auto";
+    showSummonButton(true);
+  };
+
+  header.appendChild(infoBtn);
+  header.appendChild(titleBox);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  // ===== الجسم =====
+  const body = document.createElement("div");
+  body.id = panelId + "-body";
+  body.className = "building-panel-body";
+  panel.appendChild(body);
+
+  document.body.appendChild(panel);
+  document.body.style.overflow = "hidden";
+
+  requestAnimationFrame(() => {
+    const panelRect = panel.getBoundingClientRect();
+    const headerRect = header.getBoundingClientRect();
+    const h = panelRect.height - headerRect.height;
+    body.style.height = h + "px";
+    body.style.overflowY = "auto";
+  });
+
+  refreshRxCoinPanel();
+}
+
+function refreshRxCoinPanel() {
+  const body = document.getElementById("rx-coin-panel-body");
+  if (!body) return;
+  body.innerHTML = "";
+  body.style.cssText = "display:flex; flex-direction:column; gap:12px; padding:14px;";
+
+  // ===== الجزء العلوي =====
+  const topRow = document.createElement("div");
+  topRow.style.cssText = `
+    display:flex;
+    height:180px;
+    position:relative;
+    overflow:hidden;
+    margin-left:-14px;
+    margin-right:-14px;
+    border-bottom:1px solid rgba(148,163,184,0.2);
+    margin-bottom:8px;
+  `;
+
+  const videoEl = document.createElement("video");
+  videoEl.src = "smoke.mp4";
+  videoEl.autoplay = true;
+  videoEl.loop = true;
+  videoEl.muted = true;
+  videoEl.playsInline = true;
+  videoEl.style.cssText = `
+    position:absolute; left:0; top:0;
+    width:100%; height:100%;
+    object-fit:cover; opacity:0.4;
+    pointer-events:none; z-index:0;
+    mix-blend-mode:screen;
+  `;
+  topRow.appendChild(videoEl);
+
+  const rxImg = document.createElement("img");
+  rxImg.src = "rx-coin.png";
+  rxImg.style.cssText = `
+    width:40%; height:100%; object-fit:contain;
+    object-position:center; position:relative; z-index:1;
+    filter: drop-shadow(0 0 12px rgba(250,204,21,0.8));
+  `;
+
+  const statsBox = document.createElement("div");
+  statsBox.style.cssText = `
+    flex:1; display:flex; flex-direction:column;
+    gap:10px; padding:14px; justify-content:center;
+    position:relative; z-index:1;
+  `;
+
+  // رصيد RX COIN
+  const balanceRow = document.createElement("div");
+  balanceRow.style.cssText = `
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 10px; border-radius:10px;
+    background:rgba(15,23,42,0.9);
+    border:2px solid rgba(250,204,21,0.3);
+    font-size:12px;
+  `;
+  balanceRow.innerHTML = `
+    <span style="color:#9ca3af;">رصيدك الحالي</span>
+    <span style="color:#facc15; font-weight:bold;">${formatCapsuleNumber(resources.rxCoin)}</span>
+  `;
+  statsBox.appendChild(balanceRow);
+
+  // طريقة الكسب
+  const earnRow = document.createElement("div");
+  earnRow.style.cssText = `
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 10px; border-radius:10px;
+    background:rgba(15,23,42,0.9);
+    border:2px solid rgba(34,197,94,0.3);
+    font-size:12px;
+  `;
+  earnRow.innerHTML = `
+    <span style="color:#9ca3af;">طريقة الكسب</span>
+    <span style="color:#22c55e; font-weight:bold;">⚔️ الحروب فقط</span>
+  `;
+  statsBox.appendChild(earnRow);
+
+  topRow.appendChild(rxImg);
+  topRow.appendChild(statsBox);
+  body.appendChild(topRow);
+
+  // ===== زر التبادل =====
+  const exchangeLabel = document.createElement("div");
+  exchangeLabel.textContent = "التبادل";
+  exchangeLabel.style.cssText = "font-size:13px; color:#facc15; font-weight:bold; text-align:center;";
+  body.appendChild(exchangeLabel);
+
+  const exchangeBtn = document.createElement("button");
+  exchangeBtn.style.cssText = `
+    width:100%; padding:14px; border-radius:999px;
+    border:1px solid rgba(255,255,255,0.1);
+    background:rgba(55,65,81,0.8);
+    color:#6b7280; font-weight:bold; font-size:14px;
+    cursor:not-allowed;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  `;
+  exchangeBtn.innerHTML = `🔒 تبادل RX COIN <span style="font-size:11px; color:#4b5563;">- متاح قريباً</span>`;
+  exchangeBtn.disabled = true;
+  body.appendChild(exchangeBtn);
+
+  // ===== سجل المعاملات =====
+  const logLabel = document.createElement("div");
+  logLabel.textContent = "سجل الكسب";
+  logLabel.style.cssText = "font-size:13px; color:#facc15; font-weight:bold; text-align:center;";
+  body.appendChild(logLabel);
+
+  if (rxCoinLog.length === 0) {
+    const emptyMsg = document.createElement("div");
+    emptyMsg.style.cssText = `
+      text-align:center; color:#4b5563; font-size:12px;
+      padding:20px; border-radius:10px;
+      background:rgba(15,23,42,0.9);
+      border:1px solid rgba(255,255,255,0.05);
+    `;
+    emptyMsg.textContent = "لا يوجد سجل بعد، اكسب RX COIN من الحروب!";
+    body.appendChild(emptyMsg);
+  } else {
+    rxCoinLog.forEach(log => {
+      const row = document.createElement("div");
+      row.style.cssText = `
+        display:flex; justify-content:space-between; align-items:center;
+        padding:8px 12px; border-radius:10px;
+        background:rgba(15,23,42,0.9);
+        border:1px solid rgba(250,204,21,0.1);
+        font-size:12px;
+      `;
+      row.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <span style="color:#e5e7eb;">⚔️ ${log.reason}</span>
+          <span style="color:#4b5563; font-size:10px;">${log.time}</span>
+        </div>
+        <span style="color:#facc15; font-weight:bold;">+${log.amount.toLocaleString()}</span>
+      `;
+      body.appendChild(row);
+    });
+  }
+}
+function openBuilderShop() {
+  showSummonButton(false);
+
+  const panelId = "builder-shop-panel";
+  let panel = document.getElementById(panelId);
+
+  if (panel) {
+    panel.style.display = "block";
+    document.body.style.overflow = "hidden";
+    refreshBuilderPanel();
+    return;
+  }
+
+  panel = document.createElement("div");
+  panel.id = panelId;
+  panel.className = "building-panel";
+
+  // ===== الهيدر =====
+  const header = document.createElement("div");
+  header.style.cssText = `
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    border-bottom:1px solid rgba(250,204,21,0.2);
+  `;
+
+  const infoBtn = document.createElement("button");
+  infoBtn.textContent = "!";
+  infoBtn.style.cssText = `
+    width:32px; height:32px; border-radius:999px;
+    background:rgba(250,204,21,0.15);
+    border:1px solid rgba(250,204,21,0.3);
+    color:#facc15; font-weight:bold; font-size:16px;
+    cursor:pointer;
+  `;
+
+  const titleBox = document.createElement("div");
+  titleBox.style.cssText = `flex:1; text-align:center;`;
+  const titleInner = document.createElement("div");
+  titleInner.textContent = "عامل البناء";
+  titleInner.style.cssText = `
+    display:inline-block;
+    padding:6px 20px;
+    background:rgba(250,204,21,0.1);
+    border:1px solid rgba(250,204,21,0.3);
+    border-radius:999px;
+    font-weight:bold; font-size:16px;
+    color:#facc15;
+  `;
+  titleBox.appendChild(titleInner);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✖";
+  closeBtn.style.cssText = `
+    width:32px; height:32px; border-radius:999px;
+    background:rgba(239,68,68,0.15);
+    border:1px solid rgba(239,68,68,0.3);
+    color:#ef4444; font-size:14px;
+    cursor:pointer;
+  `;
+  closeBtn.onclick = () => {
+    panel.style.display = "none";
+    document.body.style.overflow = "auto";
+    showSummonButton(true);
+  };
+
+  header.appendChild(infoBtn);
+  header.appendChild(titleBox);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
+  // ===== الجسم =====
+  const body = document.createElement("div");
+  body.id = panelId + "-body";
+  body.className = "building-panel-body";
+  panel.appendChild(body);
+
+  document.body.appendChild(panel);
+  document.body.style.overflow = "hidden";
+
+  requestAnimationFrame(() => {
+    const panelRect = panel.getBoundingClientRect();
+    const headerRect = header.getBoundingClientRect();
+    const h = panelRect.height - headerRect.height;
+    body.style.height = h + "px";
+    body.style.overflowY = "auto";
+  });
+
+  refreshBuilderPanel();
+}
+
+function refreshBuilderPanel() {
+  const body = document.getElementById("builder-shop-panel-body");
+  if (!body) return;
+  body.innerHTML = "";
+  body.style.cssText = "display:flex; flex-direction:column; gap:12px; padding:14px;";
+
+  // ===== الجزء العلوي: صورة + حالة العمال =====
+  const topRow = document.createElement("div");
+  topRow.style.cssText = `
+    display:flex;
+    gap:0;
+    height:220px;
+    position:relative;
+    overflow:hidden;
+    margin-left:-14px;
+    margin-right:-14px;
+    border-bottom:1px solid rgba(148,163,184,0.2);
+    margin-bottom:4px;
+  `;
+
+  const videoEl = document.createElement("video");
+  videoEl.src = "smoke.mp4";
+  videoEl.autoplay = true;
+  videoEl.loop = true;
+  videoEl.muted = true;
+  videoEl.playsInline = true;
+  videoEl.style.cssText = `
+    position:absolute; left:0; top:0;
+    width:100%; height:100%;
+    object-fit:cover; opacity:0.4;
+    pointer-events:none; z-index:0;
+    mix-blend-mode:screen;
+  `;
+  topRow.appendChild(videoEl);
+
+  const builderImg = document.createElement("img");
+  builderImg.src = "builder.png";
+  builderImg.style.cssText = `
+    width:45%; height:100%; object-fit:contain;
+    object-position:bottom; position:relative; z-index:1;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.15));
+  `;
+
+  const statsBox = document.createElement("div");
+  statsBox.style.cssText = `
+    flex:1; display:flex; flex-direction:column;
+    gap:10px; padding:14px; justify-content:center;
+    position:relative; z-index:1;
+  `;
+
+  // حالة العمال
+  [
+    { label: "العمال الحاليين", val: maxBuilders, color: "#facc15" },
+    { label: "العمال الدائمين", val: `${permanentBuilders}/3`, color: "#34d399" },
+    { label: "مشغول / فاضي", val: `${busyBuilders}/${maxBuilders}`, color: "#f97316" },
+  ].forEach(s => {
+    const row = document.createElement("div");
+    row.style.cssText = `
+      display:flex; justify-content:space-between; align-items:center;
+      padding:6px 10px; border-radius:10px;
+      background:rgba(15,23,42,0.9);
+      border:2px solid rgba(250,204,21,0.3);
+      font-size:12px;
+    `;
+    row.innerHTML = `
+      <span style="color:#9ca3af;">${s.label}</span>
+      <span style="color:${s.color}; font-weight:bold;">${s.val}</span>
+    `;
+    statsBox.appendChild(row);
+  });
+
+  // لو في عامل مستأجر
+  if (rentedBuilderExpiry && rentedBuilderExpiry > Date.now()) {
+    const rentRow = document.createElement("div");
+    rentRow.style.cssText = `
+      display:flex; justify-content:space-between; align-items:center;
+      padding:6px 10px; border-radius:10px;
+      background:rgba(15,23,42,0.9);
+      border:2px solid rgba(52,211,153,0.3);
+      font-size:12px;
+    `;
+    rentRow.innerHTML = `
+      <span style="color:#9ca3af;">ينتهي الإيجار</span>
+      <span style="color:#34d399; font-weight:bold;">${getTimeLeft(rentedBuilderExpiry)}</span>
+    `;
+    statsBox.appendChild(rentRow);
+  }
+
+  topRow.appendChild(builderImg);
+  topRow.appendChild(statsBox);
+  body.appendChild(topRow);
+
+  // ===== شراء دائم =====
+  const permLabel = document.createElement("div");
+  permLabel.textContent = "🏗️ شراء دائم";
+  permLabel.style.cssText = "font-size:13px; color:#facc15; font-weight:bold; text-align:center;";
+  body.appendChild(permLabel);
+
+  const permBtn = document.createElement("button");
+  const canBuy = permanentBuilders < 3 && resources.gem >= 10000;
+  permBtn.style.cssText = `
+    width:100%; padding:12px 0; border:none; border-radius:999px;
+    background:${permanentBuilders >= 3 ? "rgba(55,65,81,0.8)" : "linear-gradient(135deg,#facc15,#f97316)"};
+    color:${permanentBuilders >= 3 ? "#6b7280" : "#0b1120"};
+    font-weight:bold; font-size:14px;
+    cursor:${permanentBuilders >= 3 ? "not-allowed" : "pointer"};
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 20px;
+  `;
+  permBtn.innerHTML = `
+    <span>عامل دائم (${permanentBuilders}/3)</span>
+    <span style="display:flex; align-items:center; gap:4px;">
+      <img src="gem.png" style="width:16px;height:16px;"> 10,000
+    </span>
+  `;
+  permBtn.disabled = permanentBuilders >= 3;
+  permBtn.onclick = () => buyPermanentBuilder();
+  body.appendChild(permBtn);
+
+  // ===== استئجار مؤقت =====
+  const rentLabel = document.createElement("div");
+  rentLabel.textContent = "⏳ استئجار مؤقت";
+  rentLabel.style.cssText = "font-size:13px; color:#34d399; font-weight:bold; text-align:center;";
+  body.appendChild(rentLabel);
+
+  const rentOptions = [
+    { days: 1,  cost: 250 },
+    { days: 7,  cost: 1250 },
+    { days: 15, cost: 2300 },
+    { days: 30, cost: 4500 },
+  ];
+
+  rentOptions.forEach(opt => {
+    const btn = document.createElement("button");
+    const canAfford = resources.gem >= opt.cost;
+    btn.style.cssText = `
+      width:100%; padding:12px 20px; border-radius:999px;
+      border:1px solid rgba(52,211,153,0.3);
+      background:${canAfford ? "rgba(52,211,153,0.1)" : "rgba(55,65,81,0.8)"};
+      color:${canAfford ? "white" : "#6b7280"};
+      font-size:13px; cursor:${canAfford ? "pointer" : "not-allowed"};
+      display:flex; align-items:center; justify-content:space-between;
+    `;
+    btn.innerHTML = `
+      <span>${opt.days} ${opt.days === 1 ? "يوم" : "أيام"}</span>
+      <span style="display:flex; align-items:center; gap:4px;">
+        <img src="gem.png" style="width:16px;height:16px;"> ${opt.cost.toLocaleString()}
+      </span>
+    `;
+    btn.onclick = () => { if (canAfford) rentBuilder(opt.days, opt.cost); };
+    body.appendChild(btn);
+  });
+}
+
+function buyPermanentBuilder() {
+  if (permanentBuilders >= 3) {
+    showPopup("وصلت للحد الأقصى من العمال الدائمين!", "error");
+    return;
+  }
+  if (resources.gem < 10000) {
+    showPopup("ليس لديك جواهر كافية!<br>تحتاج 10,000 جوهرة", "error");
+    return;
+  }
+  resources.gem -= 10000;
+  permanentBuilders++;
+  maxBuilders++;
+  saveGameState();
+  updateTopBar();
+  refreshBuilderPanel();
+}
+
+function rentBuilder(days, cost) {
+  if (resources.gem < cost) {
+    showPopup(`ليس لديك جواهر كافية!<br>تحتاج ${cost.toLocaleString()} جوهرة`, "error");
+    return;
+  }
+
+  const now = Date.now();
+  const base = rentedBuilderExpiry && rentedBuilderExpiry > now ? rentedBuilderExpiry : now;
+  rentedBuilderExpiry = base + days * 24 * 60 * 60 * 1000;
+
+  resources.gem -= cost;
+
+  if (!rentedBuilderTimer) {
+    maxBuilders++;
+  }
+
+  if (rentedBuilderTimer) clearInterval(rentedBuilderTimer);
+
+  rentedBuilderTimer = setInterval(() => {
+    if (Date.now() >= rentedBuilderExpiry) {
+      clearInterval(rentedBuilderTimer);
+      rentedBuilderTimer = null;
+      rentedBuilderExpiry = null;
+      maxBuilders = Math.max(1, maxBuilders - 1);
+      saveGameState();
+      updateTopBar();
+    }
+  }, 60000);
+
+  saveGameState();
+  updateTopBar();
+  refreshBuilderPanel();
+  showPopup(`تم استئجار عامل لمدة ${days} ${days === 1 ? "يوم" : "أيام"}`, "success");
+}
+
+function getTimeLeft(expiry) {
+  const diff = Math.max(0, expiry - Date.now());
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  return `${days}ي ${hours}س`;
+}
 
 // 3) نربط bottom bar buttons
 (function wireBottomBarButtons() {
