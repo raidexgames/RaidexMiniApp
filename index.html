@@ -356,108 +356,113 @@
 
 
 
-/* Top bar – two rows layout */
+/* الشريط العلوي الأساسي */
 #top-bar {
   position: fixed;
-  top: 0;
+  top: -10px;
   left: 0;
   width: 100%;
-  height: 90px;               /* هنظبطها لو حبيت بعدين */
-  background: rgba(3, 7, 18, 0.95);
+  height: 70px;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 8px;
-  gap: 8px;
+  padding: 4px 4px;
+  gap: 2px;
   z-index: 200;
   box-shadow: 0 6px 12px rgba(0,0,0,0.7);
+
+  clip-path: path(
+    "M 0 0
+     H 100%
+     V 60
+     C 62% 56, 56% 70, 50% 70
+     C 44% 70, 38% 56, 0 60
+     Z"
+  );
 }
 
-/* عمود البروفايل (يسار) */
-.top-bar-profile {
+/* البابل المنحنية للبروفايل */
+#top-bar-avatar-bubble {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 30%, #1f2937, #020617);
+  box-shadow: 0 10px 14px rgba(0,0,0,0.8);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  width: 60px;                /* ثابت عشان ما يضغطش الباقي */
+  z-index: 210;
 }
 
-/* الصورة */
-.top-bar-profile img {
-  width: 40px;
-  height: 40px;
+/* صورة البروفايل */
+#top-bar-avatar-bubble img {
+  width: 48px;
+  height: 48px;
   border-radius: 999px;
   object-fit: cover;
-  box-shadow: 0 0 8px rgba(250,204,21,0.6);
+  box-shadow: 0 0 10px rgba(250,204,21,0.7);
+  transform: translateY(-2px);
 }
 
-/* POWER تحتها */
-.top-bar-power {
-  font-size: 10px;
+/* POWER */
+#top-bar-avatar-bubble .top-bar-power {
+  font-size: 11px;
   color: #facc15;
+  margin-top: 4px;
 }
 
-/* عمود يمين: صفين (موارد فوق، Builder + RX تحت) */
-.top-bar-right-block {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-/* الصف العلوي: الموارد */
-.top-bar-resources-row {
+/* يسار ويمين */
+.top-bar-left-resources,
+.top-bar-right-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 4px;
+  flex: 1 1 0;
 }
 
-/* الصف السفلي: عامل البناء + RX */
-.top-bar-actions-row {
+.top-bar-left-resources {
+  justify-content: flex-start;
+  padding-left: 4px;
+}
+
+.top-bar-right-actions {
+  justify-content: flex-end;
+  padding-right: 4px;
+}
+
+/* wrapper موحد لكل عنصر (أيقونة + كابسولة) */
+.resource-wrapper {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
+  gap: 2px;
 }
 
-/* كابسولة مورد */
+/* كابسولة موحدة لكل العناصر الخمسة */
 .resource-cap {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 4px 6px;
+  justify-content: center;
+  padding: 7px 12px;
   border-radius: 999px;
   background: rgba(15,23,42,0.95);
-  font-size: 11px;
+  font-size: 13px;
   color: #e5e7eb;
+  min-width: 44px;
+  text-align: center;
 }
 
-.resource-cap img {
-  width: 16px;
-  height: 16px;
+/* أيقونة موحدة لكل العناصر الخمسة */
+.resource-icon {
+  width: 24px;
+  height: 24px;
   object-fit: contain;
-}
-
-/* عامل البناء و RX ككابسولات */
-.builder-cap,
-.rx-cap {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(15,23,42,0.95);
-  font-size: 11px;
-  color: #e5e7eb;
-}
-
-.builder-cap img,
-.rx-cap img {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
+  flex-shrink: 0;
 }
 
 
@@ -10478,12 +10483,76 @@ function formatNumberShort(n) {
 function addTopBar() {
   if (document.getElementById("top-bar")) return;
 
+  // ===== إعدادات كل عنصر - عدّل هنا براحتك =====
+  const settings = {
+    gold:    { iconW: 36, iconH: 31, iconX: -7, iconY: 0, capW: 44, capH: 28, capX: 17, capY: 0 },
+    wood:    { iconW: 36, iconH: 31, iconX: 8, iconY: 0, capW: 44, capH: 28, capX: 28, capY: 0 },
+    food:    { iconW: 36, iconH: 31, iconX: 20, iconY: 3, capW: 44, capH: 28, capX: 35, capY: 0 },
+    gem:     { iconW: 36, iconH: 31, iconX: 27, iconY: 0, capW: 44, capH: 28, capX: 35, capY: 0 },
+    builder: { iconW: 36, iconH: 31, iconX: 0, iconY: 0, capW: 44, capH: 28, capX: 45, capY: 0 },
+    rx:      { iconW: 36, iconH: 31, iconX: 0, iconY: 0, capW: 44, capH: 28, capX: 50, capY: 0 },
+  };
+  // iconW/H = عرض/طول الأيقونة
+  // iconX/Y = تحريك الأيقونة يمين/شمال وفوق/تحت
+  // capW/H  = عرض/طول الكابسولة
+  // capX/Y  = تحريك الكابسولة يمين/شمال وفوق/تحت
+  // ==============================================
+
   const topBar = document.createElement("div");
   topBar.id = "top-bar";
 
-  // ===== عمود البروفايل (يسار) =====
-  const profileCol = document.createElement("div");
-  profileCol.className = "top-bar-profile";
+  const leftResources = document.createElement("div");
+  leftResources.className = "top-bar-left-resources";
+
+function makeResourceCapsule(key, icon) {
+    const s = settings[key];
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "resource-wrapper";
+    wrapper.id = "wrapper-" + key;
+    wrapper.style.position = "relative"; // مهم عشان الأيقونة تتحسب من جوفه
+
+    // الكابسولة الأول عشان تاخد مكانها الطبيعي
+    const cap = document.createElement("div");
+    cap.className = "resource-cap";
+    cap.id = "cap-" + key;
+    cap.style.cursor = "pointer";
+    cap.style.width = s.capW + "px";
+    cap.style.height = s.capH + "px";
+    cap.style.transform = `translate(${s.capX}px, ${s.capY}px)`;
+
+    const valueSpan = document.createElement("span");
+    valueSpan.id = "res-" + key;
+    valueSpan.textContent = "0";
+
+    // الأيقونة فوق الكابسولة دايماً
+    const iconImg = document.createElement("img");
+    iconImg.src = icon;
+    iconImg.id = "icon-" + key;
+    iconImg.style.width = s.iconW + "px";
+    iconImg.style.height = s.iconH + "px";
+    iconImg.style.objectFit = "contain";
+    iconImg.style.position = "absolute"; // فوق الكابسولة
+    iconImg.style.top = "50%";
+    iconImg.style.left = "0px";
+    iconImg.style.transform = `translate(${s.iconX}px, calc(-50% + ${s.iconY}px))`;
+    iconImg.style.zIndex = "2"; // دايماً فوق
+
+    cap.appendChild(valueSpan);
+    wrapper.appendChild(cap);
+    wrapper.appendChild(iconImg); // الأيقونة بعد الكابسولة عشان تبقى فوقها
+    cap.onclick = function () { openResourceShop(key); };
+    leftResources.appendChild(wrapper);
+  }
+
+  makeResourceCapsule("gold", "gold.png");
+  makeResourceCapsule("wood", "wood.png");
+  makeResourceCapsule("food", "food.png");
+  makeResourceCapsule("gem",  "gem.png");
+
+  // ===== وسط: البابل =====
+  const bubble = document.createElement("div");
+  bubble.id = "top-bar-avatar-bubble";
 
   const avatar = document.createElement("img");
   avatar.id = "player-avatar";
@@ -10491,92 +10560,68 @@ function addTopBar() {
   avatar.addEventListener("click", openProfile);
 
   const powerLine = document.createElement("div");
-  powerLine.id = "topbar-power";
   powerLine.className = "top-bar-power";
+  powerLine.id = "topbar-power";
   powerLine.textContent = "Power: " + formatShortNumber(totalPower);
 
-  profileCol.appendChild(avatar);
-  profileCol.appendChild(powerLine);
+  bubble.appendChild(avatar);
+  bubble.appendChild(powerLine);
 
-  // ===== العمود اليمين (صفين) =====
-  const rightBlock = document.createElement("div");
-  rightBlock.className = "top-bar-right-block";
+  // ===== يمين: Builder + RX =====
+  const rightActions = document.createElement("div");
+  rightActions.className = "top-bar-right-actions";
 
-  // --- الصف العلوي: الموارد ---
-  const resourcesRow = document.createElement("div");
-  resourcesRow.className = "top-bar-resources-row";
+  function makeActionCapsule(key, icon, countId, countText) {
+    const s = settings[key];
 
-  function makeResourceCapsule(key, icon) {
-    const cap = document.createElement("div");
-    cap.className = "resource-cap";
+    const wrapper = document.createElement("div");
+    wrapper.className = "resource-wrapper";
+    wrapper.id = "wrapper-" + key;
 
     const iconImg = document.createElement("img");
     iconImg.src = icon;
+    iconImg.id = "icon-" + key;
+    iconImg.style.width = s.iconW + "px";
+    iconImg.style.height = s.iconH + "px";
+    iconImg.style.objectFit = "contain";
+    iconImg.style.flexShrink = "0";
+    iconImg.style.transform = `translate(${s.iconX}px, ${s.iconY}px)`;
+
+    const cap = document.createElement("div");
+    cap.className = "resource-cap";
+    cap.id = "cap-" + key;
+    cap.style.width = s.capW + "px";
+    cap.style.height = s.capH + "px";
+    cap.style.transform = `translate(${s.capX}px, ${s.capY}px)`;
 
     const valueSpan = document.createElement("span");
-    valueSpan.id = "res-" + key;
-    valueSpan.textContent = "0";
+    valueSpan.id = countId;
+    valueSpan.textContent = countText;
 
-    cap.appendChild(iconImg);
     cap.appendChild(valueSpan);
-
-    cap.onclick = function () { openResourceShop(key); };
-
-    resourcesRow.appendChild(cap);
+    wrapper.appendChild(iconImg);
+    wrapper.appendChild(cap);
+    rightActions.appendChild(wrapper);
   }
 
-  makeResourceCapsule("gold", "gold.png");
-  makeResourceCapsule("wood", "wood.png");
-  makeResourceCapsule("food", "food.png");
+  makeActionCapsule(
+    "builder",
+    "builder.png",
+    "builders-count",
+    (maxBuilders - busyBuilders) + "/" + maxBuilders
+  );
 
-  // --- الصف السفلي: عامل البناء + RX ---
-  const actionsRow = document.createElement("div");
-  actionsRow.className = "top-bar-actions-row";
+  makeActionCapsule(
+    "rx",
+    "rx-coin.png",
+    "rx-coin-value",
+    "0"
+  );
 
-  // عامل البناء
-  const builderCap = document.createElement("div");
-  builderCap.className = "builder-cap";
-  builderCap.id = "builders-capsule";
-
-  const builderIcon = document.createElement("img");
-  builderIcon.src = "builder.png"; // صورة عامل البناء اللي عملتها
-
-  const buildersCount = document.createElement("span");
-  buildersCount.id = "builders-count";
-  buildersCount.textContent = (maxBuilders - busyBuilders) + "/" + maxBuilders;
-
-  builderCap.appendChild(builderIcon);
-  builderCap.appendChild(buildersCount);
-  actionsRow.appendChild(builderCap);
-
-  // RX COIN
-  const rxCap = document.createElement("div");
-  rxCap.className = "rx-cap";
-
-  const rxIcon = document.createElement("img");
-  rxIcon.src = "rx-coin.png";
-
-  const rxLabel = document.createElement("span");
-  rxLabel.textContent = "RX";
-
-  const rxValue = document.createElement("span");
-  rxValue.id = "rx-coin-value";
-  rxValue.textContent = "0";
-
-  rxCap.appendChild(rxIcon);
-  rxCap.appendChild(rxLabel);
-  rxCap.appendChild(rxValue);
-  actionsRow.appendChild(rxCap);
-
-  // تجميع الصفين في العمود اليمين
-  rightBlock.appendChild(resourcesRow);
-  rightBlock.appendChild(actionsRow);
-
-  // تجميع البار كامل
-  topBar.appendChild(profileCol);
-  topBar.appendChild(rightBlock);
-
+  topBar.appendChild(leftResources);
+  topBar.appendChild(rightActions);
   document.body.appendChild(topBar);
+  document.body.appendChild(bubble);
 }
 
 
