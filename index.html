@@ -116,6 +116,9 @@
   position: relative;
   overflow: hidden;
 }
+#city-screen .building-panel-body {
+  overflow-y: scroll !important;
+}
 #city-map-container {
   background: #121a2f;
 }
@@ -353,34 +356,108 @@
 
 
 
-      /* Top bar */
+/* Top bar – two rows layout */
 #top-bar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 80px;
-  background: rgba(0, 0, 0, 0.7);
+  height: 90px;               /* هنظبطها لو حبيت بعدين */
+  background: rgba(3, 7, 18, 0.95);
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
   gap: 8px;
-  padding: 0 10px;
-  z-index: 100;
+  z-index: 200;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.7);
 }
 
-      #player-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        cursor: pointer;
-        border: 3px solid gold;
-      }
-#resources {
+/* عمود البروفايل (يسار) */
+.top-bar-profile {
   display: flex;
-  gap: 4px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 60px;                /* ثابت عشان ما يضغطش الباقي */
+}
+
+/* الصورة */
+.top-bar-profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  object-fit: cover;
+  box-shadow: 0 0 8px rgba(250,204,21,0.6);
+}
+
+/* POWER تحتها */
+.top-bar-power {
   font-size: 10px;
+  color: #facc15;
+}
+
+/* عمود يمين: صفين (موارد فوق، Builder + RX تحت) */
+.top-bar-right-block {
   flex: 1;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* الصف العلوي: الموارد */
+.top-bar-resources-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+/* الصف السفلي: عامل البناء + RX */
+.top-bar-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* كابسولة مورد */
+.resource-cap {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: rgba(15,23,42,0.95);
+  font-size: 11px;
+  color: #e5e7eb;
+}
+
+.resource-cap img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* عامل البناء و RX ككابسولات */
+.builder-cap,
+.rx-cap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(15,23,42,0.95);
+  font-size: 11px;
+  color: #e5e7eb;
+}
+
+.builder-cap img,
+.rx-cap img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 
@@ -2074,14 +2151,34 @@
       0 0 14px rgba(96,165,250,0.5);
   }
 }
-.building-panel-body {
-  flex: 1;
-  padding: 15px;
-  overflow-y: scroll !important;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  min-height: 0;
+.building-panel {
+  position: fixed;
+  top: 90px;
+  left: 16px;
+  right: 16px;
+  bottom: 70px;
+  background: #020617;
+  z-index: 99999;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #facc15;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
 }
+
+.building-panel-body {
+  overflow-y: auto;
+}
+
+.building-panel-body {
+  flex: 1 1 auto;
+  padding: 15px;
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
     </style>
   </head>
   <body>
@@ -10384,12 +10481,9 @@ function addTopBar() {
   const topBar = document.createElement("div");
   topBar.id = "top-bar";
 
-  const avatarWrapper = document.createElement("div");
-  avatarWrapper.style.display = "flex";
-  avatarWrapper.style.flexDirection = "column";
-  avatarWrapper.style.alignItems = "center";
-  avatarWrapper.style.gap = "2px";
-  avatarWrapper.style.flexShrink = "0";
+  // ===== عمود البروفايل (يسار) =====
+  const profileCol = document.createElement("div");
+  profileCol.className = "top-bar-profile";
 
   const avatar = document.createElement("img");
   avatar.id = "player-avatar";
@@ -10398,114 +10492,91 @@ function addTopBar() {
 
   const powerLine = document.createElement("div");
   powerLine.id = "topbar-power";
-  powerLine.style.fontSize = "9px";
-  powerLine.style.color = "#facc15";
+  powerLine.className = "top-bar-power";
   powerLine.textContent = "Power: " + formatShortNumber(totalPower);
 
-  avatarWrapper.appendChild(avatar);
-  avatarWrapper.appendChild(powerLine);
+  profileCol.appendChild(avatar);
+  profileCol.appendChild(powerLine);
 
-  const buildersCapsule = document.createElement("div");
-  buildersCapsule.id = "builders-capsule";
-  buildersCapsule.style.display = "flex";
-  buildersCapsule.style.alignItems = "center";
-  buildersCapsule.style.gap = "2px";
-  buildersCapsule.style.padding = "4px 8px";
-  buildersCapsule.style.borderRadius = "999px";
-  buildersCapsule.style.background = "rgba(15,23,42,0.9)";
-  buildersCapsule.style.fontSize = "12px";
-  buildersCapsule.style.cursor = "pointer";
-  buildersCapsule.style.flexShrink = "0";
+  // ===== العمود اليمين (صفين) =====
+  const rightBlock = document.createElement("div");
+  rightBlock.className = "top-bar-right-block";
 
-  const builderIcon = document.createElement("span");
-  builderIcon.textContent = "👷";
-  builderIcon.style.fontSize = "12px";
-
-  const buildersCount = document.createElement("span");
-  buildersCount.id = "builders-count";
-  buildersCount.textContent = (maxBuilders - busyBuilders) + "/" + maxBuilders;
-
-  buildersCapsule.appendChild(builderIcon);
-  buildersCapsule.appendChild(buildersCount);
-  buildersCapsule.onclick = function () {};
-
-  const resourcesDiv = document.createElement("div");
-  resourcesDiv.id = "resources";
-  resourcesDiv.style.display = "flex";
-  resourcesDiv.style.gap = "3px";
-  resourcesDiv.style.flex = "1";
-  resourcesDiv.style.overflow = "hidden";
+  // --- الصف العلوي: الموارد ---
+  const resourcesRow = document.createElement("div");
+  resourcesRow.className = "top-bar-resources-row";
 
   function makeResourceCapsule(key, icon) {
     const cap = document.createElement("div");
     cap.className = "resource-cap";
-    cap.style.display = "flex";
-    cap.style.alignItems = "center";
-    cap.style.gap = "2px";
-    cap.style.padding = "4px 6px";
-    cap.style.borderRadius = "999px";
-    cap.style.background = "rgba(15,23,42,0.9)";
-    cap.style.fontSize = "11px";
-    cap.style.cursor = "pointer";
-    cap.style.flex = "1";
-    cap.style.minWidth = "0";
-    cap.style.overflow = "hidden";
 
     const iconImg = document.createElement("img");
     iconImg.src = icon;
-    iconImg.style.width = "18px";
-    iconImg.style.height = "18px";
-    iconImg.style.objectFit = "contain";
-    iconImg.style.flexShrink = "0";
 
     const valueSpan = document.createElement("span");
     valueSpan.id = "res-" + key;
     valueSpan.textContent = "0";
-    valueSpan.style.overflow = "hidden";
-    valueSpan.style.textOverflow = "ellipsis";
-    valueSpan.style.whiteSpace = "nowrap";
-
-    const plusBtn = document.createElement("span");
-    plusBtn.textContent = "+";
-    plusBtn.style.fontWeight = "bold";
-    plusBtn.style.flexShrink = "0";
-
-    cap.onclick = function () { openResourceShop(key); };
-    plusBtn.onclick = function (ev) { ev.stopPropagation(); openResourceShop(key); };
 
     cap.appendChild(iconImg);
     cap.appendChild(valueSpan);
-    cap.appendChild(plusBtn);
-    resourcesDiv.appendChild(cap);
+
+    cap.onclick = function () { openResourceShop(key); };
+
+    resourcesRow.appendChild(cap);
   }
 
   makeResourceCapsule("gold", "gold.png");
   makeResourceCapsule("wood", "wood.png");
   makeResourceCapsule("food", "food.png");
-  makeResourceCapsule("gem",  "gem.png");
 
-  function updateTopBarInner() {
-    const goldEl = document.getElementById("res-gold");
-    if (goldEl) goldEl.textContent = formatNumberShort(resources.gold);
-    const woodEl = document.getElementById("res-wood");
-    if (woodEl) woodEl.textContent = formatNumberShort(resources.wood);
-    const foodEl = document.getElementById("res-food");
-    if (foodEl) foodEl.textContent = formatNumberShort(resources.food);
-    const gemEl = document.getElementById("res-gem");
-    if (gemEl) gemEl.textContent = formatNumberShort(resources.gem);
-    const buildersEl = document.getElementById("builders-count");
-    if (buildersEl) buildersEl.textContent = (maxBuilders - busyBuilders) + "/" + maxBuilders;
-    const powerEl = document.getElementById("topbar-power");
-    if (powerEl) powerEl.textContent = "Power: " + formatShortNumber(totalPower);
-  }
+  // --- الصف السفلي: عامل البناء + RX ---
+  const actionsRow = document.createElement("div");
+  actionsRow.className = "top-bar-actions-row";
 
-  updateTopBarInner();
-  setInterval(updateTopBarInner, 2000);
+  // عامل البناء
+  const builderCap = document.createElement("div");
+  builderCap.className = "builder-cap";
+  builderCap.id = "builders-capsule";
 
-  topBar.appendChild(avatarWrapper);
-  topBar.appendChild(buildersCapsule);
-  topBar.appendChild(resourcesDiv);
-  cityScreen.appendChild(topBar);
+  const builderIcon = document.createElement("img");
+  builderIcon.src = "builder.png"; // صورة عامل البناء اللي عملتها
+
+  const buildersCount = document.createElement("span");
+  buildersCount.id = "builders-count";
+  buildersCount.textContent = (maxBuilders - busyBuilders) + "/" + maxBuilders;
+
+  builderCap.appendChild(builderIcon);
+  builderCap.appendChild(buildersCount);
+  actionsRow.appendChild(builderCap);
+
+  // RX COIN
+  const rxCap = document.createElement("div");
+  rxCap.className = "rx-cap";
+
+  const rxIcon = document.createElement("img");
+  rxIcon.src = "rx-coin.png";
+
+  const rxLabel = document.createElement("span");
+  rxLabel.textContent = "RX";
+
+  const rxValue = document.createElement("span");
+  rxValue.id = "rx-coin-value";
+  rxValue.textContent = "0";
+
+  rxCap.appendChild(rxIcon);
+  rxCap.appendChild(rxLabel);
+  rxCap.appendChild(rxValue);
+  actionsRow.appendChild(rxCap);
+
+  // تجميع الصفين في العمود اليمين
+  rightBlock.appendChild(resourcesRow);
+  rightBlock.appendChild(actionsRow);
+
+  // تجميع البار كامل
+  topBar.appendChild(profileCol);
+  topBar.appendChild(rightBlock);
+
+  document.body.appendChild(topBar);
 }
 
 
