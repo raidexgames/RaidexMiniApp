@@ -179,150 +179,139 @@ const BUILDINGS_CONFIG = {
 };
 
 function setupMineBuilding(mineKey, pos) {
-  const cfg = MINES_CONFIG[mineKey];
-  const el = document.getElementById(cfg.buildingId);
-  if (!el) return;
+  const cfg = MINES_CONFIG[mineKey];
+  const el = document.getElementById(cfg.buildingId);
+  if (!el) return;
 
+  el.style.border = "none";
+  el.style.background = "transparent";
+  el.style.width = cfg.width;
+  el.style.height = cfg.height;
+  el.style.position = "absolute";
+  el.style.left = pos.left;
+  el.style.top = pos.top;
+  el.style.transform = "translate(-50%, -50%)";
+  el.style.zIndex = 95;
+  el.innerHTML = "";
 
-  el.style.border = "none";
-  el.style.background = "transparent";
-  el.style.width = cfg.width;
-  el.style.height = cfg.height;
-  el.style.position = "absolute";
-  el.style.left = pos.left;
-  el.style.top = pos.top;
-  el.style.transform = "translate(-50%, -50%)";
-  el.style.zIndex = 95;
-  el.innerHTML = "";
+  const img = document.createElement("img");
+  img.src = cfg.img;
+  img.crossOrigin = "anonymous";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  el.appendChild(img);
 
+  const statusBox = document.createElement("div");
+  statusBox.id = cfg.statusBoxId;
+  statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
 
-  const img = document.createElement("img");
-  img.src = cfg.img;
-  img.crossOrigin = "anonymous";
-  img.style.width = "100%";
-  img.style.height = "100%";
-  img.style.objectFit = "contain";
-  img.style.pointerEvents = "none";
-  el.appendChild(img);
+  createUnifiedBar(el, cfg.uniBar[0], cfg.uniBar[1], cfg.uniBar[2]);
 
+  if (castleLevel < cfg.requiredCastleLevel) {
+    el.style.filter = "grayscale(1)";
+    el.style.opacity = "0.5";
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + cfg.requiredCastleLevel;
+    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
+    el.appendChild(lock);
+    el.onclick = function(e) {
+      e.stopPropagation();
+      alert(`${cfg.name || mineKey} مقفول.\nقم بترقية القلعة إلى المستوى ${cfg.requiredCastleLevel} أولاً.`);
+    };
+  } else {
+    el.style.filter = "none";
+    el.style.opacity = "1";
+    el.onclick = function(e) {
+      e.stopPropagation();
+      const img = el.querySelector("img");
+      if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
+      showBuildingPopup(mineKey);
+    };
 
-  const statusBox = document.createElement("div");
-  statusBox.id = cfg.statusBoxId;
-  statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
+    let collectHint = document.getElementById(cfg.collectHintId);
+    if (!collectHint) {
+      collectHint = document.createElement("div");
+      collectHint.id = cfg.collectHintId;
+      collectHint.style.cssText = "position:absolute;top:-10px;left:50%;transform:translateX(-50%);animation:bounce 1s infinite;cursor:pointer;display:none;pointer-events:auto;";
+      collectHint.innerHTML = `<img src="${cfg.collectImg}" style="width:32px;height:32px;object-fit:contain;">`;
+      el.appendChild(collectHint);
+    }
+    collectHint.onclick = function(e) {
+      e.stopPropagation();
+      const stored = Math.floor(miningStored[mineKey] || 0);
+      if (stored <= 0) return;
+      if (mineKey === "goldMine") {
+        collectGoldFromMine(stored);
+      } else {
+        resources[cfg.resource] += stored;
+        miningStored[mineKey] = 0;
+        if (typeof updateTopBar === "function") updateTopBar();
+        updateGoldMineUI();
+      }
+    };
 
-
-  createUnifiedBar(el, cfg.uniBar[0], cfg.uniBar[1], cfg.uniBar[2]);
-
-
-  if (castleLevel < cfg.requiredCastleLevel) {
-    el.style.filter = "grayscale(1)";
-    el.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + cfg.requiredCastleLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    el.appendChild(lock);
-    el.onclick = function(e) {
-      e.stopPropagation();
-      alert(`${cfg.name || mineKey} مقفول.\nقم بترقية القلعة إلى المستوى ${cfg.requiredCastleLevel} أولاً.`);
-    };
-  } else {
-    el.style.filter = "none";
-    el.style.opacity = "1";
-el.onclick = function(e) {
-  e.stopPropagation();
-  const img = el.querySelector("img");
-  if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
-  showBuildingPopup(mineKey);
-};
-
-
-    let collectHint = document.getElementById(cfg.collectHintId);
-    if (!collectHint) {
-      collectHint = document.createElement("div");
-      collectHint.id = cfg.collectHintId;
-      collectHint.style.cssText = "position:absolute;top:-10px;left:50%;transform:translateX(-50%);animation:bounce 1s infinite;cursor:pointer;display:none;pointer-events:auto;";
-      collectHint.innerHTML = `<img src="${cfg.collectImg}" style="width:32px;height:32px;object-fit:contain;">`;
-      el.appendChild(collectHint);
-    }
-    collectHint.onclick = function(e) {
-      e.stopPropagation();
-      const stored = Math.floor(miningStored[mineKey] || 0);
-      if (stored <= 0) return;
-      if (mineKey === "goldMine") {
-        collectGoldFromMine(stored);
-      } else {
-        resources[cfg.resource] += stored;
-        miningStored[mineKey] = 0;
-        if (typeof updateTopBar === "function") updateTopBar();
-        updateGoldMineUI();
-      }
-    };
-
-
-    statusBox.textContent = "Lv." + (buildingLevels[mineKey] || 1);
-    el.appendChild(statusBox);
-  }
+    statusBox.textContent = "Lv." + (buildingLevels[mineKey] || 1);
+    el.appendChild(statusBox);
+  }
 }
+
 function setupBuilding(buildingKey, pos) {
-  const cfg = BUILDINGS_CONFIG[buildingKey];
-  if (!cfg) return;
-  const el = document.getElementById(cfg.buildingId);
-  if (!el) return;
+  const cfg = BUILDINGS_CONFIG[buildingKey];
+  if (!cfg) return;
+  const el = document.getElementById(cfg.buildingId);
+  if (!el) return;
 
+  el.style.border = "none";
+  el.style.background = "transparent";
+  el.style.width = cfg.width;
+  el.style.height = cfg.height;
+  el.style.position = "absolute";
+  el.style.left = pos.left;
+  el.style.top = pos.top;
+  el.style.transform = "translate(-50%, -50%)";
+  el.style.zIndex = 95;
+  el.innerHTML = "";
 
-  el.style.border = "none";
-  el.style.background = "transparent";
-  el.style.width = cfg.width;
-  el.style.height = cfg.height;
-  el.style.position = "absolute";
-  el.style.left = pos.left;
-  el.style.top = pos.top;
-  el.style.transform = "translate(-50%, -50%)";
-  el.style.zIndex = 95;
-  el.innerHTML = "";
+  const img = document.createElement("img");
+  img.src = cfg.img;
+  img.crossOrigin = "anonymous";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  img.style.pointerEvents = "none";
+  el.appendChild(img);
 
+  const statusBox = document.createElement("div");
+  statusBox.id = cfg.statusBoxId;
 
-  const img = document.createElement("img");
-  img.src = cfg.img;
-  img.crossOrigin = "anonymous";
-  img.style.width = "100%";
-  img.style.height = "100%";
-  img.style.objectFit = "contain";
-  img.style.pointerEvents = "none";
-  el.appendChild(img);
+  createUnifiedBar(el, cfg.uniBar[0], cfg.uniBar[1], cfg.uniBar[2]);
 
-
-  const statusBox = document.createElement("div");
-  statusBox.id = cfg.statusBoxId;
-  statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
-
-
-  createUnifiedBar(el, cfg.uniBar[0], cfg.uniBar[1], cfg.uniBar[2]);
-
-
-  if (castleLevel < cfg.requiredCastleLevel) {
-    el.style.filter = "grayscale(1)";
-    el.style.opacity = "0.5";
-    const lock = document.createElement("div");
-    lock.textContent = "🔒 Lv." + cfg.requiredCastleLevel;
-    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
-    el.appendChild(lock);
-    el.onclick = function(e) {
-      e.stopPropagation();
-      alert(`${cfg.name} مقفول.\nقم بترقية القلعة إلى المستوى ${cfg.requiredCastleLevel} أولاً.`);
-    };
-  } else {
-    el.style.filter = "none";
-    el.style.opacity = "1";
-  el.onclick = function(e) {
-  e.stopPropagation();
-  const img = el.querySelector("img");
-  if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
-  showBuildingPopup(cfg.popupKey);
-};
-    statusBox.textContent = "Lv." + (buildingLevels[buildingKey] || 1);
-    el.appendChild(statusBox);
-  }
+  if (castleLevel < cfg.requiredCastleLevel) {
+    el.style.filter = "grayscale(1)";
+    el.style.opacity = "0.5";
+    const lock = document.createElement("div");
+    lock.textContent = "🔒 Lv." + cfg.requiredCastleLevel;
+    lock.style.cssText = "position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;pointer-events:none;";
+    el.appendChild(lock);
+    el.onclick = function(e) {
+      e.stopPropagation();
+      alert(`${cfg.name} مقفول.\nقم بترقية القلعة إلى المستوى ${cfg.requiredCastleLevel} أولاً.`);
+    };
+  } else {
+    el.style.filter = "none";
+    el.style.opacity = "1";
+    el.onclick = function(e) {
+      e.stopPropagation();
+      const img = el.querySelector("img");
+      if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
+      showBuildingPopup(cfg.popupKey);
+    };
+    statusBox.textContent = "Lv." + (buildingLevels[buildingKey] || 1);
+    statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
+    el.appendChild(statusBox);
+  }
 }
 function getBuildingNameByKey(key) {
   if (BUILDINGS_CONFIG[key]) return BUILDINGS_CONFIG[key].name;
@@ -462,7 +451,7 @@ function refreshBuildingPanel(buildingKey) {
   topRow.style.cssText = `
   display:flex;
   gap:0;
-  height: 300px;            /* كان 250، كبرناه */
+  height: 200px;            /* كان 250، كبرناه */
   margin-bottom: 12px;      /* مسافة بسيطة تحت البلوك */
   position:relative;
   overflow:hidden;
@@ -822,36 +811,52 @@ function openBuildingInfoModal(buildingKey) {
   if (!isMine && !isArmyBuilding && !isGeneric && !isCastle) return;
 
   const currentLevel = isCastle ? castleLevel : (buildingLevels[key] || 1);
-  const color = key === "goldMine" ? "#facc15" : key === "woodMine" ? "#4ade80" : key === "meatFarm" ? "#f97316" : key === "castle" ? "#facc15" : "#ef4444";
+  const color =
+    key === "goldMine" ? "#facc15" :
+    key === "woodMine" ? "#4ade80" :
+    key === "meatFarm" ? "#f97316" :
+    key === "castle"   ? "#facc15" : "#ef4444";
+
   const buildingName = getBuildingNameByKey(key);
 
   let headers = "";
   let rows = "";
 
+  // مباني الجيش
   if (isArmyBuilding) {
-    const buildingData = key === 'attackTower' ? ATTACK_ARMY_BUILDING_LEVELS :
-                         key === 'defenseTower' ? HEALTH_ARMY_BUILDING_LEVELS :
-                         DRAGON_ARMY_BUILDING_LEVELS;
-    buildingData.forEach(cfg => {
+    const buildingData =
+      key === "attackTower"  ? ATTACK_ARMY_BUILDING_LEVELS :
+      key === "defenseTower" ? HEALTH_ARMY_BUILDING_LEVELS :
+                               DRAGON_ARMY_BUILDING_LEVELS;
+
+    buildingData.forEach((cfg) => {
+      if (!cfg) return;
       const isCurrentLevel = cfg.level === currentLevel;
       const costStr = `
-        <img src="gold.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.gold >= 1000000 ? (cfg.gold/1000000).toFixed(1)+'M' : cfg.gold >= 1000 ? (cfg.gold/1000).toFixed(0)+'K' : cfg.gold}
-        <img src="wood.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.wood >= 1000000 ? (cfg.wood/1000000).toFixed(1)+'M' : cfg.wood >= 1000 ? (cfg.wood/1000).toFixed(0)+'K' : cfg.wood}
-        <img src="food.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.food >= 1000000 ? (cfg.food/1000000).toFixed(1)+'M' : cfg.food >= 1000 ? (cfg.food/1000).toFixed(0)+'K' : cfg.food}`;
-      const reqStr = Object.entries(cfg.req || {}).map(([k, v]) => `${getBuildingNameByKey(k)} ${v}`).join(' + ');
-      rows += `<tr style="${isCurrentLevel ? 'background:rgba(239,68,68,0.15);' : 'border-bottom:1px solid rgba(55,65,81,0.5);'}">
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:${isCurrentLevel ? '#ef4444' : '#e5e7eb'};font-weight:${isCurrentLevel ? 'bold' : 'normal'};">${isCurrentLevel ? '▶ ' : ''}${cfg.level}</td>
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.capacity.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#a78bfa;">${cfg.power.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.train.toLocaleString()}</td>
+        <img src="gold.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.gold  >= 1000000 ? (cfg.gold /1000000).toFixed(1) + "M" : cfg.gold  >= 1000 ? (cfg.gold /1000).toFixed(0) + "K" : cfg.gold}
+        <img src="wood.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.wood  >= 1000000 ? (cfg.wood /1000000).toFixed(1) + "M" : cfg.wood  >= 1000 ? (cfg.wood /1000).toFixed(0) + "K" : cfg.wood}
+        <img src="food.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.food  >= 1000000 ? (cfg.food /1000000).toFixed(1) + "M" : cfg.food  >= 1000 ? (cfg.food /1000).toFixed(0) + "K" : cfg.food}
+      `;
+      const reqStr = Object.entries(cfg.req || {})
+        .map(([k, v]) => `${getBuildingNameByKey(k)} ${v}`)
+        .join(" + ");
+
+      rows += `
+        <tr style="${isCurrentLevel ? "background:rgba(239,68,68,0.15);" : "border-bottom:1px solid rgba(55,65,81,0.5);"}">
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:${isCurrentLevel ? "#ef4444" : "#e5e7eb"};font-weight:${isCurrentLevel ? "bold" : "normal"};">${isCurrentLevel ? "▶ " : ""}${cfg.level}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${Number(cfg.capacity || 0).toLocaleString()}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#a78bfa;">${Number(cfg.power   || 0).toLocaleString()}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${Number(cfg.train   || 0).toLocaleString()}</td>
           <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#e5e7eb;font-size:11px;">${costStr}</td>
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#f97316;">${formatDuration(cfg.time)}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#f97316;">${formatDuration(cfg.time || 0)}</td>
           <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#e5e7eb;font-size:11px;">${reqStr}</td>
         </tr>`;
     });
 
+  // المناجم
   } else if (isMine) {
-    headers = `<tr style="color:#e5e7eb;">
+    headers = `
+      <tr style="color:#e5e7eb;">
         <th style="padding:8px;text-align:center;border:1px solid #374151;">Lv</th>
         <th style="padding:8px;text-align:center;border:1px solid #374151;">إنتاج/ساعة</th>
         <th style="padding:8px;text-align:center;border:1px solid #374151;">تخزين</th>
@@ -860,103 +865,133 @@ function openBuildingInfoModal(buildingKey) {
         <th style="padding:8px;text-align:center;border:1px solid #374151;">الوقت</th>
         <th style="padding:8px;text-align:center;border:1px solid #374151;">متطلبات</th>
       </tr>`;
-    const mineData = key === 'goldMine' ? GOLD_MINE_LEVELS :
-                     key === 'woodMine' ? WOOD_MINE_LEVELS : MEAT_FARM_LEVELS;
-    mineData.forEach(cfg => {
+
+    const mineData =
+      key === "goldMine" ? GOLD_MINE_LEVELS :
+      key === "woodMine" ? WOOD_MINE_LEVELS : MEAT_FARM_LEVELS;
+
+    mineData.forEach((cfg) => {
+      if (!cfg) return;
       const isCurrentLevel = cfg.level === currentLevel;
-      const costStr = cfg.level < 50 ? `
-        <img src="gold.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.gold >= 1000000 ? (cfg.gold/1000000).toFixed(1)+'M' : cfg.gold >= 1000 ? (cfg.gold/1000).toFixed(0)+'K' : cfg.gold}
-        <img src="wood.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.wood >= 1000000 ? (cfg.wood/1000000).toFixed(1)+'M' : cfg.wood >= 1000 ? (cfg.wood/1000).toFixed(0)+'K' : cfg.wood}
-        <img src="food.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.food >= 1000000 ? (cfg.food/1000000).toFixed(1)+'M' : cfg.food >= 1000 ? (cfg.food/1000).toFixed(0)+'K' : cfg.food}` : "MAX";
-      const reqStr = Object.entries(cfg.req || {}).map(([k, v]) => `${getBuildingNameByKey(k)} ${v}`).join(' + ');
-      rows += `<tr style="${isCurrentLevel ? 'background:rgba(250,204,21,0.15);' : 'border-bottom:1px solid rgba(55,65,81,0.5);'}">
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:${isCurrentLevel ? '#facc15' : '#e5e7eb'};font-weight:${isCurrentLevel ? 'bold' : 'normal'};">${isCurrentLevel ? '▶ ' : ''}${cfg.level}</td>
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:${color};">${cfg.production.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.storage.toLocaleString()}</td>
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#a78bfa;">${cfg.power.toLocaleString()}</td>
+      const costStr =
+        cfg.level < 50
+          ? `
+        <img src="gold.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.gold >= 1000000 ? (cfg.gold /1000000).toFixed(1) + "M" : cfg.gold >= 1000 ? (cfg.gold /1000).toFixed(0) + "K" : cfg.gold}
+        <img src="wood.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.wood >= 1000000 ? (cfg.wood /1000000).toFixed(1) + "M" : cfg.wood >= 1000 ? (cfg.wood /1000).toFixed(0) + "K" : cfg.wood}
+        <img src="food.png" style="width:12px;height:12px;vertical-align:middle;"> ${cfg.food >= 1000000 ? (cfg.food /1000000).toFixed(1) + "M" : cfg.food >= 1000 ? (cfg.food /1000).toFixed(0) + "K" : cfg.food}
+      `
+          : "MAX";
+
+      const reqStr = Object.entries(cfg.req || {})
+        .map(([k, v]) => `${getBuildingNameByKey(k)} ${v}`)
+        .join(" + ");
+
+      rows += `
+        <tr style="${isCurrentLevel ? "background:rgba(250,204,21,0.15);" : "border-bottom:1px solid rgba(55,65,81,0.5);"}">
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:${isCurrentLevel ? "#facc15" : "#e5e7eb"};font-weight:${isCurrentLevel ? "bold" : "normal"};">${isCurrentLevel ? "▶ " : ""}${cfg.level}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:${color};">${Number(cfg.production || 0).toLocaleString()}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${Number(cfg.storage    || 0).toLocaleString()}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#a78bfa;">${Number(cfg.power      || 0).toLocaleString()}</td>
           <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#e5e7eb;font-size:11px;">${costStr}</td>
-          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#f97316;">${formatDuration(cfg.time)}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#f97316;">${formatDuration(cfg.time || 0)}</td>
           <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#e5e7eb;font-size:11px;">${reqStr}</td>
         </tr>`;
     });
 
+  // باقي المباني (generic)
   } else if (isGeneric) {
-    headers = `<tr style="color:#e5e7eb;">
+    const levelDataFn = {
+      school:     getSchoolLevelData,
+      market:     getMarketLevelData,
+      heroesHall: getHeroesHallLevelData,
+      hospital:   getHospitalLevelData,
+      booster:    getBoosterLevelData,
+      prison:     getPrisonLevelData,
+      hunterCamp: getHunterCampLevelData,
+    }[key];
+
+    if (!levelDataFn) return;
+
+    const extraHeaders = {
+      school:     `<th style="padding:8px;text-align:center;border:1px solid #374151;">سعة التعليم</th>`,
+      market:     `<th style="padding:8px;text-align:center;border:1px solid #374151;">فتحات</th><th style="padding:8px;text-align:center;border:1px solid #374151;">مشتريات</th>`,
+      heroesHall: `<th style="padding:8px;text-align:center;border:1px solid #374151;">فتحات أبطال</th>`,
+      hospital:   `<th style="padding:8px;text-align:center;border:1px solid #374151;">سعة</th><th style="padding:8px;text-align:center;border:1px solid #374151;">تقليل هجوم%</th><th style="padding:8px;text-align:center;border:1px solid #374151;">تقليل دفاع%</th>`,
+      booster:    `<th style="padding:8px;text-align:center;border:1px solid #374151;">مناجم</th><th style="padding:8px;text-align:center;border:1px solid #374151;">عمال</th><th style="padding:8px;text-align:center;border:1px solid #374151;">تدريب</th>`,
+      prison:     `<th style="padding:8px;text-align:center;border:1px solid #374151;">سعة</th>`,
+      hunterCamp: `<th style="padding:8px;text-align:center;border:1px solid #374151;">سعة</th><th style="padding:8px;text-align:center;border:1px solid #374151;">تدريب</th>`,
+    }[key] || "";
+
+    headers = `
+      <tr style="color:#e5e7eb;">
         <th style="padding:8px;text-align:center;border:1px solid #374151;">Lv</th>
         <th style="padding:8px;text-align:center;border:1px solid #374151;">القوة</th>
-        <th style="padding:8px;text-align:center;border:1px solid #374151;">تكلفة الترقية</th>
-        <th style="padding:8px;text-align:center;border:1px solid #374151;">الوقت</th>
+        ${extraHeaders}
+        <th style="padding:8px;text-align:center;border:1px solid #374151;">تكلفة</th>
+        <th style="padding:8px;text-align:center;border:1px solid #374151;">وقت</th>
         <th style="padding:8px;text-align:center;border:1px solid #374151;">متطلبات</th>
       </tr>`;
 
-  const levelDataFn = {
-    school:     getSchoolLevelData,
-    market:     getMarketLevelData,
-    heroesHall: getHeroesHallLevelData,
-    hospital:   getHospitalLevelData,
-    booster:    getBoosterLevelData,
-    prison:     getPrisonLevelData,
-    hunterCamp: getHunterCampLevelData,
-  }[key];
+    for (let lvl = 1; lvl <= 50; lvl++) {
+      const cfg = levelDataFn(lvl);
+      if (!cfg) continue;
 
-  if (!levelDataFn) return;
+      const isCurrentLevel = lvl === currentLevel;
+      const gold = cfg.gold || 0;
+      const wood = cfg.wood || 0;
+      const food = cfg.food || 0;
 
-  // headers حسب المبنى
-  const extraHeaders = {
-    school:     `<th style="padding:8px;text-align:center;border:1px solid #374151;">سعة التعليم</th>`,
-    market:     `<th style="padding:8px;text-align:center;border:1px solid #374151;">فتحات</th><th style="padding:8px;text-align:center;border:1px solid #374151;">مشتريات</th>`,
-    heroesHall: `<th style="padding:8px;text-align:center;border:1px solid #374151;">فتحات أبطال</th>`,
-    hospital:   `<th style="padding:8px;text-align:center;border:1px solid #374151;">سعة</th><th style="padding:8px;text-align:center;border:1px solid #374151;">تقليل هجوم%</th><th style="padding:8px;text-align:center;border:1px solid #374151;">تقليل دفاع%</th>`,
-    booster:    `<th style="padding:8px;text-align:center;border:1px solid #374151;">مناجم</th><th style="padding:8px;text-align:center;border:1px solid #374151;">عمال</th><th style="padding:8px;text-align:center;border:1px solid #374151;">تدريب</th>`,
-    prison:     `<th style="padding:8px;text-align:center;border:1px solid #374151;">سعة</th>`,
-    hunterCamp: `<th style="padding:8px;text-align:center;border:1px solid #374151;">سعة</th><th style="padding:8px;text-align:center;border:1px solid #374151;">تدريب</th>`,
-  }[key] || "";
+      const costStr =
+        lvl < 50
+          ? `
+        ${gold > 0 ? `<img src="gold.png" style="width:12px;height:12px;vertical-align:middle;"> ${formatShortNumber(gold)}` : ""}
+        ${wood > 0 ? `<img src="wood.png" style="width:12px;height:12px;vertical-align:middle;"> ${formatShortNumber(wood)}` : ""}
+        ${food > 0 ? `<img src="food.png" style="width:12px;height:12px;vertical-align:middle;"> ${formatShortNumber(food)}` : ""}
+      `
+          : "MAX";
 
-  headers = `<tr style="color:#e5e7eb;">
-    <th style="padding:8px;text-align:center;border:1px solid #374151;">Lv</th>
-    <th style="padding:8px;text-align:center;border:1px solid #374151;">القوة</th>
-    ${extraHeaders}
-    <th style="padding:8px;text-align:center;border:1px solid #374151;">تكلفة</th>
-    <th style="padding:8px;text-align:center;border:1px solid #374151;">وقت</th>
-    <th style="padding:8px;text-align:center;border:1px solid #374151;">متطلبات</th>
-  </tr>`;
+      const reqStr = Object.entries(cfg.req || {})
+        .map(([k, v]) => `${getBuildingNameByKey(k)} ${v}`)
+        .join(" + ");
 
-  for (let lvl = 1; lvl <= 50; lvl++) {
-    const cfg = levelDataFn(lvl);
-    if (!cfg) continue;
-    const isCurrentLevel = lvl === currentLevel;
-    const gold = cfg.gold || 0;
-    const wood = cfg.wood || 0;
-    const food = cfg.food || 0;
-    const costStr = lvl < 50 ? `
-      ${gold > 0 ? `<img src="gold.png" style="width:12px;height:12px;vertical-align:middle;"> ${formatShortNumber(gold)}` : ""}
-      ${wood > 0 ? `<img src="wood.png" style="width:12px;height:12px;vertical-align:middle;"> ${formatShortNumber(wood)}` : ""}
-      ${food > 0 ? `<img src="food.png" style="width:12px;height:12px;vertical-align:middle;"> ${formatShortNumber(food)}` : ""}` : "MAX";
-    const reqStr = Object.entries(cfg.req || {}).map(([k, v]) => `${getBuildingNameByKey(k)} ${v}`).join(' + ');
+      const extraCells = {
+        school:
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.capacity}</td>`,
+        market:
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.slots}</td>` +
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.purchases}</td>`,
+        heroesHall:
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#facc15;">${cfg.heroSlots}</td>`,
+        hospital:
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${Number(cfg.capacity || 0).toLocaleString()}</td>` +
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#f97316;">${cfg.atkLossReduction}%</td>` +
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.defLossReduction}%</td>`,
+        booster:
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#facc15;">${cfg.mineBoost}x</td>` +
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.workerBoost}x</td>` +
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.trainBoost}x</td>`,
+        prison:
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${Number(cfg.capacity || 0).toLocaleString()}</td>`,
+        hunterCamp:
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${Number(cfg.capacity || 0).toLocaleString()}</td>` +
+          `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.train}</td>`,
+      }[key] || "";
 
-    const extraCells = {
-      school:     `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.capacity}</td>`,
-      market:     `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.slots}</td><td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.purchases}</td>`,
-      heroesHall: `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#facc15;">${cfg.heroSlots}</td>`,
-      hospital:   `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.capacity.toLocaleString()}</td><td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#f97316;">${cfg.atkLossReduction}%</td><td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.defLossReduction}%</td>`,
-      booster:    `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#facc15;">${cfg.mineBoost}x</td><td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.workerBoost}x</td><td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.trainBoost}x</td>`,
-      prison:     `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.capacity.toLocaleString()}</td>`,
-      hunterCamp: `<td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#38bdf8;">${cfg.capacity.toLocaleString()}</td><td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#22c55e;">${cfg.train}</td>`,
-    }[key] || "";
-
-    rows += `<tr style="${isCurrentLevel ? 'background:rgba(250,204,21,0.15);' : 'border-bottom:1px solid rgba(55,65,81,0.5);'}">
-      <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:${isCurrentLevel ? '#facc15' : '#e5e7eb'};font-weight:${isCurrentLevel ? 'bold' : 'normal'};">${isCurrentLevel ? '▶ ' : ''}${lvl}</td>
-      <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#a78bfa;">${(cfg.power||0).toLocaleString()}</td>
-      ${extraCells}
-      <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#e5e7eb;font-size:11px;">${costStr}</td>
-      <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#f97316;">${formatDuration(cfg.time)}</td>
-      <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#e5e7eb;font-size:11px;">${reqStr}</td>
-    </tr>`;
+      rows += `
+        <tr style="${isCurrentLevel ? "background:rgba(250,204,21,0.15);" : "border-bottom:1px solid rgba(55,65,81,0.5);"}">
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:${isCurrentLevel ? "#facc15" : "#e5e7eb"};font-weight:${isCurrentLevel ? "bold" : "normal"};">${isCurrentLevel ? "▶ " : ""}${lvl}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#a78bfa;">${Number(cfg.power || 0).toLocaleString()}</td>
+          ${extraCells}
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#e5e7eb;font-size:11px;">${costStr}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#f97316;">${formatDuration(cfg.time || 0)}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #374151;color:#e5e7eb;font-size:11px;">${reqStr}</td>
+        </tr>`;
+    }
   }
-}
 
   const modal = document.createElement("div");
-  modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;";
+  modal.style.cssText =
+    "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;";
   modal.innerHTML = `
     <div style="background:#111827;border:2px solid ${color};border-radius:16px;width:calc(100% - 20px);max-height:85vh;margin:auto;
       display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.8);">
@@ -975,7 +1010,9 @@ function openBuildingInfoModal(buildingKey) {
       </div>
     </div>
   `;
-  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.onclick = (e) => {
+    if (e.target === modal) modal.remove();
+  };
   document.body.appendChild(modal);
 }
 
@@ -1014,66 +1051,67 @@ function enterCity() {
     cityMapContainer.prepend(cityMap);
   }
 
-  // القلعة في النص
-  const castleWrapper = document.createElement("div");
-  castleWrapper.id = "castle-building";
-  castleWrapper.style.position = "absolute";
-  castleWrapper.style.width = "210px";
-  castleWrapper.style.left = "50%";
-  castleWrapper.style.top = "58%";
-  castleWrapper.style.transform = "translate(-50%, -50%)";
-  castleWrapper.style.zIndex = 100;
-  castleWrapper.style.pointerEvents = "none"; /* الـ div ما يستجبش */
+// القلعة في النص
+const castleWrapper = document.createElement("div");
+castleWrapper.id = "castle-building";
+castleWrapper.style.position = "absolute";
+castleWrapper.style.width = "210px";
+castleWrapper.style.left = "50%";
+castleWrapper.style.top = "48%"; // كان 50%، عدلناه ليناسب التصميم الجديد
+castleWrapper.style.transform = "translate(-50%, -50%)";
+castleWrapper.style.zIndex = 80;            // كان 100
 
-  const castle = document.createElement("img");
-  castle.src = currentHero + "_castle.png";
-  castle.crossOrigin = "anonymous";
-  castle.style.width = "100%";
-  castle.style.height = "100%";
-  castle.style.objectFit = "contain";
-  castle.style.pointerEvents = "auto"; /* الصورة بس تستجب */
-  castle.style.cursor = "pointer";
-  castleWrapper.appendChild(castle);
+const castle = document.createElement("img");
+castle.src = currentHero + "_castle.png";
+castle.crossOrigin = "anonymous";
+castle.style.width = "100%";
+castle.style.height = "100%";
+castle.style.objectFit = "contain";
+castle.style.pointerEvents = "none";
+castleWrapper.appendChild(castle);
 
-  const castleStatusBox = document.createElement("div");
-  castleStatusBox.id = "castle-status-box";
-  castleStatusBox.style.position = "absolute";
-  castleStatusBox.style.bottom = "0%";
-  castleStatusBox.style.left = "50%";
-  castleStatusBox.style.transform = "translateX(-50%)";
-  castleStatusBox.style.background = "rgba(0,0,0,0.7)";
-  castleStatusBox.style.padding = "3px 8px";
-  castleStatusBox.style.borderRadius = "8px";
-  castleStatusBox.style.fontSize = "11px";
-  castleStatusBox.style.minWidth = "80px";
-  castleStatusBox.style.textAlign = "center";
-  castleStatusBox.style.pointerEvents = "none";
-  castleStatusBox.textContent = "Castle Lv." + castleLevel;
-  castleWrapper.appendChild(castleStatusBox);
-  createUnifiedBar(castleWrapper, "castle-uni-bar", "castle-uni-fill", "castle-uni-text");
+const castleStatusBox = document.createElement("div");
+castleStatusBox.id = "castle-status-box";
+castleStatusBox.style.position = "absolute";
+castleStatusBox.style.bottom = "0%";
+castleStatusBox.style.left = "50%";
+castleStatusBox.style.transform = "translateX(-50%)";
+castleStatusBox.style.background = "rgba(0,0,0,0.7)";
+castleStatusBox.style.padding = "3px 8px";
+castleStatusBox.style.borderRadius = "8px";
+castleStatusBox.style.fontSize = "11px";
+castleStatusBox.style.minWidth = "80px";
+castleStatusBox.style.textAlign = "center";
+castleStatusBox.style.pointerEvents = "none";
+castleStatusBox.style.zIndex = 81;          // أضفناها
+castleStatusBox.textContent = "Castle Lv." + castleLevel;
+castleWrapper.appendChild(castleStatusBox);
 
-  castle.addEventListener("click", function(e) {
-    e.stopPropagation();
-    if (!isClickOnSprite(castle, e.clientX, e.clientY)) return;
-    showBuildingPopup("castle");
-  });
+createUnifiedBar(castleWrapper, "castle-uni-bar", "castle-uni-fill", "castle-uni-text");
 
-  cityMapContainer.appendChild(castleWrapper);
+castleWrapper.addEventListener("click", function(e) {
+  e.stopPropagation();
+  const img = castleWrapper.querySelector("img");
+  if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
+  showBuildingPopup("castle");
+});
+
+cityMapContainer.appendChild(castleWrapper);
 
   const buildingPositions = [
-    { left: "85%", top: "38%" },
-    { left: "19%", top: "105%" },
-    { left: "81%", top: "78%" },
-    { left: "75%", top: "60%" },
-    { left: "15%", top: "25%" },
-    { left: "23%", top: "42%" },
-    { left: "20%", top: "81%" },
-    { left: "70%", top: "125%" },
-    { left: "84%", top: "105%" },
-    { left: "26%", top: "126%" },
-    { left: "51%", top: "97%" },
-    { left: "20%", top: "60%" },
-    { left: "61%", top: "28%" },
+    { left: "25%", top: "80%" },// الذهب
+    { left: "19%", top: "105%" },// الخشب
+    { left: "63%", top: "27%" },// المدرسه
+    { left: "80%", top: "62%" },// ألهجوم
+    { left: "24%", top: "32%" },// ألصحه
+    { left: "30%", top: "81%" },// للحم
+    { left: "84%", top: "34%" },// الابطال
+    { left: "70%", top: "122%" },// السوق
+    { left: "84%", top: "105%" },// أضفناها
+    { left: "26%", top: "122%" },// أضفناها
+    { left: "51%", top: "97%" },// أضفناها
+    { left: "20%", top: "60%" },// أضفناها
+    { left: "75%", top: "80%" },// أضفناها
   ];
 
   buildingPositions.forEach((pos, index) => {
