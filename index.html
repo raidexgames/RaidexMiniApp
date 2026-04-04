@@ -1066,8 +1066,11 @@
 .arena-top-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px 16px 10px 16px;
+  gap: 8px;
+  padding: 8px 10px 4px 10px;
+  flex: 1;
+  min-height: 0;
+  justify-content: flex-start;
 }
 
 /* المستطيل العلوي (الرانك + النقاط) */
@@ -1075,27 +1078,28 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 14px;
-  border-radius: 16px;
-  background: linear-gradient(90deg, rgba(15,23,42,0.95), rgba(15,23,42,0.75));
-  border: 1px solid rgba(148,163,184,0.4);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+  padding: 6px 10px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(15,23,42,0.95), rgba(15,23,42,0.78));
+  border: 1px solid rgba(148,163,184,0.35);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.55);
+  flex-shrink: 0;
 }
 
 /* صناديق الرانك يمين ويسار */
 .arena-rank-box {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 120px;
+  gap: 6px;
+  min-width: 90px;
 }
 
 .arena-rank-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
   background: radial-gradient(circle at top, #38bdf8, #0f172a);
-  box-shadow: 0 0 12px rgba(56,189,248,0.7);
+  box-shadow: 0 0 10px rgba(56,189,248,0.65);
 }
 
 .arena-rank-text {
@@ -1104,15 +1108,17 @@
 }
 
 .arena-rank-label {
-  font-size: 10px;
-  letter-spacing: 1px;
+  font-size: 9px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
   color: #9ca3af;
+  line-height: 1;
 }
 
 .arena-rank-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 1.1;
 }
 
 /* ألوان مميزة لكل جانب */
@@ -1122,7 +1128,7 @@
 
 .arena-rank-enemy .arena-rank-icon {
   background: radial-gradient(circle at top, #fb7185, #0f172a);
-  box-shadow: 0 0 12px rgba(248,113,113,0.7);
+  box-shadow: 0 0 10px rgba(248,113,113,0.65);
 }
 
 .arena-rank-enemy .arena-rank-name {
@@ -1134,40 +1140,44 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
 }
 
 .arena-center-title {
-  font-size: 10px;
-  letter-spacing: 1px;
+  font-size: 9px;
+  letter-spacing: 0.8px;
   color: #e5e7eb;
+  line-height: 1;
 }
 
 .arena-center-points {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 800;
   color: #facc15;
-  text-shadow: 0 0 12px rgba(250,204,21,0.8);
+  text-shadow: 0 0 10px rgba(250,204,21,0.7);
+  line-height: 1;
 }
 
 .arena-center-vs {
-  margin-top: 4px;
-  font-size: 18px;
+  margin-top: 1px;
+  font-size: 14px;
   font-weight: 900;
   color: #ffffff;
   text-shadow:
-    0 0 10px rgba(0,0,0,0.9),
-    0 0 20px rgba(56,189,248,0.7),
-    0 0 20px rgba(248,113,113,0.7);
+    0 0 6px rgba(0,0,0,0.9),
+    0 0 10px rgba(56,189,248,0.45),
+    0 0 10px rgba(248,113,113,0.45);
+  line-height: 1;
 }
 
 .arena-center-names {
   display: flex;
   justify-content: space-between;
-  gap: 32px;
-  font-size: 11px;
+  gap: 22px;
+  font-size: 10px;
   font-weight: 700;
-  margin-top: 2px;
+  margin-top: 1px;
+  line-height: 1;
 }
 
 .arena-center-you {
@@ -1183,13 +1193,15 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 16px 8px 0 8px;
-  min-height: 300px;   /* ← أضف/عدّل السطر ده */
+  padding: 12px 6px 0 6px;
+  min-height: 320px;
+  flex: 1;
 }
 
 .arena-side {
-  width: 50%;          /* توسعة بسيطة عشان الـ 3 يدخلوا جنب بعض */
+  width: 50%;
   display: flex;
+  align-items: flex-end;
 }
 
 .arena-side-you {
@@ -1202,7 +1214,8 @@
 
 .arena-heroes-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  align-items: flex-end;
 }
 
 .arena-side-enemy .arena-heroes-row {
@@ -1210,23 +1223,23 @@
 }
 
 .arena-hero-slot {
-  width: 100px;        /* تقليل عرض السلوط عشان 3 يركبوا جنب بعض */
+  width: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-shrink: 0;
 }
 
-/* صورة البطل واقف – كلهم نفس الحجم وأكبر من الأول */
+/* صورة البطل واقف – كلهم نفس الحجم */
 .arena-hero-big {
-  width: 110px;                 /* كانت 70px */
-  height: 150px;                /* كانت 90px */
+  width: 110px;
+  height: 150px;
   border-radius: 12px;
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
 }
 
-/* إلغاء تمييز بطل النص – نخلي الكل نفس المقاس */
 .arena-side-you .arena-hero-slot:nth-child(2) .arena-hero-big,
 .arena-side-enemy .arena-hero-slot:nth-child(2) .arena-hero-big {
   width: 110px;
@@ -1237,7 +1250,7 @@
 .arena-hero-hp-bar {
   margin-top: 4px;
   width: 90%;
-  height: 9px;
+  height: 8px;
   background: rgba(0,0,0,0.7);
   border-radius: 999px;
   overflow: hidden;
@@ -13351,48 +13364,46 @@ function closeArenaPage() {
 function openArenaBattlePage() {
   const battlePage = document.getElementById("arena-battle-page");
   const rotateOverlay = document.getElementById("arena-rotate-overlay");
-  if (!battlePage || !rotateOverlay) return;
+  const countdownEl = document.getElementById("arena-rotate-countdown");
 
-  const isLandscape = window.innerWidth > window.innerHeight;
+  if (!battlePage || !rotateOverlay || !countdownEl) return;
 
-  // نخفي البانل الأول
   battlePage.classList.add("game-page-hidden");
+  rotateOverlay.style.display = "flex";
 
-  if (!isLandscape) {
-    // اطلب من اللاعب يلف الموبايل
-    rotateOverlay.style.display = "flex";
+  let count = 3;
+  countdownEl.textContent = count;
 
-    const handler = () => {
-      const nowLandscape = window.innerWidth > window.innerHeight;
-      if (nowLandscape) {
-        rotateOverlay.style.display = "none";
-        battlePage.classList.remove("game-page-hidden");
-        window.removeEventListener("resize", handler);
-      }
-    };
+  const timer = setInterval(() => {
+    count--;
+    countdownEl.textContent = count;
 
-    window.addEventListener("resize", handler);
-    return;
-  }
-
-  // لو هو أصلاً Landscape
-  rotateOverlay.style.display = "none";
-  battlePage.classList.remove("game-page-hidden");
+    if (count <= 0) {
+      clearInterval(timer);
+      rotateOverlay.style.display = "none";
+      battlePage.classList.remove("game-page-hidden");
+    }
+  }, 1000);
 }
 
 
 function closeArenaBattlePage() {
   const battlePage = document.getElementById("arena-battle-page");
   const rotateOverlay = document.getElementById("arena-rotate-overlay");
+  const countdownEl = document.getElementById("arena-rotate-countdown");
 
   if (battlePage) {
     battlePage.classList.add("game-page-hidden");
   }
+
   if (rotateOverlay) {
     rotateOverlay.style.display = "none";
   }
 
-  // نرجع لصفحة الأرينا العادية
+  if (countdownEl) {
+    countdownEl.textContent = "3";
+  }
+
   openArenaPage();
 }
 
