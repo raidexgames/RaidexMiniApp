@@ -2236,6 +2236,522 @@
   min-height: 0;
   -webkit-overflow-scrolling: touch;
 }
+.arena-landscape-shell {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at center, rgba(59,130,246,.18), transparent 35%),
+    linear-gradient(180deg, #0b1020 0%, #111827 48%, #060913 100%);
+  color: #fff;
+  z-index: 9999;
+  overflow: hidden;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.arena-battle-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(15,23,42,.92), rgba(2,6,23,.94));
+  overflow: hidden;
+  transition: opacity .25s ease;
+}
+
+.arena-battle-topbar {
+  height: 72px;
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 90px 1fr 130px;
+  gap: 10px;
+  align-items: center;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  padding: 10px 14px;
+}
+
+.arena-auto-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.arena-back-btn {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+
+.arena-auto-btn {
+  background: linear-gradient(135deg, #f59e0b, #facc15);
+  color: #101623;
+  box-shadow: 0 8px 24px rgba(250,204,21,.25);
+}
+
+.arena-battle-centerinfo {
+  text-align: center;
+}
+
+.arena-battle-mode {
+  font-size: 12px;
+  color: #93c5fd;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.arena-battle-vsline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.arena-battle-vs {
+  color: #facc15;
+  font-size: 18px;
+  text-shadow: 0 0 12px rgba(250,204,21,.45);
+}
+
+.arena-battle-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1.2fr 0.6fr 1.2fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.arena-team {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-evenly;
+  gap: 12px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
+    radial-gradient(circle at center bottom, rgba(59,130,246,.10), transparent 58%);
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 12px 12px 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.arena-team-enemy {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
+    radial-gradient(circle at center bottom, rgba(239,68,68,.10), transparent 58%);
+}
+.battle-hero {
+  width: 32%;
+  min-width: 110px;
+  max-width: 210px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+}
+
+.battle-hero-art {
+  width: 100%;
+  height: clamp(190px, 42vh, 360px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+  overflow: hidden;
+}
+
+.battle-hero-art img {
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
+  transform-origin: center bottom;
+  transition: transform .25s ease, filter .25s ease, opacity .25s ease;
+  will-change: transform, opacity;
+}
+
+.arena-team-enemy .battle-hero-art img {
+  transform: scaleX(-1);
+}
+
+.battle-hero-name {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #f8fafc;
+  text-align: center;
+}
+
+.battle-hero-rank {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #f59e0b, #fde68a);
+  color: #111827;
+  font-size: 11px;
+  font-weight: 900;
+  box-shadow: 0 4px 10px rgba(0,0,0,.3);
+}
+
+.battle-hero-hp {
+  width: 100%;
+  height: 10px;
+  margin-top: 6px;
+  background: rgba(255,255,255,.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.battle-hero-hpfill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #86efac);
+  border-radius: inherit;
+  transition: width .35s ease;
+}
+
+.enemy-fill {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.ghost-slot {
+  opacity: .22;
+}
+
+.ghost-slot .battle-hero-art {
+  border: 1px dashed rgba(255,255,255,.12);
+}
+
+.arena-battle-midfx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arena-battle-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  background: radial-gradient(circle, rgba(250,204,21,.18), rgba(250,204,21,.04));
+  border: 1px solid rgba(250,204,21,.28);
+  box-shadow: 0 0 26px rgba(250,204,21,.12);
+}
+
+.arena-battle-status {
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  color: #cbd5e1;
+}
+.arena-battle-vs-badge {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  font-weight: 900;
+  color: #facc15;
+  background: radial-gradient(circle, rgba(250,204,21,.16), rgba(250,204,21,.03));
+  border: 1px solid rgba(250,204,21,.24);
+  box-shadow: 0 0 22px rgba(250,204,21,.10);
+  letter-spacing: 1px;
+}
+.arena-battle-bottom {
+  height: 90px;
+  min-height: 90px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.arena-log-box,
+.arena-result-box {
+  height: 100%;
+  overflow: auto;
+  border-radius: 18px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: 12px;
+}
+
+.arena-log-entry {
+  margin-bottom: 6px;
+  color: #dbeafe;
+}
+
+.battle-fx {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fx-slash {
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.9) 50%, transparent 65%);
+  transform: translateX(-120%) skewX(-18deg);
+}
+
+.fx-glow {
+  background: radial-gradient(circle, rgba(59,130,246,.35), transparent 55%);
+  transform: scale(.6);
+}
+
+.fx-projectile {
+  width: 34px;
+  height: 34px;
+  inset: auto;
+  left: 50%;
+  top: 45%;
+  margin-left: -17px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fde68a 0%, #f59e0b 45%, transparent 70%);
+  filter: blur(1px);
+}
+
+.battle-hero.is-idle img {
+  animation: heroIdle 2.2s ease-in-out infinite;
+}
+
+.battle-hero.is-attacking img {
+  animation: heroAttack .38s ease;
+}
+
+.battle-hero.enemy.is-attacking img {
+  animation: heroAttackEnemy .38s ease;
+}
+
+.battle-hero.is-hit img {
+  animation: heroHit .28s ease 2;
+  filter: brightness(1.45);
+}
+
+.battle-hero.is-casting .fx-glow {
+  animation: castGlow .55s ease;
+}
+
+.battle-hero.is-attacking .fx-slash {
+  animation: slashMove .35s ease;
+}
+
+.battle-hero.is-projectile .fx-projectile {
+  animation: projectileFly .55s ease;
+  opacity: 1;
+}
+
+.battle-hero.is-dead img {
+  opacity: .2;
+  transform: translateY(12px) scale(.92);
+  filter: grayscale(1);
+}
+
+@keyframes heroIdle {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes heroAttack {
+  0% { transform: translateX(0) scale(1); }
+  40% { transform: translateX(18px) scale(1.04); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+@keyframes heroAttackEnemy {
+  0% { transform: scaleX(-1) translateX(0) scale(1); }
+  40% { transform: scaleX(-1) translateX(18px) scale(1.04); }
+  100% { transform: scaleX(-1) translateX(0) scale(1); }
+}
+
+@keyframes heroHit {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+@keyframes castGlow {
+  0% { opacity: 0; transform: scale(.5); }
+  50% { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+
+@keyframes slashMove {
+  0% { opacity: 0; transform: translateX(-120%) skewX(-18deg); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(120%) skewX(-18deg); }
+}
+
+@keyframes projectileFly {
+  0% { opacity: 0; transform: translate(-20px, 0) scale(.5); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(130px, -30px) scale(1.2); }
+}
+
+.arena-rotate-overlay {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
+  z-index: 10000;
+  display: none;
+  place-items: center;
+  background: rgba(0,0,0,.96);
+  margin: 0 !important;
+  padding: 16px;
+}
+
+.arena-rotate-box {
+  text-align: center;
+  color: #fff;
+}
+
+.arena-rotate-icon {
+  font-size: 52px;
+  margin-bottom: 10px;
+}
+
+.arena-rotate-title {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.arena-rotate-sub {
+  margin-top: 6px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.arena-rotate-count {
+  margin-top: 14px;
+  font-size: 34px;
+  font-weight: 900;
+  color: #facc15;
+}
+#arena-battle-page.game-page-panel {
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+.arena-rotate-box {
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.arena-rotate-phone-wrap {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arena-rotate-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(250,204,21,.28);
+  box-shadow: 0 0 24px rgba(250,204,21,.12);
+}
+
+.arena-rotate-phone {
+  width: 54px;
+  height: 92px;
+  border: 3px solid #e5e7eb;
+  border-radius: 16px;
+  position: relative;
+  box-shadow: 0 0 24px rgba(255,255,255,.08);
+  animation: arenaPhoneRotate 1.5s ease-in-out infinite;
+  transform-origin: center center;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+}
+
+.arena-rotate-phone-notch {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 16px;
+  height: 4px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #e5e7eb;
+  opacity: .9;
+}
+
+.arena-rotate-title {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  color: #f8fafc;
+}
+
+.arena-rotate-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+.arena-rotate-count {
+  margin-top: 4px;
+  font-size: 38px;
+  font-weight: 900;
+  color: #facc15;
+  text-shadow: 0 0 18px rgba(250,204,21,.35);
+}
+
+@keyframes arenaPhoneRotate {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(0deg); }
+  60%  { transform: rotate(90deg); }
+  100% { transform: rotate(90deg); }
+}
 
     </style>
   </head>
@@ -13363,20 +13879,27 @@ function closeArenaPage() {
 }
 function openArenaBattlePage() {
   const battlePage = document.getElementById("arena-battle-page");
+  const battleWrap = document.getElementById("arena-battle-wrap");
   const rotateOverlay = document.getElementById("arena-rotate-overlay");
-  const countdownEl = document.getElementById("arena-rotate-countdown");
-  const autoBtn = document.getElementById("arena-auto-battle-btn");
+  const countdownEl = document.getElementById("arena-rotate-count");
+  const autoBtn = document.getElementById("battle-btn-start-auto");
 
-  if (!battlePage || !rotateOverlay || !countdownEl) {
+  if (!battlePage || !battleWrap || !rotateOverlay || !countdownEl) {
     console.log("Arena battle elements missing");
     return;
   }
 
-  rotateOverlay.style.display = "flex";
   battlePage.classList.remove("game-page-hidden");
+
+  battleWrap.style.visibility = "hidden";
+  battleWrap.style.opacity = "0";
+
+  rotateOverlay.style.display = "grid";
 
   let count = 3;
   countdownEl.textContent = count;
+
+  if (autoBtn) autoBtn.style.display = "none";
 
   const timer = setInterval(() => {
     count--;
@@ -13386,10 +13909,12 @@ function openArenaBattlePage() {
       clearInterval(timer);
 
       rotateOverlay.style.display = "none";
+      battleWrap.style.visibility = "visible";
+      battleWrap.style.opacity = "1";
 
       updateArenaBattleUI(true);
 
-      if (autoBtn) autoBtn.style.display = "none";
+      if (autoBtn) autoBtn.style.display = "block";
 
       if (autoBattleInterval) clearInterval(autoBattleInterval);
       autoBattleInterval = setInterval(() => {
@@ -13399,14 +13924,19 @@ function openArenaBattlePage() {
   }, 1000);
 }
 
-
 function closeArenaBattlePage() {
   const battlePage = document.getElementById("arena-battle-page");
+  const battleWrap = document.getElementById("arena-battle-wrap");
   const rotateOverlay = document.getElementById("arena-rotate-overlay");
-  const countdownEl = document.getElementById("arena-rotate-countdown");
+  const countdownEl = document.getElementById("arena-rotate-count");
 
   if (battlePage) {
     battlePage.classList.add("game-page-hidden");
+  }
+
+  if (battleWrap) {
+    battleWrap.style.visibility = "hidden";
+    battleWrap.style.opacity = "0";
   }
 
   if (rotateOverlay) {
@@ -13415,6 +13945,11 @@ function closeArenaBattlePage() {
 
   if (countdownEl) {
     countdownEl.textContent = "3";
+  }
+
+  if (autoBattleInterval) {
+    clearInterval(autoBattleInterval);
+    autoBattleInterval = null;
   }
 
   openArenaPage();
@@ -22579,7 +23114,77 @@ function playAgainArenaBattle() {
   startTestArenaBattle();
 }
 
+function resetBattleAnim(el) {
+  if (!el) return;
+  el.classList.remove("is-attacking", "is-hit", "is-casting", "is-projectile");
+  void el.offsetWidth;
+}
 
+function playAttackAnimation(attackerEl, targetEl) {
+  if (!attackerEl) return;
+  resetBattleAnim(attackerEl);
+  attackerEl.classList.add("is-attacking");
+
+  if (targetEl) {
+    setTimeout(() => {
+      resetBattleAnim(targetEl);
+      targetEl.classList.add("is-hit");
+      setTimeout(() => targetEl.classList.remove("is-hit"), 280);
+    }, 180);
+  }
+
+  setTimeout(() => attackerEl.classList.remove("is-attacking"), 420);
+}
+
+function playSkillAnimation(attackerEl, targetEl, skillType = "slash") {
+  if (!attackerEl) return;
+  resetBattleAnim(attackerEl);
+  attackerEl.classList.add("is-casting");
+
+  if (skillType === "projectile") {
+    attackerEl.classList.add("is-projectile");
+  } else {
+    attackerEl.classList.add("is-attacking");
+  }
+
+  if (targetEl) {
+    setTimeout(() => {
+      resetBattleAnim(targetEl);
+      targetEl.classList.add("is-hit");
+      setTimeout(() => targetEl.classList.remove("is-hit"), 320);
+    }, 240);
+  }
+
+  setTimeout(() => {
+    attackerEl.classList.remove("is-casting", "is-projectile", "is-attacking");
+  }, 650);
+}
+
+function markHeroDead(heroEl) {
+  if (!heroEl) return;
+  heroEl.classList.remove("is-idle", "is-attacking", "is-hit", "is-casting", "is-projectile");
+  heroEl.classList.add("is-dead");
+}
+
+function updateHpBar(barId, current, max) {
+  const el = document.getElementById(barId);
+  if (!el) return;
+  const pct = Math.max(0, Math.min(100, (current / max) * 100));
+  el.style.width = pct + "%";
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const playerHeroEl = document.getElementById("hero-player-1");
+  const enemyHeroEl = document.getElementById("hero-enemy-1");
+
+  // اختياري: جرّب أنيميشن بسيط بعد ثانيتين من فتح صفحة الأرينا
+  window.demoArenaTest = function () {
+    if (!playerHeroEl || !enemyHeroEl) return;
+    playAttackAnimation(playerHeroEl, enemyHeroEl);
+    setTimeout(() => {
+      playSkillAnimation(enemyHeroEl, playerHeroEl, "projectile");
+    }, 700);
+  };
+});
 
 
 </script>
@@ -22699,219 +23304,102 @@ function playAgainArenaBattle() {
 
 
 <!-- Arena Battle Page -->
-<div id="arena-battle-page" class="game-page-panel game-page-hidden" style="
-  position:fixed;
-  inset:0;
-  background:#020617;
-  z-index:300;
-  border-radius:0;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-">
-
-  <!-- شاشة البداية السوداء + العد التنازلي -->
-  <div id="arena-rotate-overlay" style="
-    position:absolute;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,0.96);
-    z-index:400;
-    flex-direction:column;
-    text-align:center;
-    padding:16px;
-  ">
-    <div id="arena-rotate-countdown" style="
-      font-size:42px;
-      font-weight:900;
-      color:#facc15;
-      margin-bottom:14px;
-    ">3</div>
-
-    <div style="
-      width:84px;
-      height:84px;
-      position:relative;
-      margin-bottom:14px;
-    ">
-      <div style="
-        position:absolute;
-        inset:0;
-        margin:auto;
-        width:42px;
-        height:70px;
-        border-radius:12px;
-        border:2px solid #e5e7eb;
-        box-sizing:border-box;
-        animation: phone-rotate 1.4s infinite ease-in-out;
-        transform-origin:center center;
-      "></div>
-      <div style="
-        position:absolute;
-        inset:0;
-        margin:auto;
-        width:8px;
-        height:8px;
-        border-radius:999px;
-        background:#e5e7eb;
-        bottom:6px;
-      "></div>
+<div id="arena-battle-page" class="game-page-panel game-page-hidden arena-landscape-shell">
+<div class="arena-rotate-overlay" id="arena-rotate-overlay" style="display:none;">
+  <div class="arena-rotate-box">
+    <div class="arena-rotate-phone-wrap">
+      <div class="arena-rotate-ring"></div>
+      <div class="arena-rotate-phone">
+        <div class="arena-rotate-phone-notch"></div>
+      </div>
     </div>
 
-    <div style="
-      font-size:16px;
-      font-weight:800;
-      color:#e5e7eb;
-      margin-bottom:8px;
-    ">
-      قم بجعل شاشة الهاتف بالعرض
-    </div>
-
-    <div style="
-      font-size:12px;
-      color:#9ca3af;
-      max-width:260px;
-      line-height:1.6;
-    ">
-      سيتم بدء معركة الأرينا بعد العد التنازلي.
-    </div>
+    <div class="arena-rotate-title">قم بتدوير الهاتف</div>
+    <div class="arena-rotate-sub">معركة الأرينا أفضل في الوضع العرضي</div>
+    <div class="arena-rotate-count" id="arena-rotate-count">3</div>
   </div>
+</div>
+  <div class="arena-battle-wrap" id="arena-battle-wrap" style="visibility:hidden; opacity:0;">
+    <!-- شريط علوي -->
+    <div class="arena-battle-topbar">
+      <button class="arena-back-btn" onclick="closeArenaBattlePage()">Back</button>
 
-  <!-- Top Bar -->
-  <div class="arena-top-bar">
-    <div class="arena-top-league">
-      💎 <span id="arena-battle-league">Bronze I</span>
-    </div>
-    <div class="arena-top-points">
-      ⚡ <span id="arena-battle-points">0</span> pts
-    </div>
-    <div class="arena-top-enemy">
-      <span id="arena-battle-enemy-name">Arena Bot</span> 🤖
-    </div>
-  </div>
-
-  <!-- TOP ARENA HEADER + 3v3 HERO ROW -->
-  <div class="arena-top-wrapper">
-
-    <!-- شريط الرانك + النقاط -->
-    <div class="arena-header-strip">
-      <div class="arena-rank-box arena-rank-you">
-        <div class="arena-rank-icon"></div>
-        <div class="arena-rank-text">
-          <div class="arena-rank-label">YOU</div>
-          <div class="arena-rank-name" id="arena-rank-you">Bronze II</div>
+      <div class="arena-battle-centerinfo">
+        <div class="arena-battle-mode">Raidex: Arena Battle</div>
+        <div class="arena-battle-vsline">
+          <span id="arena-player-name">Player</span>
+          <span class="arena-battle-vs">VS</span>
+          <span id="arena-enemy-name">Enemy</span>
         </div>
       </div>
 
-      <div class="arena-center-box">
-        <div class="arena-center-title">ARENA POINTS</div>
-        <div class="arena-center-points" id="arena-center-points">0</div>
-        <div class="arena-center-vs">VS</div>
-        <div class="arena-center-names">
-          <span class="arena-center-you">YOU</span>
-          <span class="arena-center-enemy">ENEMY</span>
+      <button id="battle-btn-start-auto" class="arena-auto-btn">⚔ Auto</button>
+    </div>
+
+    <!-- ساحة القتال -->
+    <div class="arena-battle-stage">
+      <!-- فريقك -->
+      <div class="arena-team arena-team-player">
+        <div class="battle-hero is-idle" id="hero-player-1">
+          <div class="battle-hero-rank">R</div>
+          <div class="battle-hero-art">
+            <img id="battle-player-1-img" src="aegis9.png" alt="Player Hero">
+            <div class="battle-fx fx-slash"></div>
+            <div class="battle-fx fx-glow"></div>
+            <div class="battle-fx fx-projectile"></div>
+          </div>
+          <div class="battle-hero-name" id="battle-player-1-name">AEGIS9</div>
+          <div class="battle-hero-hp">
+            <div id="battle-player-1-hpbar" class="battle-hero-hpfill" style="width:100%;"></div>
+          </div>
+        </div>
+
+        <div class="battle-hero ghost-slot" id="hero-player-2">
+          <div class="battle-hero-art"></div>
+        </div>
+
+        <div class="battle-hero ghost-slot" id="hero-player-3">
+          <div class="battle-hero-art"></div>
         </div>
       </div>
 
-      <div class="arena-rank-box arena-rank-enemy">
-        <div class="arena-rank-icon"></div>
-        <div class="arena-rank-text">
-          <div class="arena-rank-label">ENEMY</div>
-          <div class="arena-rank-name" id="arena-rank-enemy">Bronze II</div>
+      <!-- منتصف: VS -->
+      <div class="arena-battle-midfx">
+        <div class="arena-battle-vs-badge">VS</div>
+      </div>
+
+      <!-- فريق العدو -->
+      <div class="arena-team arena-team-enemy">
+        <div class="battle-hero enemy is-idle" id="hero-enemy-1">
+          <div class="battle-hero-rank">R</div>
+          <div class="battle-hero-art">
+            <img id="battle-enemy-1-img" src="aegis9.png" alt="Enemy Hero">
+            <div class="battle-fx fx-slash"></div>
+            <div class="battle-fx fx-glow"></div>
+            <div class="battle-fx fx-projectile"></div>
+          </div>
+          <div class="battle-hero-name" id="battle-enemy-1-name">Arena Rival</div>
+          <div class="battle-hero-hp">
+            <div id="battle-enemy-1-hpbar" class="battle-hero-hpfill enemy-fill" style="width:100%;"></div>
+          </div>
+        </div>
+
+        <div class="battle-hero ghost-slot" id="hero-enemy-2">
+          <div class="battle-hero-art"></div>
+        </div>
+
+        <div class="battle-hero ghost-slot" id="hero-enemy-3">
+          <div class="battle-hero-art"></div>
         </div>
       </div>
     </div>
 
-    <!-- صف الأبطال 3v3 -->
-    <div class="arena-heroes-strip">
-
-      <!-- أبطال الفريق -->
-      <div class="arena-side arena-side-you">
-        <div class="arena-heroes-row">
-          <div class="arena-hero-slot">
-            <div class="arena-hero-big" id="you-hero-1"></div>
-            <div class="arena-hero-hp-bar">
-              <div class="arena-hero-hp-fill" id="you-hero-1-hp"></div>
-            </div>
-          </div>
-          <div class="arena-hero-slot">
-            <div class="arena-hero-big" id="you-hero-2"></div>
-            <div class="arena-hero-hp-bar">
-              <div class="arena-hero-hp-fill" id="you-hero-2-hp"></div>
-            </div>
-          </div>
-          <div class="arena-hero-slot">
-            <div class="arena-hero-big" id="you-hero-3"></div>
-            <div class="arena-hero-hp-bar">
-              <div class="arena-hero-hp-fill" id="you-hero-3-hp"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- أبطال العدو -->
-      <div class="arena-side arena-side-enemy">
-        <div class="arena-heroes-row">
-          <div class="arena-hero-slot">
-            <div class="arena-hero-big" id="enemy-hero-1"></div>
-            <div class="arena-hero-hp-bar">
-              <div class="arena-hero-hp-fill enemy" id="enemy-hero-1-hp"></div>
-            </div>
-          </div>
-          <div class="arena-hero-slot">
-            <div class="arena-hero-big" id="enemy-hero-2"></div>
-            <div class="arena-hero-hp-bar">
-              <div class="arena-hero-hp-fill enemy" id="enemy-hero-2-hp"></div>
-            </div>
-          </div>
-          <div class="arena-hero-slot">
-            <div class="arena-hero-big" id="enemy-hero-3"></div>
-            <div class="arena-hero-hp-bar">
-              <div class="arena-hero-hp-fill enemy" id="enemy-hero-3-hp"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <!-- الجزء السفلي: اللوج + النتيجة -->
+    <div class="arena-battle-bottom">
+      <div class="arena-log-box" id="arena-battle-log"></div>
+      <div class="arena-result-box" id="battle-result-box" style="display:none;"></div>
     </div>
-
   </div>
-
-  <!-- Battle Log -->
-  <div class="arena-log-wrapper" id="arena-battle-log" style="display:none;">
-    <div class="arena-log-title">⚔️ Battle Log</div>
-  </div>
-
-  <!-- Auto Battle Button -->
-  <button class="arena-auto-btn" id="arena-auto-battle-btn">
-    ⚔️ AUTO BATTLE
-  </button>
-
-  <!-- Energy -->
-  <div style="margin:6px 0;">
-    <div style="font-size:10px; color:#a78bfa; margin-bottom:3px;">⚡ Energy</div>
-    <div style="background:#1f2937; border-radius:4px; height:8px; overflow:hidden;">
-      <div id="arena-energy-fill" style="height:100%; background:linear-gradient(90deg,#7c3aed,#a78bfa); width:0%; transition:width 0.3s;"></div>
-    </div>
-    <div id="arena-energy-text" style="font-size:10px; color:#6b7280; text-align:right;">0/100</div>
-  </div>
-
-  <!-- Result Box -->
-  <div class="arena-result-box" id="arena-result-box">
-    <div class="arena-result-text" id="arena-result-text"></div>
-    <div class="arena-result-points" id="arena-result-points"></div>
-    <button class="arena-play-again-btn" onclick="playAgainArenaBattle()">Play Again</button>
-  </div>
-
-  <!-- Back -->
-  <button onclick="closeArenaBattlePage()"
-    style="margin:6px 12px; width:calc(100% - 24px); padding:8px 0; border-radius:999px; border:none;
-           background:rgba(30,41,59,0.9); color:#e5e7eb; font-size:13px; cursor:pointer;">
-    ← Back to Arena
-  </button>
-
 </div>
 
   </body>
