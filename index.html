@@ -847,10 +847,10 @@
   z-index: 1;
 }
 @keyframes phone-rotate {
-  0%   { transform: rotate(0deg);   opacity:1; }
-  40%  { transform: rotate(90deg);  opacity:1; }
-  60%  { transform: rotate(90deg);  opacity:1; }
-  100% { transform: rotate(0deg);   opacity:1; }
+  0%   { transform: rotate(0deg); }
+  40%  { transform: rotate(90deg); }
+  60%  { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
 }
 
 /* Top Bar */
@@ -13365,11 +13365,15 @@ function openArenaBattlePage() {
   const battlePage = document.getElementById("arena-battle-page");
   const rotateOverlay = document.getElementById("arena-rotate-overlay");
   const countdownEl = document.getElementById("arena-rotate-countdown");
+  const autoBtn = document.getElementById("arena-auto-battle-btn");
 
-  if (!battlePage || !rotateOverlay || !countdownEl) return;
+  if (!battlePage || !rotateOverlay || !countdownEl) {
+    console.log("Arena battle elements missing");
+    return;
+  }
 
-  battlePage.classList.add("game-page-hidden");
   rotateOverlay.style.display = "flex";
+  battlePage.classList.remove("game-page-hidden");
 
   let count = 3;
   countdownEl.textContent = count;
@@ -13380,8 +13384,17 @@ function openArenaBattlePage() {
 
     if (count <= 0) {
       clearInterval(timer);
+
       rotateOverlay.style.display = "none";
-      battlePage.classList.remove("game-page-hidden");
+
+      updateArenaBattleUI(true);
+
+      if (autoBtn) autoBtn.style.display = "none";
+
+      if (autoBattleInterval) clearInterval(autoBattleInterval);
+      autoBattleInterval = setInterval(() => {
+        runAutoBattleRound();
+      }, 1200);
     }
   }, 1000);
 }
@@ -21989,24 +22002,8 @@ function startTestArenaBattle() {
   arenaBattleState.botEnergy = 0;
   arenaBattleState.botEnergyCap = 80;
 
+  // فقط افتح شاشة العدّاد / الدخول
   openArenaBattlePage();
-  updateArenaBattleUI(true);
-
-  // إخفاء زرار AUTO BATTLE عشان ما ينداسش مرتين
-  const autoBtn = document.getElementById("arena-auto-battle-btn");
-  if (autoBtn) autoBtn.style.display = "none";
-
-  const statusText = document.getElementById("battle-status-text");
-  if (statusText) {
-    statusText.textContent = "⚔️ القتال جارٍ...";
-    statusText.style.color = "#facc15";
-  }
-
-  // بدء التايمر للقتال التلقائي
-  if (autoBattleInterval) clearInterval(autoBattleInterval);
-  autoBattleInterval = setInterval(() => {
-    runAutoBattleRound();
-  }, 1200);
 }
 
 
@@ -22649,70 +22646,138 @@ function playAgainArenaBattle() {
   </div>
 
   <!-- منطقة الصورة في المنتصف -->
-  <div id="arena-lobby-bg-container" style="flex:1; position:relative; overflow:hidden; min-height:200px; border-bottom: 2px solid #facc15;">
-    <!-- التدرج فوق الصورة لجعل الانتقال ناعم -->
-    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,15,30,0) 0%, rgba(10,15,30,0.8) 100%); z-index: 1;"></div>
+  <div id="arena-lobby-bg-container" style="flex:1; position:relative; overflow:hidden; min-height:200px; border-bottom:2px solid #facc15;">
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,15,30,0) 0%, rgba(10,15,30,0.8) 100%); z-index:1;"></div>
   </div>
 
   <!-- الجزء السفلي: المحتوى -->
-  <div style="background:rgba(10,15,30,0.97); padding:10px; flex-shrink:0; z-index: 2;">
+  <div style="background:rgba(10,15,30,0.97); padding:10px; flex-shrink:0; z-index:2;">
 
     <!-- Rank + Points -->
-    <div style="background:rgba(15,23,42,0.95);border-radius:12px;padding:10px 12px;margin-bottom:10px;border:1px solid rgba(148,163,184,0.5);">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div style="background:rgba(15,23,42,0.95); border-radius:12px; padding:10px 12px; margin-bottom:10px; border:1px solid rgba(148,163,184,0.5);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <div style="font-size:13px;color:#9ca3af;">Current League</div>
-          <div id="arena-league" style="font-size:16px;font-weight:bold;">Bronze I</div>
+          <div style="font-size:13px; color:#9ca3af;">Current League</div>
+          <div id="arena-league" style="font-size:16px; font-weight:bold;">Bronze I</div>
         </div>
         <div style="text-align:right;">
-          <div style="font-size:13px;color:#9ca3af;">Arena Points</div>
-          <div id="arena-points" style="font-size:16px;font-weight:bold;color:#facc15;">0</div>
+          <div style="font-size:13px; color:#9ca3af;">Arena Points</div>
+          <div id="arena-points" style="font-size:16px; font-weight:bold; color:#facc15;">0</div>
         </div>
       </div>
-      <div id="arena-streak" style="margin-top:6px;font-size:12px;color:#22c55e;">
+      <div id="arena-streak" style="margin-top:6px; font-size:12px; color:#22c55e;">
         Win Streak: 0
       </div>
     </div>
 
     <!-- Team preview -->
-    <div style="background:rgba(15,23,42,0.95);border-radius:12px;padding:10px 12px;margin-bottom:10px;border:1px solid rgba(148,163,184,0.5);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <div style="font-size:13px;font-weight:bold;">Your Arena Team</div>
-        <button onclick="openPvpPanel()" style="padding:4px 10px;border-radius:999px;border:none;background:#0ea5e9;color:#0b1120;font-size:11px;font-weight:bold;cursor:pointer;">
+    <div style="background:rgba(15,23,42,0.95); border-radius:12px; padding:10px 12px; margin-bottom:10px; border:1px solid rgba(148,163,184,0.5);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div style="font-size:13px; font-weight:bold;">Your Arena Team</div>
+        <button onclick="openPvpPanel()" style="padding:4px 10px; border-radius:999px; border:none; background:#0ea5e9; color:#0b1120; font-size:11px; font-weight:bold; cursor:pointer;">
           Edit Team
         </button>
       </div>
-      <div id="arena-team-preview" style="display:flex;gap:6px;"></div>
-      <div id="arena-team-warning" style="margin-top:6px;font-size:11px;color:#f97316;">
+      <div id="arena-team-preview" style="display:flex; gap:6px;"></div>
+      <div id="arena-team-warning" style="margin-top:6px; font-size:11px; color:#f97316;">
         You need at least 1 hero to start a battle.
       </div>
     </div>
 
     <!-- Start battle -->
     <button id="arena-start-btn"
-        onclick="startTestArenaBattle()"
-        style="width:100%;padding:10px 0;border-radius:999px;border:none;
-               background:linear-gradient(135deg,#22c55e,#0ea5e9);color:#0b1120;
-               font-size:15px;font-weight:bold;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,0.6);">
-  ⚔️ Start Battle
-</button>
+      onclick="startTestArenaBattle()"
+      style="width:100%; padding:10px 0; border-radius:999px; border:none;
+             background:linear-gradient(135deg,#22c55e,#0ea5e9); color:#0b1120;
+             font-size:15px; font-weight:bold; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.6);">
+      ⚔️ Start Battle
+    </button>
 
   </div>
 </div>
 
 
 
-
+<!-- Arena Battle Page -->
 <div id="arena-battle-page" class="game-page-panel game-page-hidden" style="
-  position: fixed;
-  inset: 0;
-  background: #020617;
-  z-index: 300;
-  border-radius: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  position:fixed;
+  inset:0;
+  background:#020617;
+  z-index:300;
+  border-radius:0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 ">
+
+  <!-- شاشة البداية السوداء + العد التنازلي -->
+  <div id="arena-rotate-overlay" style="
+    position:absolute;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,0.96);
+    z-index:400;
+    flex-direction:column;
+    text-align:center;
+    padding:16px;
+  ">
+    <div id="arena-rotate-countdown" style="
+      font-size:42px;
+      font-weight:900;
+      color:#facc15;
+      margin-bottom:14px;
+    ">3</div>
+
+    <div style="
+      width:84px;
+      height:84px;
+      position:relative;
+      margin-bottom:14px;
+    ">
+      <div style="
+        position:absolute;
+        inset:0;
+        margin:auto;
+        width:42px;
+        height:70px;
+        border-radius:12px;
+        border:2px solid #e5e7eb;
+        box-sizing:border-box;
+        animation: phone-rotate 1.4s infinite ease-in-out;
+        transform-origin:center center;
+      "></div>
+      <div style="
+        position:absolute;
+        inset:0;
+        margin:auto;
+        width:8px;
+        height:8px;
+        border-radius:999px;
+        background:#e5e7eb;
+        bottom:6px;
+      "></div>
+    </div>
+
+    <div style="
+      font-size:16px;
+      font-weight:800;
+      color:#e5e7eb;
+      margin-bottom:8px;
+    ">
+      قم بجعل شاشة الهاتف بالعرض
+    </div>
+
+    <div style="
+      font-size:12px;
+      color:#9ca3af;
+      max-width:260px;
+      line-height:1.6;
+    ">
+      سيتم بدء معركة الأرينا بعد العد التنازلي.
+    </div>
+  </div>
 
   <!-- Top Bar -->
   <div class="arena-top-bar">
@@ -22727,12 +22792,11 @@ function playAgainArenaBattle() {
     </div>
   </div>
 
-   <!-- TOP ARENA HEADER + 3v3 HERO ROW -->
+  <!-- TOP ARENA HEADER + 3v3 HERO ROW -->
   <div class="arena-top-wrapper">
 
     <!-- شريط الرانك + النقاط -->
     <div class="arena-header-strip">
-      <!-- رانكك -->
       <div class="arena-rank-box arena-rank-you">
         <div class="arena-rank-icon"></div>
         <div class="arena-rank-text">
@@ -22741,7 +22805,6 @@ function playAgainArenaBattle() {
         </div>
       </div>
 
-      <!-- مركز النقاط + VS -->
       <div class="arena-center-box">
         <div class="arena-center-title">ARENA POINTS</div>
         <div class="arena-center-points" id="arena-center-points">0</div>
@@ -22752,7 +22815,6 @@ function playAgainArenaBattle() {
         </div>
       </div>
 
-      <!-- رانك العدو -->
       <div class="arena-rank-box arena-rank-enemy">
         <div class="arena-rank-icon"></div>
         <div class="arena-rank-text">
@@ -22765,7 +22827,7 @@ function playAgainArenaBattle() {
     <!-- صف الأبطال 3v3 -->
     <div class="arena-heroes-strip">
 
-      <!-- أبطال الفريق (يسار) -->
+      <!-- أبطال الفريق -->
       <div class="arena-side arena-side-you">
         <div class="arena-heroes-row">
           <div class="arena-hero-slot">
@@ -22789,7 +22851,7 @@ function playAgainArenaBattle() {
         </div>
       </div>
 
-      <!-- أبطال العدو (يمين) -->
+      <!-- أبطال العدو -->
       <div class="arena-side arena-side-enemy">
         <div class="arena-heroes-row">
           <div class="arena-hero-slot">
@@ -22816,68 +22878,26 @@ function playAgainArenaBattle() {
     </div>
 
   </div>
-<div id="arena-rotate-overlay" style="
-  position: fixed;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.95);
-  z-index: 400;
-  flex-direction: column;
-  text-align: center;
-  padding: 16px;
-">
-  <div style="font-size:16px;font-weight:700;color:#e5e7eb;margin-bottom:12px;">
-    قم بجعل شاشة الهاتف بالعرض
-  </div>
 
-  <!-- أيقونة الهاتف المتحركة -->
-  <div style="width:80px;height:80px;position:relative;margin-bottom:10px;">
-    <div style="
-      position:absolute;
-      inset:0;
-      margin:auto;
-      width:40px;
-      height:70px;
-      border-radius:10px;
-      border:2px solid #e5e7eb;
-      box-sizing:border-box;
-      animation: phone-rotate 1.4s infinite ease-in-out;
-      transform-origin:center center;
-    "></div>
-    <div style="
-      position:absolute;
-      inset:0;
-      margin:auto;
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:#e5e7eb;
-      bottom:6px;
-    "></div>
+  <!-- Battle Log -->
+  <div class="arena-log-wrapper" id="arena-battle-log" style="display:none;">
+    <div class="arena-log-title">⚔️ Battle Log</div>
   </div>
-
-  <div style="font-size:12px;color:#9ca3af;max-width:260px;">
-    قم بتدوير الهاتف للوضع الأفقي لبدء معركة الأرينا السينمائية.
-  </div>
-</div>
-<!-- Battle Log -->
-<div class="arena-log-wrapper" id="arena-battle-log" style="display:none;">
-  <div class="arena-log-title">⚔️ Battle Log</div>
-</div>
 
   <!-- Auto Battle Button -->
   <button class="arena-auto-btn" id="arena-auto-battle-btn">
     ⚔️ AUTO BATTLE
   </button>
-<div style="margin:6px 0;">
-  <div style="font-size:10px;color:#a78bfa;margin-bottom:3px;">⚡ Energy</div>
-  <div style="background:#1f2937;border-radius:4px;height:8px;overflow:hidden;">
-    <div id="arena-energy-fill" style="height:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa);width:0%;transition:width 0.3s;"></div>
+
+  <!-- Energy -->
+  <div style="margin:6px 0;">
+    <div style="font-size:10px; color:#a78bfa; margin-bottom:3px;">⚡ Energy</div>
+    <div style="background:#1f2937; border-radius:4px; height:8px; overflow:hidden;">
+      <div id="arena-energy-fill" style="height:100%; background:linear-gradient(90deg,#7c3aed,#a78bfa); width:0%; transition:width 0.3s;"></div>
+    </div>
+    <div id="arena-energy-text" style="font-size:10px; color:#6b7280; text-align:right;">0/100</div>
   </div>
-  <div id="arena-energy-text" style="font-size:10px;color:#6b7280;text-align:right;">0/100</div>
-</div>
+
   <!-- Result Box -->
   <div class="arena-result-box" id="arena-result-box">
     <div class="arena-result-text" id="arena-result-text"></div>
@@ -22887,123 +22907,11 @@ function playAgainArenaBattle() {
 
   <!-- Back -->
   <button onclick="closeArenaBattlePage()"
-          style="margin:6px 12px; width:calc(100% - 24px); padding:8px 0; border-radius:999px; border:none;
-                 background:rgba(30,41,59,0.9); color:#e5e7eb; font-size:13px; cursor:pointer;">
+    style="margin:6px 12px; width:calc(100% - 24px); padding:8px 0; border-radius:999px; border:none;
+           background:rgba(30,41,59,0.9); color:#e5e7eb; font-size:13px; cursor:pointer;">
     ← Back to Arena
   </button>
 
-<div id="army-unit-popup" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.7);
-  z-index:99999;
-  align-items:center;
-  justify-content:center;
-">
-  <div style="
-    width:92%;
-    max-width:460px;
-    background:#fef9c3;
-    border-radius:18px;
-    padding:0;
-    overflow:hidden;
-    position:relative;
-    box-shadow:0 18px 40px rgba(0,0,0,0.9);
-    color:#1f2933;
-    min-height:380px;
-    display:flex;
-    flex-direction:column;
-  ">
-
-    <!-- شريط العنوان -->
-    <div style="
-      padding:10px 14px;
-      background:rgba(255,255,255,0.9);
-      text-align:center;
-      font-weight:700;
-      font-size:18px;
-      border-bottom:1px solid rgba(148,163,184,0.4);
-      position:relative;
-      flex-shrink:0;
-    ">
-      <span id="army-unit-popup-title">اسم الوحدة</span>
-      <button id="army-unit-popup-close" style="
-        position:absolute;
-        top:6px;
-        right:8px;
-        background:transparent;
-        border:none;
-        color:#6b7280;
-        font-size:18px;
-        cursor:pointer;
-      ">✕</button>
-    </div>
-
-    <!-- المحتوى الرئيسي -->
-    <div style="
-      display:flex;
-      flex-direction:row;
-      flex:1;
-      min-height:320px;
-    ">
-     <!-- عمود الإحصائيات على اليسار -->
-<div style="
-  width:140px;
-  flex-shrink:0;
-  padding:14px 12px;
-  background:rgba(255,255,255,0.94);
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  justify-content:flex-start;
-">
-  <div id="army-unit-popup-name" ...>اسم الوحدة</div>
-  <div id="army-unit-popup-type" ...>النوع: هجوم</div>
-  
-  <!-- الخصائص -->
-  <div style="margin-top:8px; display:flex; flex-direction:column; gap:8px; font-size:13px; flex:1;">
-    <div>⚔️ <span>الهجوم</span> <span id="army-unit-atk">0</span></div>
-    <div>💚 <span>الصحة</span> <span id="army-unit-hp">0</span></div>
-    <div>📦 <span>العدد</span> <span id="army-unit-count">0</span></div>
-  </div>
-
-  <!-- المطلوب -->
-  <div id="army-unit-popup-extra" style="
-    font-size:10px;
-    color:#6b7280;
-    border-top:1px solid rgba(148,163,184,0.3);
-    padding-top:8px;
-    margin-top:auto;
-  ">مطلوب مستوى برج: 1</div>
-
-  <!-- زر التدريب جوه العمود -->
-  <button id="army-unit-popup-train-btn" style="
-    margin-top:6px;
-    width:100%;
-    padding:8px 0;
-    border:none;
-    border-radius:999px;
-    background:linear-gradient(135deg,#22c55e,#16a34a);
-    color:#0b1120;
-    font-weight:700;
-    font-size:13px;
-    cursor:pointer;
-    box-shadow:0 4px 12px rgba(34,197,94,0.4);
-  ">⚔️ تدريب</button>
-</div>
-
-<!-- صورة كبيرة على اليمين -->
-<div id="army-unit-popup-img" style="
-  flex:1;
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center center;
-  background-color:#fef3c7;
-  align-self:stretch;
-"></div>
-    </div>
-  </div>
 </div>
 
   </body>
