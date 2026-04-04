@@ -302,12 +302,12 @@ function setupBuilding(buildingKey, pos) {
   } else {
     el.style.filter = "none";
     el.style.opacity = "1";
-    el.onclick = function(e) {
-      e.stopPropagation();
-      const img = el.querySelector("img");
-      if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
-      showBuildingPopup(cfg.popupKey);
-    };
+el.onclick = function(e) {
+  e.stopPropagation();
+  const img = el.querySelector("img");
+  if (img && !isClickOnSprite(img, e.clientX, e.clientY)) return;
+  showBuildingPopup(cfg.popupKey);
+};
     statusBox.textContent = "Lv." + (buildingLevels[buildingKey] || 1);
     statusBox.style.cssText = "position:absolute;bottom:0%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:8px;font-size:10px;min-width:70px;text-align:center;pointer-events:none;";
     el.appendChild(statusBox);
@@ -326,6 +326,22 @@ function getBuildingImageByKey(key) {
   if (key === "castle") return currentHero ? `${currentHero}_castle.png` : "elephant_castle.png";
   return "";
 }
+function handleBuildingInfoClick(buildingKey) {
+  if (buildingKey === 'heroesHall') {
+    heroesHallActiveTab = 'all';
+
+    const heroesPanel = document.getElementById('heroesHall-panel');
+    if (heroesPanel) {
+      heroesPanel.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    refreshBuildingPanel('heroesHall');
+    return;
+  }
+
+  openBuildingInfoModal(buildingKey);
+}
 function createBuildingPanel(buildingKey) {
   const panelId = buildingKey + "-panel";
   const existingPanel = document.getElementById(panelId);
@@ -335,7 +351,7 @@ function createBuildingPanel(buildingKey) {
     document.body.style.overflow = "hidden";
 
     const infoBtn = existingPanel.querySelector("button:first-child");
-    if (infoBtn) infoBtn.onclick = () => openBuildingInfoModal(buildingKey);
+  if (infoBtn) infoBtn.onclick = () => handleBuildingInfoClick(buildingKey);
 
     refreshBuildingPanel(buildingKey);
     setTimeout(() => {
@@ -421,7 +437,7 @@ function createBuildingPanel(buildingKey) {
     body.style.overflowY = "auto";
   });
 
-  infoBtn.onclick = () => openBuildingInfoModal(buildingKey);
+infoBtn.onclick = () => handleBuildingInfoClick(buildingKey);
 
   refreshBuildingPanel(buildingKey);
   setTimeout(() => {
@@ -429,13 +445,20 @@ function createBuildingPanel(buildingKey) {
   }, 50);
 }
 function refreshBuildingPanel(buildingKey) {
-    
   const panelId = buildingKey + "-panel";
   const body = document.getElementById(panelId + "-body");
   if (!body) return;
 
   const cfg = BUILDINGS_CONFIG[buildingKey] || MINES_CONFIG[buildingKey];
   if (!cfg) return;
+
+  if (buildingKey === 'heroesHall') {
+    body.innerHTML = `
+      <div id="heroes-grid" style="padding:14px;"></div>
+    `;
+    renderHeroesHallPanel();
+    return;
+  }
 
   const level = buildingLevels[buildingKey] || 1;
   const nextLevel = level + 1;
