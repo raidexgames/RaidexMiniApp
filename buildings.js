@@ -326,6 +326,489 @@ function getBuildingImageByKey(key) {
   if (key === "castle") return currentHero ? `${currentHero}_castle.png` : "elephant_castle.png";
   return "";
 }
+const MARKET_SHOP_STORAGE_KEY = "raidex_market_shop_v1";
+const MARKET_SHOP_REFRESH_SECONDS = 900; // 15 minutes
+const MARKET_SHOP_CARD_COUNT = 12;
+const MARKET_RESOURCE_MIN = 10000;
+const MARKET_RESOURCE_MAX = 200000;
+
+function getMarketShopIcon(resourceKey) {
+  const iconMap = {
+    gold: "gold.png",
+    wood: "wood.png",
+    food: "food.png",
+    gem: "gem.png"
+  };
+  return iconMap[resourceKey] || "gold.png";
+}
+
+function getMarketResourceLabel(resourceKey) {
+  const labels = {
+    gold: "ذهب",
+    wood: "خشب",
+    food: "غذاء",
+    gem: "جواهر"
+  };
+  return labels[resourceKey] || resourceKey;
+}
+
+function getCurrentMarketHeroKey() {
+  const heroKey = String(currentHero || "").toLowerCase();
+  if (heroKey === "elephant" || heroKey === "tiger" || heroKey === "kong") return heroKey;
+  return "elephant";
+}
+
+function getMarketShopAvailableSlots(level) {
+  const lvl = Math.max(1, Number(level || 1));
+  const fromTable = typeof getMarketLevelData === "function"
+    ? Number(getMarketLevelData(lvl)?.slots || 2)
+    : 2;
+  return Math.max(2, Math.min(MARKET_SHOP_CARD_COUNT, fromTable));
+}
+
+function getCommonSoldierMetaByHero(heroKey) {
+  const map = {
+    elephant: { key: "ele_atk_soldier_1", img: "elephant_atk_soldier1.png", label: "جندي (Common)" },
+    tiger: { key: "tig_soldier_1", img: "tiger_atk_soldier1.png", label: "جندي (Common)" },
+    kong: { key: "kong_atk_soldier_1", img: "kong_atk_soldier1.png", label: "جندي (Common)" }
+  };
+  return map[heroKey] || map.elephant;
+}
+
+function getCommonHeroIdsForMarket() {
+  try {
+    const fromConfig = Object.values(HEROES_CONFIG || {})
+      .filter((h) => String(h?.rarity || "").toLowerCase() === "common")
+      .map((h) => h.id)
+      .filter(Boolean);
+    if (fromConfig.length) return fromConfig;
+  } catch (e) {}
+  return ["SYLVAN", "GARRUK", "PYRAX"];
+}
+
+function getMarketSoldierCatalogByHero(heroKey) {
+  const perHero = {
+    elephant: [
+      { armyType: "attack", key: "ele_atk_soldier_1", img: "elephant_atk_soldier1.png", label: "جندي هجوم T1", rarity: "common", levelRequired: 1 },
+      { armyType: "attack", key: "ele_atk_soldier_2", img: "elephant_atk_soldier2.png", label: "جندي هجوم T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "attack", key: "ele_atk_soldier_3", img: "elephant_atk_soldier3.png", label: "جندي هجوم T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "attack", key: "ele_atk_soldier_4", img: "elephant_atk_soldier4.png", label: "جندي هجوم T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "health", key: "ele_health_soldier_1", img: "elephant_health_soldier1.png", label: "جندي صحة T1", rarity: "common", levelRequired: 1 },
+      { armyType: "health", key: "ele_health_soldier_2", img: "elephant_health_soldier2.png", label: "جندي صحة T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "health", key: "ele_health_soldier_3", img: "elephant_health_soldier3.png", label: "جندي صحة T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "health", key: "ele_health_soldier_4", img: "elephant_health_soldier4.png", label: "جندي صحة T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "dragon", key: "eledragon1", img: "elephantatksoldier1.png", label: "تنين T1", rarity: "common", levelRequired: 1 },
+      { armyType: "dragon", key: "eledragon2", img: "elephantatksoldier2.png", label: "تنين T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "dragon", key: "eledragon3", img: "elephantatksoldier3.png", label: "تنين T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "dragon", key: "eledragon4", img: "elephantatksoldier4.png", label: "تنين T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "hunter", key: "ele_hunter_1", img: "hunter_elephant_1.png", label: "صياد T1", rarity: "common", levelRequired: 1 },
+      { armyType: "hunter", key: "ele_hunter_2", img: "hunter_elephant_2.png", label: "صياد T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "hunter", key: "ele_hunter_3", img: "hunter_elephant_3.png", label: "صياد T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "hunter", key: "ele_hunter_4", img: "hunter_elephant_4.png", label: "صياد T4", rarity: "legendary", levelRequired: 35 }
+    ],
+    tiger: [
+      { armyType: "attack", key: "tig_soldier_1", img: "tiger_atk_soldier1.png", label: "جندي هجوم T1", rarity: "common", levelRequired: 1 },
+      { armyType: "attack", key: "tig_soldier_2", img: "tiger_atk_soldier2.png", label: "جندي هجوم T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "attack", key: "tig_soldier_3", img: "tiger_atk_soldier3.png", label: "جندي هجوم T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "attack", key: "tig_soldier_4", img: "tiger_atk_soldier4.png", label: "جندي هجوم T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "health", key: "tig_health_soldier_1", img: "tiger_health_soldier1.png", label: "جندي صحة T1", rarity: "common", levelRequired: 1 },
+      { armyType: "health", key: "tig_health_soldier_2", img: "tiger_health_soldier2.png", label: "جندي صحة T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "health", key: "tig_health_soldier_3", img: "tiger_health_soldier3.png", label: "جندي صحة T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "health", key: "tig_health_soldier_4", img: "tiger_health_soldier4.png", label: "جندي صحة T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "dragon", key: "tigdragon1", img: "tigeratksoldier1.png", label: "تنين T1", rarity: "common", levelRequired: 1 },
+      { armyType: "dragon", key: "tigdragon2", img: "tigeratksoldier2.png", label: "تنين T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "dragon", key: "tigdragon3", img: "tigeratksoldier3.png", label: "تنين T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "dragon", key: "tigdragon4", img: "tigeratksoldier4.png", label: "تنين T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "hunter", key: "tig_hunter_1", img: "hunter_tiger_1.png", label: "صياد T1", rarity: "common", levelRequired: 1 },
+      { armyType: "hunter", key: "tig_hunter_2", img: "hunter_tiger_2.png", label: "صياد T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "hunter", key: "tig_hunter_3", img: "hunter_tiger_3.png", label: "صياد T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "hunter", key: "tig_hunter_4", img: "hunter_tiger_4.png", label: "صياد T4", rarity: "legendary", levelRequired: 35 }
+    ],
+    kong: [
+      { armyType: "attack", key: "kong_atk_soldier_1", img: "kong_atk_soldier1.png", label: "جندي هجوم T1", rarity: "common", levelRequired: 1 },
+      { armyType: "attack", key: "kong_atk_soldier_2", img: "kong_atk_soldier2.png", label: "جندي هجوم T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "attack", key: "kong_atk_soldier_3", img: "kong_atk_soldier3.png", label: "جندي هجوم T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "attack", key: "kong_atk_soldier_4", img: "kong_atk_soldier4.png", label: "جندي هجوم T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "health", key: "kong_health_soldier_1", img: "kong_health_soldier1.png", label: "جندي صحة T1", rarity: "common", levelRequired: 1 },
+      { armyType: "health", key: "kong_health_soldier_2", img: "kong_health_soldier2.png", label: "جندي صحة T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "health", key: "kong_health_soldier_3", img: "kong_health_soldier3.png", label: "جندي صحة T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "health", key: "kong_health_soldier_4", img: "kong_health_soldier4.png", label: "جندي صحة T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "dragon", key: "kongdragon1", img: "kongatksoldier1.png", label: "تنين T1", rarity: "common", levelRequired: 1 },
+      { armyType: "dragon", key: "kongdragon2", img: "kongatksoldier2.png", label: "تنين T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "dragon", key: "kongdragon3", img: "kongatksoldier3.png", label: "تنين T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "dragon", key: "kongdragon4", img: "kongatksoldier4.png", label: "تنين T4", rarity: "legendary", levelRequired: 35 },
+      { armyType: "hunter", key: "kong_hunter_1", img: "hunter_gorilla_1.png", label: "صياد T1", rarity: "common", levelRequired: 1 },
+      { armyType: "hunter", key: "kong_hunter_2", img: "hunter_gorilla_2.png", label: "صياد T2", rarity: "rare", levelRequired: 10 },
+      { armyType: "hunter", key: "kong_hunter_3", img: "hunter_gorilla_3.png", label: "صياد T3", rarity: "epic", levelRequired: 25 },
+      { armyType: "hunter", key: "kong_hunter_4", img: "hunter_gorilla_4.png", label: "صياد T4", rarity: "legendary", levelRequired: 35 }
+    ]
+  };
+  return perHero[heroKey] || perHero.elephant;
+}
+
+function pickMarketSoldierOffer(heroKey, marketLevel) {
+  const catalog = getMarketSoldierCatalogByHero(heroKey).filter((s) => (s.levelRequired || 1) <= marketLevel);
+  if (!catalog.length) return getCommonSoldierMetaByHero(heroKey);
+
+  const rarityWeight = { common: 82, rare: 13, epic: 4, legendary: 1 };
+  const pool = [];
+  catalog.forEach((s) => {
+    const w = rarityWeight[s.rarity] || 1;
+    for (let i = 0; i < w; i++) pool.push(s);
+  });
+  const picked = pool[Math.floor(Math.random() * pool.length)] || catalog[0];
+  return picked;
+}
+
+function marketResourceRewardByLevel(level) {
+  const lvl = Math.max(1, Number(level || 1));
+  const growth = MARKET_RESOURCE_MIN + lvl * 4800;
+  return Math.max(MARKET_RESOURCE_MIN, Math.min(MARKET_RESOURCE_MAX, growth));
+}
+
+function marketResourceCostForReward(amount) {
+  const a = Math.max(MARKET_RESOURCE_MIN, Math.min(MARKET_RESOURCE_MAX, Number(amount || MARKET_RESOURCE_MIN)));
+  return Math.floor(a * 0.75);
+}
+
+function getMarketOfferRewardIcon(offer) {
+  if (!offer) return "gold.png";
+  if (offer.rewardType === "soldier") {
+    return offer.rewardImg || "elephant_atk_soldier1.png";
+  }
+  if (offer.rewardType === "heroShard") {
+    const cfg = (typeof HEROES_CONFIG !== "undefined" && HEROES_CONFIG[offer.heroId]) ? HEROES_CONFIG[offer.heroId] : null;
+    return cfg?.img || "sylvan.png";
+  }
+  return getMarketShopIcon(offer.reward);
+}
+
+function getMarketOfferRewardLabel(offer) {
+  if (!offer) return "";
+  if (offer.rewardType === "soldier") {
+    return `${offer.rewardAmount.toLocaleString()} ${offer.rewardLabel || "جندي"}`;
+  }
+  if (offer.rewardType === "heroShard") {
+    const cfg = (typeof HEROES_CONFIG !== "undefined" && HEROES_CONFIG[offer.heroId]) ? HEROES_CONFIG[offer.heroId] : null;
+    const heroName = cfg?.name || offer.heroId || "Hero";
+    return `${offer.rewardAmount.toLocaleString()} شظية ${heroName}`;
+  }
+  return `${offer.rewardAmount.toLocaleString()} ${getMarketResourceLabel(offer.reward)}`;
+}
+
+function grantMarketSoldiers(offer) {
+  const heroKey = getCurrentMarketHeroKey();
+  const gain = Math.max(1, Math.floor(Number(offer?.rewardAmount || 0)));
+  const armyType = offer?.soldierArmyType || "attack";
+  const soldierKey = offer?.soldierKey || getCommonSoldierMetaByHero(heroKey).key;
+
+  const persist = (storageKey, bucketName) => {
+    try {
+      if (typeof window[bucketName] !== "undefined") {
+        localStorage.setItem(storageKey, JSON.stringify(window[bucketName]));
+      }
+    } catch (e) {}
+  };
+
+  if (armyType === "health" && typeof trainedHealthArmy !== "undefined") {
+    if (!trainedHealthArmy[heroKey]) trainedHealthArmy[heroKey] = {};
+    trainedHealthArmy[heroKey][soldierKey] = (trainedHealthArmy[heroKey][soldierKey] || 0) + gain;
+    persist("raidex_trainedHealthArmy_v1", "trainedHealthArmy");
+  } else if (armyType === "dragon" && typeof trainedDragonArmy !== "undefined") {
+    if (!trainedDragonArmy[heroKey]) trainedDragonArmy[heroKey] = {};
+    trainedDragonArmy[heroKey][soldierKey] = (trainedDragonArmy[heroKey][soldierKey] || 0) + gain;
+    persist("raidex_dragon_army_v1", "trainedDragonArmy");
+  } else if (armyType === "hunter" && typeof trainedHunterArmy !== "undefined") {
+    if (!trainedHunterArmy[heroKey]) trainedHunterArmy[heroKey] = {};
+    trainedHunterArmy[heroKey][soldierKey] = (trainedHunterArmy[heroKey][soldierKey] || 0) + gain;
+    persist("raidex_hunterArmy_v1", "trainedHunterArmy");
+  } else if (typeof trainedArmy !== "undefined") {
+    if (!trainedArmy[heroKey]) trainedArmy[heroKey] = {};
+    trainedArmy[heroKey][soldierKey] = (trainedArmy[heroKey][soldierKey] || 0) + gain;
+    persist("raidex_trainedArmy_v1", "trainedArmy");
+  }
+
+  return { heroKey, soldierKey, gained: gain, armyType };
+}
+
+function grantMarketHeroShards(heroId, amount) {
+  const normalizedId =
+    (window.HeroSystem && typeof window.HeroSystem.normalizeHeroId === "function")
+      ? window.HeroSystem.normalizeHeroId(heroId)
+      : String(heroId || "").trim().toUpperCase();
+  const gain = Math.max(1, Math.floor(Number(amount || 0)));
+  if (!normalizedId) return null;
+  if (typeof playerHeroesState !== "undefined") {
+    if (!playerHeroesState.heroShards) playerHeroesState.heroShards = {};
+    playerHeroesState.heroShards[normalizedId] = (playerHeroesState.heroShards[normalizedId] || 0) + gain;
+  }
+  if (window.HeroSystem && typeof HeroSystem.syncFromLegacyState === "function" && typeof playerHeroesState !== "undefined") {
+    try {
+      HeroSystem.syncFromLegacyState(playerHeroesState);
+    } catch (e) {}
+  }
+  return { heroId: normalizedId, gained: gain };
+}
+
+function generateMarketOffers(slots, marketLevel) {
+  const lvl = Math.max(1, Number(marketLevel || 1));
+  const heroKey = getCurrentMarketHeroKey();
+  const pickedSoldier = () => pickMarketSoldierOffer(heroKey, lvl);
+  const commonHeroes = getCommonHeroIdsForMarket();
+  const pickCommonHero = () => commonHeroes[Math.floor(Math.random() * commonHeroes.length)] || "SYLVAN";
+  const baseResource = marketResourceRewardByLevel(lvl);
+  const resAmount = () => {
+    const variance = Math.floor((Math.random() - 0.5) * 50000);
+    return Math.max(MARKET_RESOURCE_MIN, Math.min(MARKET_RESOURCE_MAX, baseResource + variance));
+  };
+  const templates = [
+    () => { const a = resAmount(); return { reward: "gold", rewardAmount: a, cost: "wood", costAmount: marketResourceCostForReward(a) }; },
+    () => { const a = resAmount(); return { reward: "wood", rewardAmount: a, cost: "food", costAmount: marketResourceCostForReward(a) }; },
+    () => { const a = resAmount(); return { reward: "food", rewardAmount: a, cost: "gold", costAmount: marketResourceCostForReward(a) }; },
+    () => ({ reward: "gem", rewardAmount: Math.max(5, Math.floor(lvl / 3)), cost: "gold", costAmount: 60000 + lvl * 2500 }),
+    () => { const a = resAmount(); return { reward: "gold", rewardAmount: a, cost: "gem", costAmount: Math.max(5, Math.floor(a / 20000)) }; },
+    () => { const s = pickedSoldier(); const useGem = Math.random() < 0.45; return {
+      rewardType: "soldier",
+      rewardAmount: 30 + lvl * 6,
+      rewardLabel: s.label,
+      rewardImg: s.img,
+      soldierKey: s.key,
+      soldierArmyType: s.armyType,
+      soldierRarity: s.rarity,
+      cost: useGem ? "gem" : "gold",
+      costAmount: useGem ? Math.max(2, Math.floor((30 + lvl * 6) / 8)) : 30000 + lvl * 2200
+    }; },
+    () => { const useGem = Math.random() < 0.55; return ({
+      rewardType: "heroShard",
+      heroId: pickCommonHero(),
+      rewardAmount: 5 + Math.floor(lvl / 4),
+      cost: useGem ? "gem" : "food",
+      costAmount: useGem ? 2 + Math.floor(lvl / 7) : 70000 + lvl * 3000
+    }); }
+  ];
+  const offers = [];
+  for (let i = 0; i < MARKET_SHOP_CARD_COUNT; i++) {
+    const t = templates[Math.floor(Math.random() * templates.length)]();
+    offers.push({
+      id: `offer_${Date.now()}_${i}_${Math.floor(Math.random() * 9999)}`,
+      ...t,
+      reward: t.reward,
+      rewardAmount: Math.floor(t.rewardAmount),
+      cost: t.cost,
+      costAmount: Math.floor(t.costAmount),
+      discountPct: [10, 20, 30, 40][Math.floor(Math.random() * 4)],
+      bought: false
+    });
+  }
+  return offers;
+}
+
+function loadMarketShopState() {
+  try {
+    const raw = localStorage.getItem(MARKET_SHOP_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveMarketShopState(state) {
+  try {
+    localStorage.setItem(MARKET_SHOP_STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
+
+function ensureMarketShopState() {
+  const marketLevel = buildingLevels.market || 1;
+  const marketData = typeof getMarketLevelData === "function" ? getMarketLevelData(marketLevel) : null;
+  const slots = getMarketShopAvailableSlots(marketLevel);
+  const purchaseCap = Math.max(1, Number(marketData?.purchases || 3));
+  let state = loadMarketShopState();
+  const now = Date.now();
+  const shouldRefresh =
+    !state ||
+    !Array.isArray(state.offers) ||
+    state.offers.length !== MARKET_SHOP_CARD_COUNT ||
+    !state.refreshAt ||
+    now >= Number(state.refreshAt);
+
+  if (shouldRefresh) {
+    state = {
+      refreshAt: now + MARKET_SHOP_REFRESH_SECONDS * 1000,
+      offers: generateMarketOffers(slots, marketLevel),
+      purchasesUsed: 0
+    };
+    saveMarketShopState(state);
+  }
+  return { state, slots, purchaseCap };
+}
+
+function getMarketSlotUnlockLevel(slotNumber) {
+  const targetSlot = Math.max(1, Number(slotNumber || 1));
+  for (let lvl = 1; lvl <= 50; lvl++) {
+    if (getMarketShopAvailableSlots(lvl) >= targetSlot) return lvl;
+  }
+  return 50;
+}
+
+function formatMarketTimeLeft(seconds) {
+  const s = Math.max(0, Math.floor(seconds));
+  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+}
+
+function buyMarketOffer(offerId) {
+  const info = ensureMarketShopState();
+  const state = info.state;
+  const purchaseCap = info.purchaseCap;
+  if ((state.purchasesUsed || 0) >= purchaseCap) {
+    if (typeof showToast === "function") showToast("وصلت للحد الأقصى للشراء في هذه الدورة.");
+    return;
+  }
+  const offer = (state.offers || []).find((o) => o.id === offerId);
+  if (!offer || offer.bought) return;
+
+  if ((resources?.[offer.cost] || 0) < offer.costAmount) {
+    if (typeof showToast === "function") showToast(`تحتاج ${offer.costAmount.toLocaleString()} ${offer.cost}.`);
+    return;
+  }
+
+  resources[offer.cost] = Math.max(0, (resources[offer.cost] || 0) - offer.costAmount);
+  if (offer.rewardType === "soldier") {
+    const grant = grantMarketSoldiers(offer);
+    if (typeof showToast === "function") showToast(`+${grant.gained} ${offer.rewardLabel || "جندي"}`);
+  } else if (offer.rewardType === "heroShard") {
+    const grant = grantMarketHeroShards(offer.heroId, offer.rewardAmount);
+    const heroName =
+      (typeof HEROES_CONFIG !== "undefined" && HEROES_CONFIG[grant?.heroId]?.name)
+        ? HEROES_CONFIG[grant.heroId].name
+        : (grant?.heroId || offer.heroId);
+    if (typeof showToast === "function") showToast(`+${offer.rewardAmount} شظايا ${heroName}`);
+  } else {
+    resources[offer.reward] = (resources[offer.reward] || 0) + offer.rewardAmount;
+  }
+  offer.bought = true;
+  state.purchasesUsed = (state.purchasesUsed || 0) + 1;
+  saveMarketShopState(state);
+  if (typeof updateTopBar === "function") updateTopBar();
+  if (typeof saveHeroState === "function" && offer.rewardType === "heroShard") saveHeroState();
+  if (typeof saveGameState === "function") saveGameState();
+  if (window.marketPanelMode === "shop") refreshBuildingPanel("market");
+}
+
+function forceRefreshMarketShop() {
+  const state = loadMarketShopState() || {};
+  state.refreshAt = 0;
+  saveMarketShopState(state);
+  ensureMarketShopState();
+  if (window.marketPanelMode === "shop") refreshBuildingPanel("market");
+}
+
+function stopMarketPanelShopTicker() {
+  if (window._marketPanelShopTick) {
+    clearInterval(window._marketPanelShopTick);
+    window._marketPanelShopTick = null;
+  }
+}
+
+function startMarketPanelShopTicker() {
+  stopMarketPanelShopTicker();
+  window._marketPanelShopTick = setInterval(() => {
+    const panel = document.getElementById("market-panel");
+    if (!panel || panel.style.display === "none" || window.marketPanelMode !== "shop") {
+      stopMarketPanelShopTicker();
+      return;
+    }
+    refreshBuildingPanel("market");
+  }, 1000);
+}
+
+function renderMarketShopPanelContent(container) {
+  if (!container) return;
+  const info = ensureMarketShopState();
+  const state = info.state;
+  const slots = info.slots;
+  const purchaseCap = info.purchaseCap;
+  const now = Date.now();
+  const leftSec = Math.max(0, Math.floor((Number(state.refreshAt) - now) / 1000));
+  const purchasesLeft = Math.max(0, purchaseCap - (state.purchasesUsed || 0));
+
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid rgba(148,163,184,0.25);border-radius:12px;background:rgba(15,23,42,0.88);">
+      <button onclick="forceRefreshMarketShop()" style="padding:8px 10px;border:none;border-radius:999px;background:linear-gradient(135deg,#38bdf8,#22d3ee);color:#0b1120;font-size:12px;font-weight:800;cursor:pointer;">تحديث مجاني</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:12px;">
+        <div style="color:#9ca3af;">عروض جديدة:</div>
+        <div style="color:#f59e0b;font-weight:800;">${formatMarketTimeLeft(leftSec)}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:12px;">
+        <div style="color:#9ca3af;">المتاح:</div>
+        <div style="color:#facc15;font-weight:800;">${purchasesLeft}/${purchaseCap}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+      ${(state.offers || []).map((offer, index) => {
+    const unlocked = index < slots;
+    const requiredLevel = getMarketSlotUnlockLevel(index + 1);
+    const disabled = !unlocked || offer.bought || purchasesLeft <= 0;
+    return `
+      <div style="display:flex;flex-direction:column;gap:6px;padding:6px;border:1px solid rgba(148,163,184,0.25);border-radius:10px;background:#f8fafc;position:relative;min-height:176px;">
+        <div style="position:absolute;top:0;left:0;background:#60a5fa;color:white;font-size:10px;font-weight:900;padding:2px 6px;border-bottom-right-radius:8px;">-${offer.discountPct || 10}%</div>
+        ${unlocked ? "" : `<div style="position:absolute;inset:0;background:rgba(2,6,23,0.58);display:flex;align-items:center;justify-content:center;z-index:2;border-radius:10px;font-size:12px;font-weight:800;color:#f8fafc;text-align:center;padding:8px;">🔒 يفتح عند Lv.${requiredLevel}</div>`}
+        <div style="height:94px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${offer.rewardType === "soldier" ? "#dbeafe" : offer.rewardType === "heroShard" ? "#fee2e2" : offer.reward === "wood" ? "#cfeadf" : offer.reward === "gold" ? "#fde68a" : offer.reward === "gem" ? "#fecaca" : "#bfdbfe"};">
+          <img src="${getMarketOfferRewardIcon(offer)}" style="width:64px;height:64px;object-fit:contain;">
+        </div>
+        <div style="font-size:14px;color:#111827;font-weight:800;text-align:center;">${getMarketOfferRewardLabel(offer)}</div>
+        <button
+          ${disabled ? "disabled" : ""}
+          onclick="buyMarketOffer('${offer.id}')"
+          style="margin-top:auto;padding:7px 8px;border:none;border-radius:999px;background:${disabled ? "rgba(107,114,128,0.7)" : "linear-gradient(135deg,#22c55e,#16a34a)"};color:white;font-size:12px;font-weight:900;cursor:${disabled ? "not-allowed" : "pointer"};">
+          ${!unlocked ? `مقفول Lv.${requiredLevel}` : offer.bought ? "تم الشراء" : `شراء ${offer.costAmount.toLocaleString()} <img src="${getMarketShopIcon(offer.cost)}" style="width:12px;height:12px;vertical-align:middle;">`}
+        </button>
+      </div>
+    `;
+  }).join("")}
+    </div>
+  `;
+}
+
+function renderMarketModeTabs(upgradeSection) {
+  const isShop = window.marketPanelMode === "shop";
+  const tabsRow = document.createElement("div");
+  tabsRow.style.cssText = "display:flex; gap:8px; margin-bottom:4px;";
+
+  const upgradeTabBtn = document.createElement("button");
+  upgradeTabBtn.textContent = "Upgrade";
+  upgradeTabBtn.style.cssText = `flex:1; padding:10px 0; border:1px solid ${isShop ? "rgba(148,163,184,0.35)" : "rgba(250,204,21,0.45)"}; border-radius:999px; background:${isShop ? "rgba(15,23,42,0.65)" : "linear-gradient(135deg,#facc15,#f97316)"}; color:${isShop ? "#d1d5db" : "#0b1120"}; font-weight:800; font-size:13px; cursor:pointer;`;
+  upgradeTabBtn.onclick = () => {
+    window.marketPanelMode = "upgrade";
+    refreshBuildingPanel("market");
+  };
+
+  const shopTabBtn = document.createElement("button");
+  shopTabBtn.textContent = "Shop";
+  shopTabBtn.style.cssText = `flex:1; padding:10px 0; border:1px solid ${isShop ? "rgba(34,197,94,0.45)" : "rgba(148,163,184,0.35)"}; border-radius:999px; background:${isShop ? "linear-gradient(135deg,#22c55e,#16a34a)" : "rgba(15,23,42,0.65)"}; color:#f8fafc; font-weight:800; font-size:13px; cursor:pointer;`;
+  shopTabBtn.onclick = () => {
+    window.marketPanelMode = "shop";
+    refreshBuildingPanel("market");
+  };
+
+  tabsRow.appendChild(upgradeTabBtn);
+  tabsRow.appendChild(shopTabBtn);
+  upgradeSection.appendChild(tabsRow);
+}
+
+function configureBuildingInfoButton(infoBtn) {
+  if (!infoBtn) return;
+  infoBtn.textContent = "!";
+  infoBtn.style.width = "32px";
+  infoBtn.style.fontSize = "16px";
+  infoBtn.style.fontWeight = "bold";
+}
+
+window.buyMarketOffer = buyMarketOffer;
+window.forceRefreshMarketShop = forceRefreshMarketShop;
 function handleBuildingInfoClick(buildingKey) {
   if (buildingKey === 'heroesHall') {
     heroesHallActiveTab = 'all';
@@ -351,7 +834,10 @@ function createBuildingPanel(buildingKey) {
     document.body.style.overflow = "hidden";
 
     const infoBtn = existingPanel.querySelector("button:first-child");
-  if (infoBtn) infoBtn.onclick = () => handleBuildingInfoClick(buildingKey);
+  if (infoBtn) {
+    configureBuildingInfoButton(infoBtn);
+    infoBtn.onclick = () => handleBuildingInfoClick(buildingKey);
+  }
 
     refreshBuildingPanel(buildingKey);
     setTimeout(() => {
@@ -384,6 +870,7 @@ function createBuildingPanel(buildingKey) {
     color:#facc15; font-weight:bold; font-size:16px;
     cursor:pointer;
   `;
+  configureBuildingInfoButton(infoBtn);
 
   const titleBox = document.createElement("div");
   titleBox.style.cssText = `flex:1; text-align:center;`;
@@ -412,6 +899,7 @@ function createBuildingPanel(buildingKey) {
   closeBtn.onclick = () => {
     panel.style.display = "none";
     document.body.style.overflow = "auto";
+    if (buildingKey === "market") stopMarketPanelShopTicker();
     showSummonButton(true);
   };
 
@@ -452,12 +940,46 @@ function refreshBuildingPanel(buildingKey) {
   const cfg = BUILDINGS_CONFIG[buildingKey] || MINES_CONFIG[buildingKey];
   if (!cfg) return;
 
-  if (buildingKey === 'heroesHall') {
-    body.innerHTML = `
-      <div id="heroes-grid" style="padding:14px;"></div>
-    `;
-    renderHeroesHallPanel();
+  if (buildingKey === "market") {
+    const panel = document.getElementById(panelId);
+    const infoBtn = panel ? panel.querySelector("button:first-child") : null;
+    const isMarketInfoMode = window.marketPanelMode === "shop";
+    if (infoBtn) {
+      if (isMarketInfoMode) {
+        infoBtn.style.display = "none";
+      } else {
+        infoBtn.style.display = "";
+        infoBtn.textContent = "!";
+        infoBtn.style.width = "32px";
+        infoBtn.style.fontSize = "16px";
+        infoBtn.style.fontWeight = "bold";
+        infoBtn.onclick = () => handleBuildingInfoClick(buildingKey);
+      }
+    }
+  }
+
+  if (buildingKey === "market" && window.marketPanelMode === "shop") {
+    body.innerHTML = "";
+    const shopWrap = document.createElement("div");
+    shopWrap.style.cssText = "padding:12px; display:flex; flex-direction:column; gap:8px;";
+    body.appendChild(shopWrap);
+    renderMarketShopPanelContent(shopWrap);
+    startMarketPanelShopTicker();
     return;
+  }
+
+  if (buildingKey === "heroesHall") {
+    const forceUpgradeActive = (window.heroesHallForceUpgradeUntil || 0) > Date.now();
+    const mode = forceUpgradeActive ? "upgrade" : (window.heroesHallPanelMode || "info");
+    if (mode === "info") {
+      body.innerHTML = `
+        <div id="heroes-grid" style="padding:14px;"></div>
+      `;
+      renderHeroesHallPanel();
+      return;
+    }
+    // في وضع الترقية لازم نمسح أي UI قديم خاص بالـ info
+    body.innerHTML = "";
   }
 
   const level = buildingLevels[buildingKey] || 1;
@@ -563,6 +1085,20 @@ border:2px solid rgba(250,204,21,0.3);
   }
  upgradeSection.innerHTML = "";
 upgradeSection.style.cssText = "display:flex; flex-direction:column; gap:10px; padding-top:10px;";
+
+if (buildingKey === "market") {
+  if (!window.marketPanelMode) window.marketPanelMode = "upgrade";
+  renderMarketModeTabs(upgradeSection);
+  if (window.marketPanelMode === "shop") {
+    const shopWrap = document.createElement("div");
+    shopWrap.style.cssText = "display:flex; flex-direction:column; gap:8px;";
+    upgradeSection.appendChild(shopWrap);
+    renderMarketShopPanelContent(shopWrap);
+    startMarketPanelShopTicker();
+    return;
+  }
+  stopMarketPanelShopTicker();
+}
 
 const upgrade = buildingUpgrades[buildingKey];
 const inProgress = upgrade && upgrade.inProgress;
@@ -841,6 +1377,139 @@ function openBuildingInfoModal(buildingKey) {
     key === "castle"   ? "#facc15" : "#ef4444";
 
   const buildingName = getBuildingNameByKey(key);
+
+  if (isCastle) {
+    const old = document.getElementById("castle-info-modal");
+    if (old) old.remove();
+
+    const nextLevel = Math.min(castleLevel + 1, typeof castleMaxLevel === "number" ? castleMaxLevel : 50);
+    const nextGold = getCastleGoldCost(castleLevel);
+    const nextWood = getCastleWoodCost(castleLevel);
+    const nextFood = getCastleFoodCost(castleLevel);
+    const nextTime = getCastleUpgradeTime(castleLevel);
+    const hasEnough =
+      (resources?.gold || 0) >= nextGold &&
+      (resources?.wood || 0) >= nextWood &&
+      (resources?.food || 0) >= nextFood;
+
+    const allBuildingKeys = Object.keys(BUILDINGS_CONFIG || {}).filter((k) => k !== "castle");
+    const upgradableNow = allBuildingKeys.filter((bKey) => {
+      const lvl = buildingLevels[bKey] || 1;
+      if (lvl >= 50) return false;
+      const up = buildingUpgrades[bKey];
+      if (up && up.inProgress) return false;
+      const reqs = getUpgradeRequirements(bKey, lvl + 1);
+      if (!reqs) return true;
+      return Object.entries(reqs).every(([rk, needLv]) => {
+        const cur = rk === "castle" ? castleLevel : (buildingLevels[rk] || 0);
+        return cur >= needLv;
+      });
+    }).slice(0, 8);
+
+    const busyEntries = Object.entries(buildingUpgrades || {}).filter(([, up]) => up && up.inProgress);
+    const busyBuilders = busyEntries.length;
+    const availableBuilders = Math.max(0, (maxBuilders || 1) - busyBuilders);
+
+    const workersHtml = busyEntries.length
+      ? busyEntries.map(([bKey, up], idx) => {
+          const remaining = Math.max(0, Math.ceil(((up.finishAt || 0) - Date.now()) / 1000));
+          return `
+            <div style="padding:9px 11px;border-radius:12px;background:linear-gradient(180deg,rgba(15,23,42,0.78),rgba(9,14,28,0.82));border:1px solid rgba(148,163,184,0.26);">
+              <div style="font-size:12px;color:#e5e7eb;font-weight:700;">👷 عامل ${idx + 1} - ${getBuildingNameByKey(bKey)}</div>
+              <div style="font-size:11px;color:#93c5fd;margin-top:3px;">⏱ ${formatDuration(remaining)}</div>
+            </div>
+          `;
+        }).join("")
+      : `<div style="padding:9px 11px;border-radius:12px;background:linear-gradient(180deg,rgba(15,23,42,0.78),rgba(9,14,28,0.82));border:1px solid rgba(34,197,94,0.35);font-size:12px;color:#86efac;">✅ لا يوجد عمال مشغولين الآن</div>`;
+
+    const upgradableHtml = upgradableNow.length
+      ? upgradableNow.map((bKey) => `
+          <div style="width:72px;flex:0 0 auto;">
+            <div style="width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid rgba(148,163,184,0.3);background:linear-gradient(180deg,rgba(15,23,42,0.8),rgba(9,14,28,0.84));box-shadow:0 6px 16px rgba(0,0,0,0.35);">
+              <img src="${getBuildingImageByKey(bKey)}" style="width:100%;height:100%;object-fit:contain;display:block;padding:4px;">
+            </div>
+            <div style="font-size:9px;line-height:1.2;color:#d1d5db;text-align:center;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              ${getBuildingNameByKey(bKey)}
+            </div>
+            <div style="font-size:9px;color:#93c5fd;text-align:center;">Lv.${buildingLevels[bKey] || 1}</div>
+          </div>
+        `).join("")
+      : `<div style="font-size:12px;color:#9ca3af;">لا يوجد مبانٍ قابلة للترقية حالياً</div>`;
+
+    const modal = document.createElement("div");
+    modal.id = "castle-info-modal";
+    modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.84);backdrop-filter:blur(2px);z-index:99999;display:flex;align-items:center;justify-content:center;";
+    modal.innerHTML = `
+      <div style="background:radial-gradient(130% 120% at 0% 0%,#12213a 0%,#0b1220 45%,#090f1b 100%);border:1px solid rgba(250,204,21,0.55);border-radius:18px;width:calc(100% - 20px);max-width:440px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,0.78);">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(148,163,184,0.22);background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(15,23,42,0.2));">
+          <span style="font-weight:900;font-size:16px;color:#facc15;letter-spacing:0.2px;">ⓘ ${buildingName} - Info</span>
+          <button onclick="document.getElementById('castle-info-modal')?.remove()" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(148,163,184,0.25);background:rgba(15,23,42,0.72);color:#e5e7eb;font-size:18px;cursor:pointer;">✕</button>
+        </div>
+        <div style="padding:10px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px;max-height:calc(88vh - 64px);">
+          <div style="display:flex;gap:10px;height:156px;border-radius:14px;overflow:hidden;border:1px solid rgba(148,163,184,0.28);background:rgba(2,6,23,0.88);position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02);">
+            <video src="smoke.mp4" autoplay loop muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.36;pointer-events:none;"></video>
+            <img src="${getBuildingImageByKey("castle")}" style="width:46%;height:100%;object-fit:contain;object-position:bottom;z-index:1;filter:drop-shadow(0 0 8px rgba(250,204,21,0.25));">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;padding-right:10px;z-index:1;">
+              <div style="padding:7px 10px;border-radius:10px;background:rgba(15,23,42,0.72);border:1px solid rgba(148,163,184,0.28);font-size:12px;color:#e5e7eb;">🏰 Lv.${castleLevel} → Lv.${nextLevel}</div>
+              <div style="padding:7px 10px;border-radius:10px;background:rgba(15,23,42,0.72);border:1px solid rgba(167,139,250,0.35);font-size:12px;color:#c4b5fd;">⚔️ قوة: ${getCastlePowerForLevel(castleLevel).toLocaleString()}</div>
+              <div style="padding:7px 10px;border-radius:10px;background:rgba(15,23,42,0.72);border:1px solid rgba(56,189,248,0.35);font-size:12px;color:#7dd3fc;">🗄️ سعة: ${getCastleStorageCapacity(castleLevel).toLocaleString()}</div>
+            </div>
+          </div>
+
+          <div style="padding:10px;border-radius:13px;background:linear-gradient(180deg,rgba(15,23,42,0.76),rgba(9,14,28,0.82));border:1px solid rgba(148,163,184,0.24);">
+            <div style="font-size:12px;color:#facc15;font-weight:800;margin-bottom:7px;">تكلفة الترقية القادمة</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:10px;color:#e5e7eb;overflow:hidden;">
+              <span style="white-space:nowrap;"><img src="gold.png" style="width:13px;height:13px;vertical-align:middle;"> ${nextGold.toLocaleString()}</span>
+              <span style="white-space:nowrap;"><img src="wood.png" style="width:13px;height:13px;vertical-align:middle;"> ${nextWood.toLocaleString()}</span>
+              <span style="white-space:nowrap;"><img src="food.png" style="width:13px;height:13px;vertical-align:middle;"> ${nextFood.toLocaleString()}</span>
+              <span style="color:#f97316;white-space:nowrap;">⏱ ${formatDuration(nextTime)}</span>
+              <span style="color:${hasEnough ? "#22c55e" : "#ef4444"};white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;">${hasEnough ? "✅ الموارد كافية" : "❌ الموارد غير كافية"}</span>
+            </div>
+          </div>
+
+          <div style="padding:10px;border-radius:13px;background:linear-gradient(180deg,rgba(15,23,42,0.76),rgba(9,14,28,0.82));border:1px solid rgba(148,163,184,0.24);">
+            <div style="font-size:12px;color:#facc15;font-weight:800;margin-bottom:8px;">مواردك الحالية</div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
+              <div style="display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:11px;background:rgba(15,23,42,0.72);border:1px solid rgba(250,204,21,0.28);min-width:0;">
+                <img src="gold.png" style="width:20px;height:20px;object-fit:contain;">
+                <div style="font-size:11px;color:#fef3c7;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;">${(resources?.gold || 0).toLocaleString()}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:11px;background:rgba(15,23,42,0.72);border:1px solid rgba(74,222,128,0.28);min-width:0;">
+                <img src="wood.png" style="width:20px;height:20px;object-fit:contain;">
+                <div style="font-size:11px;color:#bbf7d0;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;">${(resources?.wood || 0).toLocaleString()}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:11px;background:rgba(15,23,42,0.72);border:1px solid rgba(249,115,22,0.28);min-width:0;">
+                <img src="food.png" style="width:20px;height:20px;object-fit:contain;">
+                <div style="font-size:11px;color:#fed7aa;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;">${(resources?.food || 0).toLocaleString()}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:11px;background:rgba(15,23,42,0.72);border:1px solid rgba(96,165,250,0.28);min-width:0;">
+                <img src="gem.png" style="width:20px;height:20px;object-fit:contain;">
+                <div style="font-size:11px;color:#bfdbfe;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;">${(resources?.gem || 0).toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:10px;border-radius:13px;background:linear-gradient(180deg,rgba(15,23,42,0.76),rgba(9,14,28,0.82));border:1px solid rgba(148,163,184,0.24);">
+            <div style="font-size:12px;color:#facc15;font-weight:800;margin-bottom:7px;">المباني القابلة للترقية الآن</div>
+            <div style="overflow-x:auto;overflow-y:hidden;padding:2px 0 8px;scrollbar-width:thin;">
+              <div style="display:flex;gap:8px;min-width:max-content;">${upgradableHtml}</div>
+            </div>
+          </div>
+
+          <div style="padding:11px;border-radius:13px;background:linear-gradient(180deg,rgba(15,23,42,0.76),rgba(9,14,28,0.82));border:1px solid rgba(148,163,184,0.24);">
+            <div style="font-size:12px;color:#facc15;font-weight:800;margin-bottom:7px;">العمال</div>
+            <div style="font-size:11px;color:#d1d5db;margin-bottom:7px;overflow:hidden;text-overflow:ellipsis;">المتاح: <span style="color:#22c55e;font-weight:700;">${availableBuilders}</span> / ${maxBuilders || 1}</div>
+            <div style="display:grid;gap:6px;">${workersHtml}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.remove();
+    };
+    document.body.appendChild(modal);
+    return;
+  }
 
   let headers = "";
   let rows = "";
@@ -1384,6 +2053,14 @@ if (buildingKey === "castle") {
   return;
 }
 
+if (buildingKey === "heroesHall") {
+  createBuildingPanel("heroesHall");
+  refreshBuildingPanel("heroesHall");
+  const panel = document.getElementById("heroesHall-panel");
+  if (panel) panel.style.display = "block";
+  return;
+}
+
 
  
   console.log("Open building panel for:", buildingKey);
@@ -1715,6 +2392,11 @@ function switchCastleTab(tab) {
   const upgradeTab = document.getElementById("castle-tab-upgrade");
   const infoBtn    = document.getElementById("castle-tab-info-btn");
   const upgradeBtn = document.getElementById("castle-tab-upgrade-btn");
+
+  // بعض التدفقات تنده قبل ما عناصر تبويبات القلعة تتبني بالكامل
+  if (!infoTab || !upgradeTab || !infoBtn || !upgradeBtn) {
+    return;
+  }
 
   if (tab === "info") {
     infoTab.style.display       = "block";
